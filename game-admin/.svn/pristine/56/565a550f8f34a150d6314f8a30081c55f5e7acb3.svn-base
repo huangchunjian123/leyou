@@ -1,0 +1,24 @@
+package com.game.admin.service.monster;
+
+import java.util.List;
+
+import com.game.admin.dto.monster.MonsterDto;
+
+/**
+ * 怪相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IMonsterService {
+
+	public List<MonsterDto> getList(String name, int offset, int pagesize);
+
+	public List<MonsterDto> getList(int instanceId, String name, int offset, int pagesize);
+
+	public String getName(int id);
+
+	/**
+	 * 刷新内存怪列表
+	 */
+	public void initMonster();
+}

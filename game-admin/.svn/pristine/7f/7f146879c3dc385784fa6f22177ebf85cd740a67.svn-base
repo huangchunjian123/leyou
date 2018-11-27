@@ -1,0 +1,187 @@
+package com.game.admin.controllers;
+
+
+import net.paoding.rose.web.annotation.Param;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.AccountService;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.MailService;
+import com.game.api.hessian.dto.AccountDto;
+import com.game.util.StringUtil;
+
+/**
+ * 玩家账号控制器
+ * @author zhangyaping email:y apingzhang_beta@163.com
+ *
+ */
+public class AccountController extends BaseController {
+	/**
+	 * 查询玩家信息
+	 * @return
+	 */
+	public String goQueryAccount(@Param("loginName") String loginName, @Param("serverId") int serverId) {
+		return "account/list";
+	}
+	
+	public String goAccountEmail(){
+		return "account/emaillist";
+	}
+
+	public String goLimitIpData(){
+		return "account/limitIpList";
+	}
+	
+	
+	
+	/**
+	 * 查找玩家账号
+	 * @param loginName
+	 * @param serverId
+	 * @return
+	 */
+	public Object queryAccount(@Param("loginName") String loginName, @Param("serverId") int serverId) {
+		String url = buildUrl(serverId);
+		if(StringUtil.isEmpty(url)) {
+			return null;
+		}
+		AccountService accountService = getHessianFactory(AccountService.class, url);
+		if (null == accountService) {
+			logger.error("查找玩家账号时，AccountService为空");
+			return ResultCode.error(String.format("查找S%d服玩家账号:%s失败", serverId, loginName));
+		} else {
+			try {
+				AccountDto result = accountService.getAccountDto(loginName, serverId);
+				if (null == result) {
+					logger.error(String.format("查找S%d服玩家账号:%s失败", serverId, loginName));
+					return ResultCode.error(String.format("查找S%d服玩家账号:%s失败", serverId, loginName));
+				}
+				return ResultCode.writeJson(result);
+			} catch (Exception e) {
+				logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+	}
+	
+	/**
+	 * 封号禁言 解封 
+	 * @param heroId
+	 * @param type
+	 * @param serverid
+	 * @param operator
+	 * @param ranks
+	 * @param rankTime
+	 * @return
+	 */
+	public Object close(@Param("heroId") String heroId,@Param("type") String type, @Param("serverid") int serverid,
+			@Param("operator") int operator,@Param("ranks")String ranks,@Param("rankTime")String rankTime,
+			@Param("heroName") String heroName,@Param("fengIp") int fengIp,@Param("limitIp") String limitIp) {
+		
+		String url = buildUrl(serverid);
+		if(StringUtil.isEmpty(url)) {
+			return null;
+		}
+		AccountService accountService = getHessianFactory(AccountService.class, url);
+		if (null == accountService) {
+			return ResultCode.error(String.format("操作S%d服玩家账号:%s失败", serverid, heroId));
+		} else {
+			try {
+				int result = accountService.close( heroId,operator,ranks,rankTime,type,fengIp);
+				if(result == 11){
+					return ResultCode.error("玩家不存在");
+				}else if (result == 0) {
+					if(Integer.valueOf(type) == 1){
+						if(operator == 0){
+							recordOperateLog(String.format(OperateLogInfos.AccountControllerClose1,heroId,heroName,ranks,rankTime,limitIp,getByIdServerName(serverid)), 1);
+						}else {
+							recordOperateLog(String.format(OperateLogInfos.AccountControllerClose2,heroId,heroName,ranks,rankTime,limitIp,getByIdServerName(serverid)), 1);
+						}
+					}else {
+						if(operator == 0){
+							recordOperateLog(String.format(OperateLogInfos.AccountControllerClose3,heroId,heroName,rankTime,getSessionInfo().getIp(),getByIdServerName(serverid)), 1);
+						}else {
+							recordOperateLog(String.format(OperateLogInfos.AccountControllerClose4,heroId,heroName,rankTime,getSessionInfo().getIp(),getByIdServerName(serverid)), 1);
+						}
+					}
+					return ResultCode.succ(String.format("操作玩家账号:%s成功", serverid, heroId));
+				}
+			} catch (Exception e) {
+				logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverid));
+			}
+		}
+		return null;
+	}
+
+	
+	public Object  getAccountMails(@Param("serverId") int serverId,@Param("accountId") String accountId) {
+		String url = buildUrl(serverId);
+		if(StringUtil.isEmpty(url)) {
+			return null;
+		}	
+		MailService mailService = getHessianFactory(MailService.class, url);
+		if (null == mailService) {
+			logger.error("给玩家发送道具时，MailService为空");
+		} else {
+			try {
+				DataGrid result =   mailService.getAccountMails(accountId);
+				if (null == result) {
+					logger.error(String.format("查找%d服玩家邮件失败", serverId));
+					return ResultCode.error(String.format("查找%d服玩家邮件失败", serverId));
+				}
+				return ResultCode.writeJson(result);
+			} catch (Exception e) {
+				logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家邮件失败", serverId));
+	}
+
+	/**
+	 * 解封
+	 * @param loginName
+	 * @param serverId
+	 * @return
+	 */
+	public Object enabled(@Param("loginName") String loginName, @Param("serverId") int serverId) {
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			AccountService accountService = getHessianFactory(AccountService.class, url);
+			if (null == accountService) {
+				logger.error("查找玩家账号时，AccountService为空");
+				return ResultCode.error(String.format("查找S%d服玩家账号:%s失败", serverId, loginName));
+			} else {
+				try {
+					int result = accountService.enabled(loginName, serverId);
+					if (result == 0) {
+						logger.error(String.format("解封S%d服玩家账号:%s失败", serverId, loginName));
+						return ResultCode.error(String.format("解封S%d服玩家账号:%s失败", serverId, loginName));
+					}
+					return ResultCode.succ(String.format("解封S%d服玩家账号:%s成功", serverId, loginName));
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error(String.format("解封S%d服玩家账号:%s失败", serverId, loginName));
+	}
+	
+	
+	public Object getLimitIpList(@Param("serverId") int serverId){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			AccountService accountService = getHessianFactory(AccountService.class, url);
+			if(accountService != null){
+				try {
+					DataGrid result = accountService.getLimitIpList();
+					if(result != null){
+						return ResultCode.writeJson(result);
+					}
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return null;
+	}
+}

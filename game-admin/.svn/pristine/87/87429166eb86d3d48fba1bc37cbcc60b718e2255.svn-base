@@ -1,0 +1,87 @@
+package com.game.admin.utils;
+import net.sf.json.JSONObject;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
+/**
+ * 响应结果
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class ResultCode {
+	
+	/**
+	 * 请求成功返回
+	 */
+	public static final int SUCC = 0;
+	/**
+	 * 请求失败返回
+	 */
+	public static final int FAILT = 1;
+	
+	/**
+	 * 特殊情况处理 一般很少用(主要用前端显示)
+	 */
+	public static final int SPECIAL = 2;
+	
+	/**
+	 * 请求返回图表配置
+	 */
+	public static final int  VIDEOTEX = 3;
+	
+	
+	/**
+	 * 创建成功请求结果
+	 * @param map
+	 * @param message
+	 * @return
+	 */
+	public static JSONObject error(String message){
+		JSONObject json=new JSONObject();
+		json.put("status",FAILT);
+		json.put("msg", message);
+		return JSONObject.fromObject(json.toString());
+	}
+	
+	public static JSONObject succ(String message){
+		JSONObject j=new JSONObject();
+		j.put("status",SUCC);
+		j.put("msg", message);
+		return JSONObject.fromObject(j.toString());
+    }
+	
+	public static JSONObject SPECIAL(String message){
+		JSONObject j=new JSONObject();
+		j.put("status",SPECIAL);
+		j.put("msg", message);
+		return JSONObject.fromObject(j.toString());
+    }
+	
+	public static Object writeJson(Object object) {
+//		return JSONObject.fromObject(object);
+		String str = JSON.toJSONStringWithDateFormat(object, "yyyy-MM-dd HH:mm:ss", SerializerFeature.PrettyFormat);
+		return JSON.parse(str);
+		//String json = JSON.toJSONStringWithDateFormat(object, "yyyy-MM-dd HH:mm:ss", SerializerFeature.PrettyFormat);
+		//return json;
+	}
+	
+	public static void main(String[] args) {
+		JSONObject j=new JSONObject();
+		j.put("r",SUCC);	
+		j.put("m", 0);
+		System.out.println(JSONObject.fromObject(j.toString()));
+	}
+	
+	/**
+	 * 请求返回图表配置
+	 * @param videotexConfig
+	 * @return
+	 */
+	public static JSONObject videotex(String videotexConfig){
+		JSONObject jsonStr =new JSONObject();
+		jsonStr.put("videotexConfig",VIDEOTEX);
+		jsonStr.put("msg", videotexConfig);
+		return JSONObject.fromObject(jsonStr.toString());
+    }
+}

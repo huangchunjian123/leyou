@@ -1,0 +1,19 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">友情提示:妥善管理</font>
+<table class="tableCss">
+
+
+    <tr>
+		<td>Hero名字:</td>
+		<td>  <input id='evil_hero_name' name="heroName" ></input></td>
+	</tr>
+	<tr>
+		<td>善恶值:</td>
+		 <input id='evil_heroId'  name="id"     type="hidden"></input>
+		<td>  <input id="evil_goodEvil" name="goodEvil" value="0" min="0" max="9999999" class="easyui-numberspinner" required="true" style="width: 80px;" /></input></td>
+	</tr>
+	
+</table>

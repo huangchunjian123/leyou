@@ -1,0 +1,85 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript" charset="utf-8">
+function submitok(){
+	var title =$('#title').val();
+	var content = $('#content').val();
+	var playerIds = $('#playerIds').val();
+	if(title==''){
+		alert("邮件标题不能为空!");
+		return;
+	}
+	if(content==''){
+		alert("邮件内容不能为空!");
+		return;
+	}
+	if(playerIds==''){
+		alert("玩家列表不能为空!");
+		return;
+	}
+
+	if (!confirm("确认要提交？(请认真检查元宝和邮件描述!)")) {
+		return false;
+	}
+	$.post('<%=request.getContextPath()%>/server/giveGold',{
+		name : name,
+		title : title,
+		content : content,
+		playerIds : playerIds
+	},function(data) {
+		var d = $.parseJSON(data);
+		var result = '';
+		$.each(d,function(key,values){
+			result += key+":"+values+"<br/>";
+		 });
+		$('#dlgcard').dialog('open').dialog('setTitle', '发送结果');
+		$('#tips').html(result);
+	});
+}
+</script>
+</head>
+<body>
+	<div class="fmset" style="margin-top:20px">
+		<fieldset>
+			<legend>批量发不同数量道具</legend>
+		<form id="fm">
+			<table border="0">
+				<tr>
+					<td style="text-align:right;">邮件标题:</td>
+					<td><input type="text" id="title" name="title" style="width:400px" value="GM通知-返还充值元宝"/>						
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;">邮件内容:</td>
+					<td><textarea rows="4" cols="80" id="content" name="content" style="resize:none">亲爱的玩家：您好，现返还回档期间您充值获得的元宝并额外补偿您充值元宝数量的20%，共返回{0}元宝,请您留意游戏界面的元宝数量变化，祝您游戏愉快！</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;">玩家元宝:</td>
+					<td>
+						<textarea rows="9" cols="80" id="playerIds" name="playerIds" style="resize:none"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;"></td>
+					<td>
+						<font color="red">*格式:玩家ID:单价</font><br>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok();">发送</a></td>
+				</tr>
+			</table>
+		</form>	
+	</fieldset>		
+	</div>
+	<div id="dlgcard" class="easyui-dialog"
+		style="width: 620px; height: 270px;" closed="true">
+		<div id="tips"></div>
+	</div>
+</body>
+</html>

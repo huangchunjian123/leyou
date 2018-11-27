@@ -1,0 +1,12 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table > 
+	<tr>
+		<td>显示:</td>
+		<td>
+		<td><select id="totalPay_list" name="totalPay_list" size="18"
+						style="width: 1000px"></select>
+		</td>
+	</tr>
+</table>

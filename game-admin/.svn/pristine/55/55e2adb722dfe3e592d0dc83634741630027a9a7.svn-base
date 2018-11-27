@@ -1,0 +1,26 @@
+package com.xg.admin.service.instance;
+
+import java.util.List;
+
+import com.xg.admin.dto.instance.InstanceDto;
+
+/**
+ * 副本相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *o
+ */
+public interface IInstanceService {
+
+	public List<InstanceDto> getByName(String name, int offset, int pagesize);
+
+	/**
+	 * 刷新内存副本列表
+	 */
+	public void initInstance();
+
+	public InstanceDto get(int instanceId);
+
+	public String getName(int instanceId);
+
+	public List<InstanceDto> getList_juqing_instance() ;
+}

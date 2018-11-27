@@ -1,0 +1,77 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>发系统公告</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+	function submitok(){
+		var content = $('#content').val();
+	    if(!content){
+	        alert("请输入公告内容!");
+	        return;
+	    }
+	    if (!confirm("确认要提交？")) {
+			return;
+		}
+	    var serverIds=getServerIds();
+		$.post('<%=request.getContextPath()%>/server/sendNotice2',{
+			serverIds:serverIds,
+			content : content,
+			time:$('#time').val(),
+			period:$('#pl').val()
+			 
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+	function getServerIds(){
+		var nodes = $('#tree').tree('getChecked');
+		var s = '';
+		for(var i=0; i<nodes.length; i++){
+			if(!$('#tree').tree('isLeaf',nodes[i].target)){
+				continue;
+			}
+			if (s != '') s += ',';
+				s += nodes[i].id;
+		}
+		return s;
+	}
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务 器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/officialServer',method:'get',animate:true,checkbox:true"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>发系统公告</legend>
+			<span style="color:red">提醒：为了保证游戏公告的显示完整度，间隔时间应大于15秒，公告内容自行定义</span>
+			<form id="fm" method="post" name="apLogin">
+				<div>
+					<label>公告内容:</label> 
+					<textarea rows="4" cols="80" id="content" name="content" style="resize:none">亲爱的玩家，这仅仅是一个测试系统公告...</textarea><br />
+				</div>
+				<div>
+				间隔：<input type="text" id="pl" name="pl" value="0" min="1" class="easyui-numberspinner" data-options="increment:1,required:true" style="width: 400px" /> 秒
+				</div>
+				<div>
+				次数：<input type="text" id="time" name="time" value="0" min="1" class="easyui-numberspinner" data-options="increment:1,required:true" style="width: 400px" /> 次
+				</div> 
+				
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitok()">发送</a>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

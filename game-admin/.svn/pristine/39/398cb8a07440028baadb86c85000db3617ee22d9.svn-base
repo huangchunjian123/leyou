@@ -1,0 +1,46 @@
+package com.game.admin.dao.data;
+
+import java.util.List;
+
+import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.SQL;
+
+import com.game.admin.pojo.InstanceData;
+import com.game.admin.pojo.NineDay;
+import com.game.admin.pojo.PataInstanceData;
+
+/**
+ * 副本dao层
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@DAO
+public interface InstanceDao {
+	
+	public final static int TYPEPATA = 7;
+	public final static int NINEDAYS = 20;
+	
+	public final static String TABLE = "t_instance";
+	
+	public final static String KG =" ";
+	/*id name 奖励等级  怪物list 数据库中查询不出来数据*/
+	@SQL("select F_id as id,F_name as name,F_rewardgrade as rewardgrade,f_monster_list as monsterList from " + TABLE)
+	public List<InstanceData> getAll();																								//f_instance_monster_id
+	
+	@SQL("select t_instance.F_id as id,t_instance.F_name as name,t_instance.F_rewardgrade as rewardgrade,t_instance.f_monster_list  as monsterList  from t_instance LEFT JOIN t_map ON t_instance.F_map_id= t_map.F_id WHERE t_map.F_map_type=1;")
+	public List<InstanceData> getAllJuQing();
+	
+	/**
+	 * 查询所有爬塔副本
+	 * @return					
+	 */
+	@SQL("select F_key as id, F_name as name,F_difficult as difficult from " + TABLE + KG + " where F_type = "+ TYPEPATA )
+	public List<PataInstanceData> getAllPata();
+	
+	/**
+	 * 查询所有九重天副本
+	 * @return					
+	 */
+	@SQL("select F_key as id, F_name as name from " + TABLE + KG + " where F_type = "+ NINEDAYS )
+	public List<NineDay> getAllNineDays();
+}

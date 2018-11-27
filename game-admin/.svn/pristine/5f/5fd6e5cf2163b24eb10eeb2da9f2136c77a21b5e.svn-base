@@ -1,0 +1,22 @@
+package com.game.admin.service.gemstone;
+
+import java.util.List;
+
+import com.game.admin.dto.gemstone.GemstoneDto;
+
+/**
+ * 宝石相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IGemstoneService {
+
+	public List<GemstoneDto> getGemstoneDtoByname(String name, int offset, int pagesize);
+
+	/**
+	 * 刷新内存宝石列表
+	 */
+	public void initGemstone();
+	
+	public String getName(int gemstoneId);
+}

@@ -1,0 +1,328 @@
+package com.game.admin.controllers;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import javax.annotation.Resource;
+import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
+import com.alibaba.fastjson.JSON;
+import com.game.admin.dto.currency.RechargeGradeDto;
+import com.game.admin.pojo.RealDataGmLog;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.service.currency.ICurrencyService;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.AnalysisService;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.slog.CallLogType;
+import com.game.api.hessian.slog.CallPageData;
+import com.game.api.hessian.slog.RealDto;
+import com.game.api.hessian.slog.RechargeRecordLogDto;
+import com.game.api.hessian.slog.TotalPaylvAndArpuDto;
+import com.game.util.CollectionUtil;
+import com.game.util.StringUtil;
+import com.alibaba.fastjson.TypeReference;
+import net.paoding.rose.web.annotation.Param;
+
+/**
+ * 服务器统计控制器
+ * @author JiaYi
+ * @date  2018年2月24日 下午4:57:21 
+ * @package com.game.admin.controllers
+ */
+public class SlogController extends BaseController{
+	
+	@Resource
+	private ICurrencyService currencyService;
+	
+	/**
+	 * 跳转分析页面
+	 * @return
+	 */
+	public String goDailyAnalys(){
+		return "slog/dailyRateList";
+	}
+	
+	public String goAnalysis(){
+		return "slog/userAnalysisList";
+	}
+	
+	public String goEquipLog(){
+		return "slog/equipLogList";
+	}
+	
+	public String goGrade(){
+		return "slog/gradeLogList";
+	}
+	
+	public String goActivity(){
+		return "slog/activityList";
+	}
+	
+	public String goBow(){
+		return "slog/bowList";
+	}
+	
+	public String goCard(){
+		return "slog/cardList";
+	}
+	
+	public String goEquip(){
+		return "slog/equipList";
+	}
+	
+	public String goHidden(){
+		return "slog/hiddenList";
+	}
+	
+	
+	public String goHorse(){
+		return "slog/horseList";
+	}
+	
+	public String goInstance(){
+		return "slog/instanceList";
+	}
+	
+	
+	public String goLifestyle(){
+		return "slog/lifeList";
+	}
+	
+	public String goSkill(){
+		return "slog/skillList";
+	}
+	
+	public String goSoul(){
+		return "slog/soulList";
+	}
+	
+	public String goStarsoul(){
+		return "slog/starSoulList";
+	}
+	
+	
+	public String goTask(){
+		return "slog/taskList";
+	}
+	
+	public String goHeroRecharge(){
+		return "slog/heroRechargeList";
+	}
+	
+	public String goHeroAccontLog(){
+		return "slog/heroAccontLogList";
+	}
+	
+	public String goRechargeRecord(){
+		return "slog/rechargeRecordList";
+	}
+	
+	public String goMainTaskKd(){
+		return "slog/mainTaskKdList";
+	}
+	
+	public String goTotalPaylvArpu(){
+		return "slog/totalPaylvList";
+	}
+	
+	public String goReal(){
+		return "slog/realList";
+	}
+	
+	public Object queryGameHeroRateList(@Param("serverId") int serverId,@Param("callLogType") int callLogType,@Param("page") int page,
+			@Param("rows") int rows){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			AnalysisService analyService = getHessianFactory(AnalysisService.class, url);
+			if(analyService != null){
+				try {
+					CallLogType callType = CallLogType.index(callLogType);
+					CallPageData callPageData = new CallPageData(rows, page, callType);
+					DataGrid result = analyService.getSLogAnalysisData(callPageData);
+					if (null == result) {
+						logger.error(String.format("查找%d服数据失败", serverId));
+						return ResultCode.writeJson(getDataGrid());
+					}
+					if(callType == CallLogType.real){
+						passResult(result);
+					}
+					if(callType == CallLogType.rechargeRecordLog){
+						passRechargeRecordResult(result);
+					}
+					return ResultCode.writeJson(result);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.writeJson(getDataGrid());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void passRechargeRecordResult(DataGrid result){
+		for (Iterator<RechargeRecordLogDto>iterator = result.getRows().iterator(); iterator.hasNext();) {
+			RechargeRecordLogDto rechargeDto= iterator.next();
+			Map<String,Integer> passMaps = Maps.newTreeMap();
+			if(!StringUtil.isEmpty(rechargeDto.getDailyPayNumber())){
+				passMaps.clear();
+				Map<Integer,Integer> cacheMap = JSON.parseObject(rechargeDto.getDailyPayNumber(), new TypeReference<HashMap<Integer, Integer>>() {});
+				for (Map.Entry<Integer, Integer> entry : cacheMap.entrySet()) {
+					RechargeGradeDto rechargeGradeDto = currencyService.getByIdRechargeGradeData(entry.getKey());
+					if(rechargeGradeDto != null){
+						passMaps.put(rechargeGradeDto.getName(), entry.getValue());
+					}
+				}
+				if(!CollectionUtil.isEmptyMap(passMaps)){
+					rechargeDto.setDailyPayNumber(passMaps.toString());
+				}
+			}
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	private void passResult(DataGrid result){
+		for (Iterator<RealDto>iterator = result.getRows().iterator(); iterator.hasNext();) {
+			RealDto realDto = iterator.next();
+			Map<Integer, Map<String, RealDataGmLog>> maps = JSON.parseObject(
+					realDto.getRealLogData(), new TypeReference<TreeMap<Integer, Map<String, RealDataGmLog>>>() {});
+			StringBuilder stringBuilder = new StringBuilder();
+			for (Map.Entry<Integer,Map<String,RealDataGmLog>> entry : maps.entrySet()) {
+				stringBuilder.append(getPassString(entry.getKey(),entry.getValue()));
+				stringBuilder.append("											");//页面处理换行符会报错
+			}
+			realDto.setRealLogData(stringBuilder.toString());
+		}
+	}
+	
+	private String getPassString(int hours,Map<String, RealDataGmLog> maps){
+		Map<String, RealDataGmLog> sortMap = Maps.newTreeMap(new Comparator<String>() {  
+            public int compare(String str1, String str2) {  
+                // 升序排序  
+            	String sub1 = str1.substring(0, 2);
+            	String sub2 = str2.substring(0, 2);
+            	String s1;String s2; 
+            	if(sub1.contains("-")){
+            		s1 = sub1.replace("-", "");
+            	}else {
+            		s1 = sub1;
+				}
+            	if(sub2.contains("-")){
+            		s2 = sub2.replace("-", "");
+            	}else {
+            		s2 = sub2;
+				}
+            	return Integer.parseInt(s1) > Integer.parseInt(s2) ? 1:-1;
+            }  
+        });
+		
+		for (Map.Entry<String,RealDataGmLog> entry : maps.entrySet()) {
+			sortMap.put(entry.getKey(), entry.getValue());
+		}
+		
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(hours).append("时");
+		for (Map.Entry<String,RealDataGmLog> entry : sortMap.entrySet()) {
+			stringBuilder.append(entry.getKey())
+			.append(entry.getValue().toString());
+		}
+		return stringBuilder.toString();
+	}
+	
+	public Object queryTotalPaylvList(@Param("serverIds") String serverIds){
+		if(StringUtil.isEmpty(serverIds)){
+			return null;
+		}else {
+			List<TotalPaylvAndArpuDto> totalPaylvList = eachServerData(serverIds);
+			return ResultCode.writeJson(totalPaylvList);
+		}
+	}
+	
+	private List<TotalPaylvAndArpuDto>  eachServerData(String serverIds){
+		List<TotalPaylvAndArpuDto> dtoList = Lists.newArrayList();
+		for (String serverId : serverIds.split(",")) {
+			ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+			if(serverData != null){
+				TotalPaylvAndArpuDto dto = getThisServerTotalPaylvArpu(serverData);
+				if(dto != null ){
+					dtoList.add(dto);
+				}
+			}
+		}
+		calculateTotalPaylv(dtoList);
+		return dtoList;
+	}
+	
+	
+	private void calculateTotalPaylv(List<TotalPaylvAndArpuDto> dtoList){
+		if(!CollectionUtil.isEmptyCollection(dtoList)){
+			if(dtoList.size() >= 2 ){
+				addTotalPaylv(dtoList);
+			}
+		}
+	}
+	
+	private void addTotalPaylv(List<TotalPaylvAndArpuDto> dtoList){
+		int totalLoginCount = 0;//新增总数
+		int totalPayCount =0;//付费总数
+		int totalPayNum=0;//充值总金额
+		for (Iterator<TotalPaylvAndArpuDto> iterator = dtoList.iterator(); iterator.hasNext();) {
+			TotalPaylvAndArpuDto serverTotalPaylv = iterator.next();
+			totalLoginCount += serverTotalPaylv.getTotalLoginCount();
+			totalPayCount += serverTotalPaylv.getTotalPayCount();
+			totalPayNum += serverTotalPaylv.getTotalPayNum();
+		}
+		String totalPaylv=totalLoginCount == 0?"0%":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayCount* 10000f/totalLoginCount) * 0.01d))+"%");//总付费率=付费总数/新增总数
+		String total_arpu=totalLoginCount == 0?"0":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayNum* 100f/totalLoginCount ) * 0.01d)));//arpu=充值总金额/总用户
+		String total_arppu=totalPayCount == 0?"0":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayNum* 100f/totalPayCount ) * 0.01d)));//arppu=充值总金额/付费总数
+		TotalPaylvAndArpuDto dto = new TotalPaylvAndArpuDto();
+		dto.setServerName(totalCalculateServerName());
+		dto.setTotalArpu(total_arpu);
+		dto.setTotalArppu(total_arppu);
+		dto.setTotalLoginCount(totalLoginCount);
+		dto.setTotalPayCount(totalPayCount);
+		dto.setTotalPaylv(totalPaylv);
+		dto.setTotalPayNum(totalPayNum);
+		dtoList.add(dto);
+	}
+	
+	
+	public TotalPaylvAndArpuDto getThisServerTotalPaylvArpu(ServerData serverData){
+		String url = buildUrl(serverData.getServerId());
+		if(!StringUtil.isEmpty(url)) {
+			AnalysisService analyService = getHessianFactory(AnalysisService.class, url);
+			if(analyService != null){
+				try {
+					CallPageData calldata = new CallPageData();
+					calldata.setCallLogType(CallLogType.totalPaylvAndArpu);
+					DataGrid result = analyService.getSLogAnalysisData(calldata);
+					if (null == result) {
+						logger.error(String.format("查找%d服数据失败", serverData.getServerId()));
+						return null;
+					}
+					TotalPaylvAndArpuDto dataDto  = (TotalPaylvAndArpuDto)result.getRows().get(0);
+					if(dataDto != null){
+						dataDto.setServerId(serverData.getServerId());
+						dataDto.setServerName(serverData.getServerName());
+					}
+					return dataDto; 
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverData.getServerId()));
+				}
+			}
+		}
+		return null;
+	}
+	
+	private DataGrid getDataGrid(){
+		DataGrid data = new DataGrid();
+		data.setTotal(0);
+		data.setRows(Collections.EMPTY_LIST);
+		return data;
+	}
+}

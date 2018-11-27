@@ -1,0 +1,59 @@
+package com.game.admin.service.newbie;
+
+import java.util.List;
+import java.util.Map;
+
+import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.NewBieDao;
+import com.game.admin.pojo.NewBieData;
+import com.game.util.CollectionUtil;
+
+@Service("newBieService")
+public class NewBieServiceImpl implements INewBieService ,InitializingBean {
+	
+	@Autowired
+	private NewBieDao newBieDao;
+	
+	private static final List<NewBieData> newbieLists = Lists.newArrayList();
+	
+	private static final Map<Integer,NewBieData> newbieMaps = Maps.newHashMap();
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		newbieLists.clear();
+		newbieMaps.clear();
+		List<NewBieData> newbieDatas = newBieDao.getAllNewData();
+		if(!CollectionUtil.isEmptyCollection(newbieDatas)){
+			for (NewBieData newBieData : newbieDatas) {
+				newbieLists.add(newBieData);
+				newbieMaps.put(newBieData.getId(), newBieData);
+			}
+		}
+	}
+	
+
+	@Override
+	public List<NewBieData> getAllNewData() {
+		return newbieLists;
+	}
+
+
+	@Override
+	public Map<Integer, NewBieData> getNewBieMaps() {
+		return newbieMaps;
+	}
+
+
+	@Override
+	public NewBieData getNewBieName(int newbieId) {
+		return newbieMaps.get(newbieId);
+	}
+	
+	
+	
+}

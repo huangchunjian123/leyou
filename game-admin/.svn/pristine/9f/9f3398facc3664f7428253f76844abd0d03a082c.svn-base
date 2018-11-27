@@ -1,0 +1,134 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>任务统计表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function taskdistribution(value,row,rowIndex){
+		var mainTask = row.mainNum;
+	    var html="<a href='#' onclick='_mainTask(\""+mainTask + "\");'>主线任务分布</a>";
+		return html;
+	}
+	/* ---------------------主线任务 ----------------------------   	*/
+	
+	function _mainTask(mainTask) {
+	    $('#mainTask').dialog({
+	     	onLoad:function(){
+   	    $('#mainTask_list').val(mainTask);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/task/mainTask.jsp',
+	    modal: true,
+	    closed: true});
+		$('#mainTask').dialog('open');
+		$('#mainTask').dialog('setTitle', '侠客分布'); 
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="任务列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'dailyComplete'" width="3" align="left">日环完成20次</th>
+					<th data-options="field:'unionComplete'" width="3" align="left">帮环完成20次</th>
+					<th data-options="field:'completeSqp'" width="3" align="left">挑战苏启平完成</th>
+					<th data-options="field:'opt',title:'Operation',formatter:taskdistribution" width="5">主线任务分布</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="12" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="mainTask"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#mainTask-buttons" align="center">
+	</div>
+	<div id="mainTask-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#mainTask').dialog('close');">取消</a>
+	</div>
+	
+</html>

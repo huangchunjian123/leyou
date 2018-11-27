@@ -1,0 +1,62 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<font color="red" size="1"></font>
+<table class="tableCss">
+	<tr>
+		<td>登录名:</td>
+		<td><input id="a_loginName" name="a_loginName" class="easyui-validatebox" required="true"
+			missingMessage="登录名称必须填写" validType="length[0,30]"
+			invalidMessage="登录名称不能超过30个字符！" /></td>
+		<td>登录密码:</td>
+		<td><input id="a_loginPsd" name="a_loginPsd" class="easyui-validatebox" required="true"
+			missingMessage="登录密码必须填写" validType="length[0,30]"
+			invalidMessage="登录密码不能超过30个字符！" /></td>
+		<td>角色名:</td>
+		<td><input id="a_heroName" name="a_heroName" class="easyui-validatebox" required="true"
+			missingMessage="角色名称必须填写" validType="length[0,6]"
+			invalidMessage="角色名称不能超过6个字符！" /></td>
+	</tr>
+ 	<tr>
+		<td>角色等级:</td>
+		<td><input id="a_teamGrade" name="a_teamGrade" value="1" min="1" max="150"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>vip等级:</td>
+		<td><input id="a_vipGrade" name="a_vipGrade" value="1" min="1" max="15"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td> 
+	
+	</tr> 
+	<tr>
+		<td>钻石:</td>
+		<td><input id="a_yuanbao" name="a_yuanbao" value="0" min="0" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>金币:</td>
+		<td><input id="a_copper" name="a_copper" value="0" min="0" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	
+	</tr>
+	<tr>
+ 		<td>职业:</td>
+		<td>						<select id="job_span_sel" name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/heros/getJob',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>		</td>
+	
+	</tr>
+	
+</table>

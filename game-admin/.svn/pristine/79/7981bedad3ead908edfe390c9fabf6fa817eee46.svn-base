@@ -1,0 +1,262 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<table class="tableCss">
+	<tr>
+		<td>任务id:</td>
+		<td><input id="taskId" name="taskId" class="easyui-validatebox" required="true"></td>
+		<td>任务名称:</td>
+		<td><input id="taskName" name="taskName" class="easyui-validatebox tasknameInpu" required="true"
+			missingMessage="任务名称必须填写" validType="length[0,45]"
+			invalidMessage="任务名称不能超过45个字符！" /></td>
+	</tr>
+	<tr>
+		<td>任务类型:</td>
+		<td>
+		<select id="taskType" name="taskType"
+			class="easyui-validatebox" required="true">
+				<option value="0" checked="checked">主线任务</option>
+				<option value="1">日常任务</option>
+				<option value="2">公会任务</option>
+				<option value="3">其他任务</option>
+		</select>
+		<select id="taskGroupType" name="taskGroupType"
+			class="easyui-validatebox" required="true">
+				<option value="0" checked="checked"></option>
+				<option value="1">新手引导</option>
+				<option value="2">精英副本</option>
+				<option value="3">挑战副本</option>
+		</select>
+		</td>
+		<td>前置任务:</td>
+		<td><select id="preTaskId" name="preTaskId" class="easyui-combogrid preTaskIdComboGrid"
+			style="width: 200px"
+			data-options="
+				            panelWidth: 200,
+				            idField: 'taskId',
+				            textField: 'taskId',
+				            url: '<%=request.getContextPath()%>/task/getalltasks<%if(request.getParameter("taskId")!=null){%><%="?excludeId="+request.getParameter("taskId")%><%} %>',
+				            columns: [[
+				           		{field:'taskType',title:'类型',width:80},
+				           		 {field:'taskId',title:'ID',width:90},
+				                {field:'taskName',title:'名称',width:90}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr>
+		<td>能否放弃:</td>
+		<td><input id="isCancel" name="isCancel" value="0">
+			<div id="isCancelDiv">
+				<div style="color: #99BBE8; background: #fafafa; padding: 5px;">能否放弃？</div>
+				<input type="radio" name="cancel" value="1"><span>能放弃</span><br />
+				<input type="radio" name="cancel" value="0"><span>不能放弃</span><br />
+			</div></td>
+		<td>能否重接:</td>
+		<td><input id="isRepeat" name="isRepeat" value="0">
+			<div id="isRepeatDiv">
+				<div style="color: #99BBE8; background: #fafafa; padding: 5px;">能否重接？</div>
+				<input type="radio" name="repeat" value="1"><span>能重接</span><br />
+				<input type="radio" name="repeat" value="0"><span>不能重接</span><br />
+			</div></td>
+	</tr>
+	<tr>
+		<td>起始NPC:</td>
+		<td><select id="beginNpc" name="beginNpc" class="easyui-combogrid beginNpcComboGrid"
+			style="width: 100px"
+			data-options="
+				            panelWidth: 100,
+				            idField: 'id',
+				            textField: 'id',
+				            url: '<%=request.getContextPath()%>/npc/getallnpcs',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+		<td>结束NPC:</td>
+		<td><select id="endNpc" name="endNpc" class="easyui-combogrid endNpcComboGrid"
+			style="width: 100px"
+			data-options="
+				            panelWidth: 100,
+				            idField: 'id',
+				            textField: 'id',
+				            url: '<%=request.getContextPath()%>/npc/getallnpcs',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr>
+		<td>时间限制(秒):</td>
+		<td><input id="limitLime" name="limitLime" value="0" min="0"
+			class="easyui-numberspinner"
+			data-options="increment:1000,required:true" style="width: 80px;" />
+		</td>
+		<td>每日能做次数:</td>
+		<td><input id="dailyCount" name="dailyCount" value="1" min="1" max="10"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>触发道具:</td>
+		<td><select id="triggerGoods" name="triggerGoods" class="easyui-combogrid triggerGoodsComboGrid"
+			style="width: 150px"
+			data-options="
+				            panelWidth: 150,
+				            idField: 'id',
+				            textField: 'id',
+				            url: '<%=request.getContextPath()%>/good/getallgoods',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+		<td>一键完成消耗钻:</td>
+		<td><input id="oneKeyFinishConsumeYuanbao" name="oneKeyFinishConsumeYuanbao" value="1" min="1"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>接任务开始时间:</td>
+		<td><input id="acceptBeginTime" name="acceptBeginTime"
+			class="easyui-datetimebox begindatetimebox" editable="true"
+			style="width: 180px" /></td>
+		<td>交任务结束时间:</td>
+		<td><input id="completeEndTime" name="completeEndTime"
+			class="easyui-datetimebox enddatetimebox" editable="true"
+			style="width: 180px" /></td>
+	</tr>
+	<tr>
+		<td>玩家等级min:</td>
+		<td><input id="minGrade" name="minGrade" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>玩家等级max:</td>
+		<td><input id="maxGrade" name="maxGrade" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" validType="maxGradeValidete" />
+		</td>
+	</tr>
+	<tr>
+		<td>任务描述:</td>
+		<td colspan="3"><textarea rows="4" cols="80" id="taskDesc"
+				name="taskDesc" style="resize: none" class="easyui-validatebox"
+				required="true"></textarea></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><a href="javascript:void(0);" class="easyui-linkbutton"
+			onclick="_forbiden();">颜色</a>&nbsp;&nbsp;&nbsp;&nbsp;<a
+			href="javascript:void(0);" class="easyui-linkbutton"
+			onclick="cleanForbiden();">取消</a></td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function () {
+	var taskId=<%= request.getParameter("taskId")%>;
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/task/getTask?taskId="+taskId,
+	    success:function(data){
+	    	var t = $.parseJSON(data);
+	    	$(':input[name="taskId"]').val(t.taskId);
+	    	$(".tasknameInpu").val(t.taskName);
+	    	$("#taskType option[value='"+t.type+"']").attr("selected", true);
+	    	$("#taskGroupType option[value='"+t.groupType+"']").attr("selected", true);
+	    	if(t.preTaskId){
+	    		$('.preTaskIdComboGrid').combogrid('setValue', t.preTaskId);
+	    	}
+	    	var index=0;
+	    	var isCancelValue = t.isCancel;
+	    	var text = '';
+	    	if(isCancelValue==1){
+	    		text='能放弃';	
+	    		index =0;
+	    	}else{
+	    		text='不能放弃';
+	    		index =1;
+	    	}
+	    	$('#isCancel').combo({
+	    		required:true,
+	    		editable:false
+	    	}).combo('setValue', isCancelValue).combo('setText', text);
+	    	$(':input:radio[name="cancel"]')[index].checked = true;	    	
+	    	$('#isCancelDiv').appendTo($('#isCancel').combo('panel'));
+	    	
+	    	var isRepeatValue = t.isRepeat;
+	    	var text = '';
+	    	if(isRepeatValue==1){
+	    		text='能重接';	
+	    		index =0;
+	    	}else{
+	    		text='不能重接';
+	    		index =1;
+	    	}
+	    	$('#isRepeat').combo({
+	    		required:true,
+	    		editable:false
+	    	}).combo('setValue', isRepeatValue).combo('setText', text);
+	    	$(':input:radio[name="repeat"]')[index].checked = true;	    	
+	    	$('#isRepeatDiv').appendTo($('#isRepeat').combo('panel'));
+	    	
+	    	if(t.beginNpc&&t.beginNpc>0){
+	    		$('.beginNpcComboGrid').combogrid('setValue', t.beginNpc);
+	    	}
+	    	if(t.endNpc&&t.endNpc>0){
+	    		$('.endNpcComboGrid').combogrid('setValue', t.endNpc);
+	    	}
+	    	if(t.limitLime){
+	    		$("#limitLime").numberspinner('setValue',t.limitLime);
+	    	}
+	    	if(t.dailyCount){
+	    		$("#dailyCount").numberspinner('setValue',t.dailyCount);
+	    	}
+	    	
+	    	if(t.triggerGoods&&t.triggerGoods>0){
+	    		$('.triggerGoodsComboGrid').combogrid('setValue', t.triggerGoods);
+	    	}
+	    	if(t.oneKeyFinishConsumeYuanbao){
+	    		$("#oneKeyFinishConsumeYuanbao").numberspinner('setValue',t.oneKeyFinishConsumeYuanbao);
+	    	}
+	    	if(t.acceptBeginTime){
+	    		$('.begindatetimebox').datetimebox('setValue',t.acceptBeginTime);
+	    	}
+	    	if(t.completeEndTime){
+	    		$('.enddatetimebox').datetimebox('setValue',t.completeEndTime);
+	    	}
+	    	$("#minGrade").numberspinner('setValue',t.minGrade);
+	    	$("#maxGrade").numberspinner('setValue',t.maxGrade);
+	    	$(':input[name="taskDesc"]').val(t.taskDesc);
+        }
+	});
+	$('#dailyCount').numberspinner({
+	    editable:false
+	});
+
+	$('#isCancelDiv input').click(function(){
+		var v = $(this).val();
+		var s = $(this).next('span').text();
+		$('#isCancel').combo('setValue', v).combo('setText', s).combo('hidePanel');
+	});
+	
+	$('#isRepeatDiv input').click(function(){
+		var v = $(this).val();
+		var s = $(this).next('span').text();
+		$('#isRepeat').combo('setValue', v).combo('setText', s).combo('hidePanel');
+	});
+});
+</script>

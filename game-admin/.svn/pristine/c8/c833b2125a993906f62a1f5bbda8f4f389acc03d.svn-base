@@ -1,0 +1,57 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import net.paoding.rose.web.annotation.Param;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.game.admin.dto.equip.EquipDto;
+import com.game.admin.dto.equip.PosEquipDTO;
+import com.game.admin.service.equip.IEquipService;
+import com.game.admin.service.equip.PosEquioServiceImpl;
+import com.game.admin.utils.ResultCode;
+/**
+ * 装备控制器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class EquipController extends BaseController {
+	@Autowired
+	private IEquipService equipService;
+	@Resource
+	private PosEquioServiceImpl posEquioServiceImpl;
+	/**
+	 * 取所有装备下拉列表
+	 * 
+	 * @param name
+	 * @param pageo
+	 * @param rows
+	 */
+	public Object getallequip(@Param("q") String q) {
+		List<EquipDto> list =  equipService.getEquipDtoByname(q);
+		return ResultCode.writeJson(list);
+	}
+	
+	/**
+	 * 取槽位
+	 * 
+	 * @param name
+	 * @param pageo
+	 * @param rows
+	 */
+	public Object getallequipPos(@Param("q") String q) {
+		List<PosEquipDTO> list =  posEquioServiceImpl.getEquipDtoByname();
+		return ResultCode.writeJson(list);
+	}
+	/**
+	 * 刷新内存数据
+	 * @return
+	 */
+	public Object refresh() {
+		equipService.initEquip();
+		return ResultCode.succ("装备数据刷新成功");
+	}
+}

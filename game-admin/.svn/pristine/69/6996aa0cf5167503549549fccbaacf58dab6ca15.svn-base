@@ -1,0 +1,96 @@
+package com.game.admin.dto.videotex;
+
+import java.util.List;
+
+/**
+ * 图表配置器参数封装
+ * @author JiaYi
+ * @date  2018年4月17日 下午12:35:58 
+ * @package com.game.admin.dto.videotex
+ */
+public class VideotexData {
+	/**
+	 * 图表类型
+	 */
+	private ChartType chartType;
+	/**
+	 * 图表标题
+	 */
+	private String chartTitle;
+	/**
+	 * 图表X轴字段
+	 */
+	private String chartXAxis;
+	/**
+	 * Y轴标题
+	 */
+	private String yAxisTitle;
+	
+	/**
+	 * 数据列参数分装
+	 */
+	private List<SeriesParameter> list;
+
+	public VideotexData() {
+	}
+	
+	/**
+	 * 初始化
+	 * @param chartType  图表类型
+	 * @param chartTitle 图表标题
+	 * @param chartXAxis 图表X轴字段
+	 * @param yAxisTitle Y轴标题
+	 * @param list       数据列参数分装
+	 * @return
+	 */
+	public static VideotexData valueOf(ChartType chartType, String chartTitle, String chartXAxis, String yAxisTitle, List<SeriesParameter> list) {
+		VideotexData instance =new VideotexData();
+		instance.chartType = chartType;
+		instance.chartTitle = chartTitle;
+		instance.chartXAxis = chartXAxis;
+		instance.yAxisTitle = yAxisTitle;
+		instance.list = list;
+		return instance;
+	}
+
+	public ChartType getChartType() {
+		return chartType;
+	}
+
+	public void setChartType(ChartType chartType) {
+		this.chartType = chartType;
+	}
+
+	public String getChartTitle() {
+		return chartTitle;
+	}
+
+	public void setChartTitle(String chartTitle) {
+		this.chartTitle = chartTitle;
+	}
+
+	public String getChartXAxis() {
+		return chartXAxis;
+	}
+
+	public void setChartXAxis(String chartXAxis) {
+		this.chartXAxis = chartXAxis;
+	}
+
+	public String getyAxisTitle() {
+		return yAxisTitle;
+	}
+
+	public void setyAxisTitle(String yAxisTitle) {
+		this.yAxisTitle = yAxisTitle;
+	}
+
+	public List<SeriesParameter> getList() {
+		return list;
+	}
+
+	public void setList(List<SeriesParameter> list) {
+		this.list = list;
+	}
+	
+}

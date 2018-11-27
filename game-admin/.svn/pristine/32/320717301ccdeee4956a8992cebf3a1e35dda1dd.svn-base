@@ -1,0 +1,121 @@
+package com.game.admin.service.instance;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.python.google.common.collect.Lists;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.InstanceDao;
+import com.game.admin.dto.instance.InstanceDto;
+import com.game.admin.pojo.NineDay;
+import com.game.admin.pojo.PataInstanceData;
+
+/**
+ * 副本相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("instanceService")
+public class InstanceServiceImpl implements IInstanceService, InitializingBean {
+	@Autowired
+	private InstanceDao instanceDao;
+
+	/** 副本列表 */
+	private static Map<Integer, InstanceDto> instanceMap = new HashMap<Integer, InstanceDto>();
+	/** 剧情副本列表 */
+	private final List<InstanceDto> list_juqing_instance = new ArrayList<InstanceDto>();
+	/** 爬塔list列表*/
+	private  List<PataInstanceData> list_pata = new ArrayList<PataInstanceData>();
+	/** 爬塔副本列表*/
+	private static Map<Integer,PataInstanceData> map_pata = new HashMap<Integer, PataInstanceData>();
+	/** 九重天副本列表*/
+	private  List<NineDay> nineDaysList = Lists.newArrayList();
+	
+	@Override
+	public List<InstanceDto> getByName(String name, int offset, int pagesize) {
+		List<InstanceDto> list = new ArrayList<InstanceDto>();
+		for (Entry<Integer, InstanceDto> en : instanceMap.entrySet()) {
+			InstanceDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initInstance();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initInstance() {
+		map_pata.clear();
+		List<PataInstanceData> pataMap = instanceDao.getAllPata();
+		for(PataInstanceData pata:pataMap){
+			map_pata.put(pata.getId(), new PataInstanceData(pata.getId(),pata.getName(),pata.getDifficult()));
+		}
+		
+		list_pata.clear();
+		list_pata = instanceDao.getAllPata();
+		
+		nineDaysList.clear();
+		nineDaysList = instanceDao.getAllNineDays();
+	}
+
+	@Override
+	public InstanceDto get(int instanceId) {
+		return instanceMap.get(instanceId);
+	}
+
+	@Override
+	public String getName(int instanceId) {
+		return get(instanceId).getName();
+	}
+	public List<InstanceDto> getList_juqing_instance() {
+		return list_juqing_instance;
+	}
+
+	@Override
+	public PataInstanceData getPata(int instanceId) {
+		return map_pata.get(instanceId);
+	}
+
+	@Override
+	public List<PataInstanceData> get_all_pata() {
+		return list_pata;
+	}
+
+	@Override
+	public List<NineDay> get_all_nineDays() {
+		return nineDaysList;
+	}
+
+}

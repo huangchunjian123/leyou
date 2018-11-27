@@ -1,0 +1,57 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1"></font>
+<table class="tableCss">
+
+	<tr>
+		<td>登录名:</td>
+		<td><input id="e_loginName" name="e_loginName" class="easyui-validatebox"/></td>
+		<td>登录密码:</td>
+		<td><input id="e_loginPsd" name="e_loginPsd" class="easyui-validatebox" /></td>
+		<td>角色名:</td>
+		<td><input id="e_heroName" name="e_heroName"  class="easyui-validatebox"  maxlength="12" /></td>
+		<td><input id="e_heroId" name="e_heroId" hidden="false" /></td>
+		<td><input id="e_gaveHeroInfo" name="e_gaveHeroInfo" hidden="false" /></td>
+	</tr>
+	<tr>
+		<td>hero等级:</td>
+		<td><input id="e_teamGrade" name="e_teamGrade"  min="1" max="600"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>hero经验:</td>
+		<td><input id="e_teamExp" name="e_teamExp"  min="1" max="99999999"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>vip等级:</td>
+		<td><input id="e_vipGrade" name="e_vipGrade"  min="1" max="15"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+ 		<td>体力:</td>
+		<td><input id="e_sp" name="e_sp" min="0" max="900"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td> 
+		<td>礼金:</td>
+		<td><input id="e_gift" name="e_gift"  min="0" max="2000000000" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+	    <td>元宝:</td>
+		<td><input id="e_yuanbao" name="e_yuanbao"  min="0" max="2000000000" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>金币:</td>
+		<td><input id="e_copper" name="e_copper"  min="0" max="2000000000" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>银币:</td>
+		<td><input id="e_silver" name="e_silver"  min="0" max="2000000000" 
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	
+</table>

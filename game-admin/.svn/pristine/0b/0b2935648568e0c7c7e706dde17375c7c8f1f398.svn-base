@@ -1,0 +1,24 @@
+package com.game.admin.dao.data;
+
+import java.util.List;
+
+import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.SQL;
+
+import com.game.admin.pojo.NewBieData;
+
+/**
+ * 新手引导Dao层
+ * @author jiayi
+ *
+ */
+@DAO
+public interface NewBieDao {
+	
+	public  final static String TABLE = "t_unlock";
+	
+	@SQL("select F_guide_id as id,f_hint as name from " + TABLE)
+	public List<NewBieData> getAllNewData();
+	
+	
+}

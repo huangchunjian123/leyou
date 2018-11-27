@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">实时数据:</td>
+		<td><textarea readonly="readonly" rows="30" cols="150" id="realLogData_list" name="realLogData_list" style="resize: none" /></td>
+	</tr>
+</table>

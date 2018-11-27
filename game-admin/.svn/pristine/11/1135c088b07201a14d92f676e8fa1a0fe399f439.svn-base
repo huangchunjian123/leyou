@@ -1,0 +1,90 @@
+package com.game.admin.dto.task;
+
+import com.game.util.StringUtil;
+
+/**
+ * 当前玩家的所有任务名称(页面显示)
+ * @author jiayi
+ *
+ */
+public class NowTaskName {
+	
+	private String mainTaskName;//1
+	private String zhiTaskName;//2
+	private String dailyTaskName;//3
+	private String unionTaskName;//4
+	private String hideTaskName;//7
+	private String otherTaskName;//5
+	
+	public NowTaskName() {
+	}
+	public NowTaskName(String mainTaskName, String zhiTaskName, String hideTaskName, String dailyTaskName, String unionTaskName, String otherTaskName) {
+		String taskName = "当前没有任务";
+		if(StringUtil.isEmpty(mainTaskName)){
+			this.mainTaskName = taskName;
+		}else {
+			this.mainTaskName = mainTaskName;
+		}
+		if(StringUtil.isEmpty(zhiTaskName)){
+			this.zhiTaskName = taskName;
+		}else {
+			this.zhiTaskName = zhiTaskName;
+		}
+		if(StringUtil.isEmpty(hideTaskName)){
+			this.hideTaskName = taskName;
+		}else {
+			this.hideTaskName = hideTaskName;
+		}
+		if(StringUtil.isEmpty(dailyTaskName)){
+			this.dailyTaskName = taskName;
+		}else {
+			this.dailyTaskName = dailyTaskName;
+		}
+		if(StringUtil.isEmpty(unionTaskName)){
+			this.unionTaskName = taskName;
+		}else {
+			this.unionTaskName = unionTaskName;
+		}
+		if(StringUtil.isEmpty(otherTaskName)){
+			this.otherTaskName = taskName;
+		}else {
+			this.otherTaskName = otherTaskName;
+		}
+	}
+	public String getMainTaskName() {
+		return mainTaskName;
+	}
+	public void setMainTaskName(String mainTaskName) {
+		this.mainTaskName = mainTaskName;
+	}
+	public String getZhiTaskName() {
+		return zhiTaskName;
+	}
+	public void setZhiTaskName(String zhiTaskName) {
+		this.zhiTaskName = zhiTaskName;
+	}
+	public String getHideTaskName() {
+		return hideTaskName;
+	}
+	public void setHideTaskName(String hideTaskName) {
+		this.hideTaskName = hideTaskName;
+	}
+	public String getDailyTaskName() {
+		return dailyTaskName;
+	}
+	public void setDailyTaskName(String dailyTaskName) {
+		this.dailyTaskName = dailyTaskName;
+	}
+	public String getUnionTaskName() {
+		return unionTaskName;
+	}
+	public void setUnionTaskName(String unionTaskName) {
+		this.unionTaskName = unionTaskName;
+	}
+	public String getOtherTaskName() {
+		return otherTaskName;
+	}
+	public void setOtherTaskName(String otherTaskName) {
+		this.otherTaskName = otherTaskName;
+	}
+}

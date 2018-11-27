@@ -1,0 +1,10 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td>CDKey生成数量:</td>
+		<td><input id="create_cdkey" name="create_cdkey" value="0" min="0" max="9999" class="easyui-numberspinner" required="true"
+			style="width: 180px;" /></td>
+	</tr>
+</table>

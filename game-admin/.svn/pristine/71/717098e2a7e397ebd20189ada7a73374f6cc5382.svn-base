@@ -1,0 +1,91 @@
+package com.game.admin.service.equip;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.EquipDao;
+import com.game.admin.dto.equip.EquipDto;
+import com.game.admin.pojo.EquipmentData;
+import com.game.admin.pojo.PataInstanceData;
+
+/**
+ * 装备相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("equipService")
+public class EquipServiceImpl implements IEquipService, InitializingBean {
+	@Autowired
+	private EquipDao equipDao;
+
+	/** 装备列表 */
+	private static Map<Integer, EquipDto> equipMap = new HashMap<Integer, EquipDto>();
+
+	@Override
+	public List<EquipDto> getEquipDtoByname(String name) {
+		List<EquipDto> list = new ArrayList<EquipDto>();
+		for (Entry<Integer, EquipDto> en : equipMap.entrySet()) {
+			EquipDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		//装备排序
+		Collections.sort(list, new Comparator<EquipDto>(){
+			public int compare(EquipDto o1, EquipDto o2) {
+				if (o1.getId()<o2.getId()) {
+					return -1;
+				} else if (o1.getId()>o2.getId()) {
+					return 1;
+				} 
+				return 0;
+			}});
+		return list;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initEquip();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initEquip() {
+		equipMap.clear();
+		List<EquipmentData> list = equipDao.getAll();
+		for (EquipmentData data : list) {
+			equipMap.put(data.getId(), new EquipDto(data.getId(), data.getName()));
+		}
+	}
+
+	@Override
+	public String getName(int equipId) {
+		return equipMap.get(equipId).getName();
+	}
+
+}

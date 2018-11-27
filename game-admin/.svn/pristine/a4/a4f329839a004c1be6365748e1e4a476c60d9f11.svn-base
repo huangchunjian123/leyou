@@ -1,0 +1,107 @@
+package com.xg.admin.service.good;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.GoodsDao;
+import com.xg.admin.dto.good.GoodsDto;
+import com.xg.admin.dto.model.NormalGood;
+import com.xg.admin.pojo.Goods;
+
+/**
+ * 道具相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("goodService")
+public class GoodServiceImpl implements IGoodService, InitializingBean {
+	@Autowired
+	private GoodsDao goodsDao;
+
+	/** 道具列表 */
+	private static Map<Integer, GoodsDto> goodsdtomap = new HashMap<Integer, GoodsDto>();
+
+	public List<GoodsDto> getGoodsByname(String name, int offset, int pagesize) {
+		String goodsName = "";
+		if (StringUtils.isNotEmpty(name)) {
+			goodsName = "%" + name + "%";
+		}
+		List<Goods> list = goodsDao.getGoodsByname(goodsName, offset, pagesize);
+		List<GoodsDto> listdto = new ArrayList<GoodsDto>();
+		for (Goods g : list) {
+			listdto.add(new GoodsDto(g));
+		}
+		return listdto;
+	}
+
+	/**
+	 * 道具非道具全在一起
+	 * @param name
+	 * @param offset
+	 * @param pagesize
+	 * @return
+	 */
+	public List<GoodsDto> getGoodsDtoByname(String name, int offset, int pagesize) {
+		List<GoodsDto> list = new ArrayList<GoodsDto>();
+		for (Entry<Integer, GoodsDto> en : goodsdtomap.entrySet()) {
+			GoodsDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initGoods();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	public void initGoods() {
+		goodsdtomap.clear();
+		List<Goods> list = goodsDao.getAll();
+		for (Goods goods : list) {
+			goodsdtomap.put(goods.getGoodsId(), new GoodsDto(goods.getGoodsId(), goods.getName()));
+		}
+		goodsdtomap.put(NormalGood.COPPER.getGoodId(), new GoodsDto(NormalGood.COPPER));
+		goodsdtomap.put(NormalGood.GOLD.getGoodId(), new GoodsDto(NormalGood.GOLD));
+	}
+
+	public Goods getGoodsByid(int goodsId) {
+		return goodsDao.get(goodsId);
+	}
+
+	@Override
+	public String getName(int goodId) {
+		return goodsdtomap.get(goodId).getName();
+	}
+
+}

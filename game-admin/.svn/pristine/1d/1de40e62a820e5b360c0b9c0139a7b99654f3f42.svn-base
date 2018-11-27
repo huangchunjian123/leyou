@@ -1,0 +1,22 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<form id="fmadd" method="post" class="fm">
+	<div id="addaccordion" class="easyui-accordion" style="overflow: auto;">
+		<div title="任务基本信息" data-options="iconCls:'icon-ok'" style="overflow: auto;">
+		
+		</div>
+		<div title="任务条件信息" data-options="iconCls:'icon-ok'" style="overflow: auto; padding: 8px;">
+			<div id="conditionTabAdd" class="easyui-tabs" data-options="tools:'#tab-tools-condition-add'">
+			</div>
+			<div id="tab-tools-condition-add">
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'" onclick="javascript:addConditionTab('add')"></a>
+			</div>
+		</div>
+		<div title="任务奖励信息" data-options="iconCls:'icon-ok'">
+			<div id="rewardTabAdd" class="easyui-tabs" data-options="tools:'#tab-tools-reward-add'">
+			</div>
+			<div id="tab-tools-reward-add">
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'" onclick="javascript:addRewardTab('add')"></a>
+			</div>
+		</div>
+	</div>
+</form>

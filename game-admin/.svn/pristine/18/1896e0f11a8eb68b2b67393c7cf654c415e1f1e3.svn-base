@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">副本分布:</td>
+		<td><textarea readonly="readonly" rows="30" cols="120" id="instance_list" name="instance_list" style="resize: none" /></td>
+	</tr>
+</table>

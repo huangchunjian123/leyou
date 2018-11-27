@@ -1,0 +1,28 @@
+package com.game.admin.dao.data;
+
+import java.util.List;
+
+import com.game.admin.dto.currency.CurrencyDto;
+import com.game.admin.dto.currency.RechargeGradeDto;
+
+import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.SQL;
+
+/**
+ * 货币DAO层
+ * @author JiaYi
+ * @date  2018年2月5日 下午8:34:18 
+ * @package com.game.admin.dao.data
+ */
+@DAO
+public interface CurrencyDao {
+	
+	public final static String TABLE = "t_goodmodel";
+	
+	@SQL("select F_id as id,F_name_desc as name from " + TABLE + "  where F_type = 40")
+	public List<CurrencyDto> getAll();
+	
+	@SQL("select rg.F_id as id ,rg.F_need_money as needMoney,la.F_value as name from t_recharge_grade rg ,t_language la WHERE la.F_id = rg.F_name")
+	public List<RechargeGradeDto> getAllRechargeData();
+	
+}

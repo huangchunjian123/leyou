@@ -1,0 +1,71 @@
+package com.game.admin.service.hunqi;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.HunqiDao;
+import com.game.admin.dto.hunqi.HunqiDto;
+import com.game.admin.pojo.Hunqi;
+
+/**
+ * 魂器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("hunqiService")
+public class HunqiServiceImpl implements IHunqiService, InitializingBean {
+	@Autowired
+	private HunqiDao hunqiDao;
+
+	private static Map<Integer, Hunqi> datadtomap = new HashMap<Integer, Hunqi>();
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initData();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	
+
+	@Override
+	public List<HunqiDto> getHunqisByTypeJob(int job) {
+		List<HunqiDto> list = new ArrayList<HunqiDto>();
+		for (Entry<Integer, Hunqi> en : datadtomap.entrySet()) {
+			
+			if (en.getValue().getJob()  == job) {
+				list.add(new HunqiDto(en.getValue()));
+			}
+		}
+		return list;
+	}
+
+
+
+	@Override
+	public void initData() {
+//		datadtomap.clear();
+//		List<Hunqi> list = hunqiDao.getAll();
+//		for (Hunqi data : list) {
+//			datadtomap.put(data.getId(), data);
+//		}
+		
+	}
+
+}

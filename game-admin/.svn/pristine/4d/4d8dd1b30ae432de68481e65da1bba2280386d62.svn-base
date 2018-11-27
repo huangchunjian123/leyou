@@ -1,0 +1,152 @@
+package com.xg.admin.service.monster;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.InstanceDao;
+import com.xg.admin.dao.data.MonsterDao;
+import com.xg.admin.dto.monster.MonsterDto;
+import com.xg.admin.pojo.InstanceData;
+import com.xg.admin.pojo.MonsterModelData;
+
+/**
+ * 怪相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("monsterService")
+public class MonsterServiceImpl implements IMonsterService, InitializingBean {
+	@Autowired
+	private MonsterDao monsterDao;
+	@Autowired
+	private InstanceDao instanceDao;
+
+	/** 怪列表 */
+	private static Map<Integer, MonsterDto> monsterMap = new HashMap<Integer, MonsterDto>();
+
+	/** 副本怪 */
+	private static Map<Integer, List<MonsterDto>> instanceMonsterMap = new HashMap<Integer, List<MonsterDto>>();
+
+	@Override
+	public List<MonsterDto> getList(String name, int offset, int pagesize) {
+		List<MonsterDto> list = new ArrayList<MonsterDto>();
+		for (Entry<Integer, MonsterDto> en : monsterMap.entrySet()) {
+			MonsterDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public List<MonsterDto> getList(int instanceId, String name, int offset, int pagesize) {
+		List<MonsterDto> all = instanceMonsterMap.get(instanceId);
+		if (null == all) {
+			return new ArrayList<MonsterDto>();
+		}
+		List<MonsterDto> list = new ArrayList<MonsterDto>();
+		for (MonsterDto g : all) {
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initMonster();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initMonster() {
+		List<MonsterModelData> list = monsterDao.getAll();
+		for (MonsterModelData data : list) {
+			monsterMap.put(data.getId(), new MonsterDto(data.getId(), data.getName(), 0));
+		}
+		initInstanceMonster();
+	}
+
+	/**
+	 * 初始化副本关联的怪
+	 */
+	private void initInstanceMonster() {
+		List<InstanceData> instanceDataList = instanceDao.getAll();
+		for (InstanceData data : instanceDataList) {
+			int instanceId = data.getId();
+			String monsters = data.getMonsterList();
+			if (!StringUtils.isEmpty(monsters)) {
+				String[] groupAttr = monsters.split("#");
+				for (String group : groupAttr) {
+					String[] monsterAttr = group.split(";");
+					for (String item : monsterAttr) {
+						String[] itemAttr = item.split(",");
+						if (itemAttr.length != 2) {
+							continue;
+						}
+						int monsterId = Integer.valueOf(itemAttr[0]);
+						int monsterCount = Integer.valueOf(itemAttr[1]);
+						MonsterDto monsterDto = monsterMap.get(monsterId);
+						if (null == monsterDto) {
+							continue;
+						}
+						List<MonsterDto> monsterList = null;
+						if (instanceMonsterMap.containsKey(instanceId)) {
+							monsterList = instanceMonsterMap.get(instanceId);
+						} else {
+							monsterList = new ArrayList<MonsterDto>();
+						}
+						MonsterDto newMonsterDto = new MonsterDto(monsterDto.getId(), monsterDto.getName(),
+								monsterCount);
+						monsterList.add(newMonsterDto);
+						instanceMonsterMap.put(instanceId, monsterList);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public String getName(int id) {
+		MonsterDto dto = monsterMap.get(id);
+		return dto.getName();
+	}
+
+}

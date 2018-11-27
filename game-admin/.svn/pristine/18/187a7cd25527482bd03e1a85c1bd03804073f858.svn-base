@@ -1,0 +1,152 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>坐骑统计表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function horsedistribution(value,row,rowIndex){
+		var star = row.star;
+		var horseEquip = row.horseEquip;
+	    var html="<a href='#' onclick='_star(\""+star + "\");'>星级分布 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='_horseEquip(\""+horseEquip + "\");'>坐骑装备 </a>";
+		return html;
+	}
+	/* ---------------------星级  ----------------------------   	*/
+	
+	function _star(star) {
+	    $('#star').dialog({
+	     	onLoad:function(){
+   	    $('#star_list').val(star);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/horse/star.jsp',
+	    modal: true,
+	    closed: true});
+		$('#star').dialog('open');
+		$('#star').dialog('setTitle', '星级分布'); 
+	}
+	/* ---------------------坐骑装备   ----------------------------   	*/
+	function _horseEquip(horseEquip) {
+	    $('#horseEquip').dialog({
+	     	onLoad:function(){
+   	    $('#horseEquip_list').val(horseEquip);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/horse/horseEquip.jsp',
+	    modal: true,
+	    closed: true});
+		$('#horseEquip').dialog('open');
+		$('#horseEquip').dialog('setTitle', '坐骑装备'); 
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="坐骑列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="2" align="left">注册时间</th>
+					<th data-options="field:'quality'" width="6" align="left">坐骑品阶</th>
+					<th data-options="field:'opt',title:'Operation',formatter:horsedistribution" width="3">坐骑信息相关</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="6" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="star"  style="display: block; top: 250px; width: 700px; left: 409px; overflow: auto;" closed="true" buttons="#star-buttons" align="center">
+	</div>
+	<div id="star-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#star').dialog('close');">取消</a>
+	</div>
+	
+	<div id="horseEquip"  style="display: block; top: 250px; width: 700px; left: 409px; overflow: auto;" closed="true" buttons="#horseEquip-buttons" align="center">
+	</div>
+	<div id="horseEquip-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#horseEquip').dialog('close');">取消</a>
+	</div>
+	
+	
+</html>

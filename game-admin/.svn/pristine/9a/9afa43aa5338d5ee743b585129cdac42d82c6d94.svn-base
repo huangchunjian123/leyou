@@ -1,0 +1,41 @@
+package com.game.admin.service.life;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.python.google.common.collect.Lists;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.LifeDao;
+import com.game.admin.pojo.Life;
+import com.game.util.CollectionUtil;
+
+/**
+ * 命格
+ * @author jiayi
+ *
+ */
+@Service("lifeService")
+public class LifeServiceImpl implements ILifeService,InitializingBean{
+
+	@Autowired
+	private LifeDao lifeDao;
+	
+	private List<Life> LifeList = Lists.newArrayList();
+	
+	@Override
+	public List<Life> getAllLife() {
+		if(!CollectionUtil.isEmptyCollection(LifeList)){
+			return LifeList;
+		}
+		return Collections.emptyList();
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		LifeList.clear();
+		LifeList = lifeDao.getAllLifeData();
+	}
+}

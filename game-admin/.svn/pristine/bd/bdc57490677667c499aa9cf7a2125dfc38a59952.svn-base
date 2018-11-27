@@ -1,0 +1,60 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>添加装备</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>强化槽位</legend>
+			<form id="fmaddequip" method="post">
+				<div>
+					<label>槽位:</label> 
+					<span id="equip_span" class="equip_span">
+						<select id="equipPOS_span_sel" name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath() %>/equip/getallequipPos',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+										
+							           "></select>
+					</span>
+				</div>
+				<div>
+					<label>星级品质:</label><input id="pos_pinzhi" name="pinzhi" value="1" min="1" max="5" 
+				class="easyui-numberspinner" required="true" style="width: 80px;" /><br />
+				</div>
+				<!-- <div>
+				<label>强化等级:</label><input id="eq_strengthGrade" name="strengthGrade" value="0" min="0" max="15" 
+				class="easyui-numberspinner" required="true" style="width: 80px;" /><br /> 
+				</div>  -->
+				<div>
+				<label>星级:</label><input id="pos_star_level" name="strengthGrade" value="0" min="0" max="10" 
+				class="easyui-numberspinner" required="true" style="width: 80px;" /><br /> 
+				</div>
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitforEquipPos()">强化</a>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

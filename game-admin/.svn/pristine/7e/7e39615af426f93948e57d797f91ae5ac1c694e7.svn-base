@@ -1,0 +1,36 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+	<font color="red" size="1">提示:当前引导进度是接下来应该触发的进度!</font>
+	<table class="tableCss">
+		<input id="newbie_hero_id" name="newbie_hero_id" hidden="true"/>
+		 <tr> 
+			<td valign="top" style="text-align: right;" >角色名称:</td>
+			<td><input id='hero_name' name="hero_name" /></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >当前引导进度:</td>
+			<td><input id='newbie_hero_name' name="newbie_hero_name"/></td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;">请选择需要完成的引导:</td>
+			<td>
+			<select id="newbie_data" name="newbie_data" class="easyui-combogrid"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+	            idField: 'id',
+	            textField: 'name',
+	            url: '<%=request.getContextPath()%>/newbie/getNewLists',
+	            columns: [[
+	                {field:'name',title:'名称',width:75},
+	                {field:'id',title:'组Id',width:26}
+	            ]],
+	            fitColumns: true,
+				method:'post',
+				editable:false,
+				mode:'remote'
+	           "></select>
+			</td>
+		</tr>
+	</table>

@@ -1,0 +1,135 @@
+package com.game.admin.controllers;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.python.google.common.collect.Lists;
+
+import net.paoding.rose.web.annotation.Param;
+
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.AccountService;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.chat.CallPageChatData;
+import com.game.api.hessian.dto.ChatBeanDto;
+import com.game.util.CollectionUtil;
+import com.game.util.StringUtil;
+
+/**
+ * 聊天信息
+ * @author JiaYi
+ * @date  2018年3月31日 下午4:16:20 
+ * @package com.game.admin.controllers
+ */
+public class ChatController extends BaseController{
+
+	public String goAllChatData(){
+		return "chat/chatList";
+	}
+	
+	public Object getDataGrid(@Param("page") int page,@Param("rows") int rows,@Param("serverId")int serverId,
+							@Param("chatType")int chatType,
+							@Param("startTime")String startTime,@Param("endTime")String endTime,
+							@Param("heroName") String heroName,@Param("chatWord") String chatWord){
+		if(page < 0){
+			page = 1;
+		}
+		int pagesize = (rows == 0) ? 20 :rows;
+		CallPageChatData data = new CallPageChatData();
+		data.setChatWord(chatWord);
+		data.setEndTime(endTime);
+		data.setStartTime(startTime);
+		data.setHeroName(heroName);
+		data.setPage(page);
+		data.setPageSize(pagesize);
+		data.setChatType(chatType);
+		return ResultCode.writeJson(getServerChatData(serverId, data));
+	}
+	
+	public DataGrid getServerChatData(int serverId,CallPageChatData data){
+		String url = buildUrl(serverId, "/game-server/api/service/account");
+		if(StringUtil.isEmpty(url)){
+			return getDataGrid();
+		}
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				AccountService accountService = (AccountService) factory.create(AccountService.class, url);
+				if(accountService != null){
+					DataGrid result = accountService.getChatDtoList(data);
+					if(result != null){
+						return result;
+					}
+				}
+			} catch (Exception e) {
+				logger.error(String.format("%d 服务器未开启或拒绝连接", serverId));
+			}
+		}
+		return getDataGrid();
+	}
+	
+	
+	
+	
+	public Object queryServerChatList(@Param("serverIds") String serverIds){
+		if(!StringUtil.isEmpty(serverIds)){
+			ResultCode.writeJson(getMoreServerChatDto(serverIds));
+		}
+		return null;
+	}
+	
+	/**
+	 * 预留着
+	 * @param serverIds
+	 * @return
+	 */
+	private List<ChatBeanDto> getMoreServerChatDto(String serverIds){
+		List<ChatBeanDto> dtoList = Lists.newArrayList();
+		for (String serverId : serverIds.split(",")) {
+			ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+			if(serverData != null){
+				List<ChatBeanDto> chatLists = getServerChatData(serverData);
+				if(!CollectionUtil.isEmptyCollection(chatLists)){
+					dtoList.addAll(chatLists);//这得转化一下 ,不知道是那个服务器(加个服务器名称和sID)
+				}
+			}
+		}
+		return dtoList;
+	}
+	
+	/**
+	 * 获取聊天信息(预留)
+	 * @param serverId
+	 */
+	public List<ChatBeanDto> getServerChatData(ServerData serverData){
+		String url = buildUrl(serverData.getServerId(), "/game-server/api/service/account");
+		if(StringUtil.isEmpty(url)){
+			return Collections.emptyList();
+		}
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				AccountService accountService = (AccountService) factory.create(AccountService.class, url);
+				if(accountService != null){
+//					List<ChatBeanDto> allChatList = accountService.getChatDtoList(callPageChatData);
+					return Lists.newArrayList();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return Collections.emptyList();
+	}
+	
+	private DataGrid getDataGrid(){
+		DataGrid data = new DataGrid();
+		data.setTotal(0);
+		data.setRows(Collections.EMPTY_LIST);
+		return data;
+	}
+	
+}

@@ -1,0 +1,145 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">提醒：邮件标题与内容自行定义</font>
+	<table class="tableCss">
+		<input id="mailsheroId" name="mailsheroId" hidden="true"/>
+		<tr>
+			<td style="text-align: right;">邮件标题:</td>
+			<td><input type="text" id="title" name="title"  maxlength="6"
+				style="width: 400px" value="请输入邮件标题" /></td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;">邮件内容:</td>
+			<td><textarea rows="4" cols="80" id="content" name="content"
+					style="resize: none">亲爱的玩家:邮件内容</textarea></td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;">道具:</td>
+			<td>
+		<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this);">
+			<option value="1" selected="selected">装备</option>
+			<option value="2" >道具</option>
+			<option value="3">宝石</option>
+			<option value="4">货币</option>
+		</select>
+		<span id="equip_span" class="equip_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath() %>/equip/getallequip',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="good_span" style="display: none;" class="good_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath()%>/good/getallgoods',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+				          
+		</span>
+		<span id="gemstone_span" style="display: none;" class="gemstone_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid bagtype3"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="currency_span" style="display: none;" class="currency_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid bagtype4"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath()%>/currency/getAllCurrency',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</span>
+		</td>
+		 </tr> 
+		<tr id="equip_quality_hidden"> 
+			<td valign="top" style="text-align: right;" >品质:</td>
+			<td>
+			<select id="equip_quality" name="quality">
+				<option value="0">白色</option>
+				<option value="1">绿色</option>
+				<option value="2">蓝色</option>
+				<option value="3">紫色</option>
+				<option value="4">金色</option>
+				<option value="5">红色</option>
+			</select>
+			</td>
+		</tr>
+		<tr id="is_bind"> 
+			<td valign="top" style="text-align: right;" >是否绑定:</td>
+			<td>
+			<select id="good_is_bind" name="bind">
+				<option value="1">绑定</option>
+				<option value="0">不绑定</option>
+			</select>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;">数量:</td>
+			<td>
+				<input id="goodsnum" name="num" value="1" min="1" max="2000000000" class="easyui-numberspinner" data-options="increment:1,required:true" required="true" style="width: 400px"/>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;"></td>
+			<td>
+				<select id="goods" name="goods" size="8" style="width: 400px"></select><br />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<label></label><a href="javascript:void(0)"
+			class="easyui-linkbutton" onclick="addselect()">添加</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			onclick="delselect()">删除</a> <a href="javascript:void(0)"
+			class="easyui-linkbutton" onclick="clearselect()">清空</a>
+			</td>
+		</tr>
+		<!--  <tr>
+			<td></td>
+			<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok1()">发送</a></td>
+		</tr> --> 
+	</table>

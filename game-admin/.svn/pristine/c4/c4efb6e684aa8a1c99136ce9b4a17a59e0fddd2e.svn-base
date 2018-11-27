@@ -1,0 +1,92 @@
+package com.game.admin.service.currency;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.CurrencyDao;
+import com.game.admin.dto.currency.CurrencyDto;
+import com.game.admin.dto.currency.RechargeGradeDto;
+/**
+ * 货币操作实现
+ * @author JiaYi
+ * @date  2018年2月5日 下午8:31:27 
+ * @package com.game.admin.service.currency
+ */
+@Service("currencyService")
+public class CurrencyServiceImpl implements ICurrencyService,InitializingBean {
+
+	@Autowired
+	private CurrencyDao  currencyDao;
+	
+	private Map<Integer,CurrencyDto> currencyMap = Maps.newConcurrentMap();
+	
+	private List<CurrencyDto> currenList = Lists.newArrayList();
+	
+	private List<RechargeGradeDto> rechargeList = Lists.newArrayList();
+	
+	private Map<Integer,RechargeGradeDto> rechargeMap = Maps.newConcurrentMap();
+	
+	@Override
+	public List<CurrencyDto> getCurrencyDto() {
+		return currenList;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					initCurrency();
+					initRechargeData();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+	
+	private void initCurrency(){
+		currencyMap.clear();
+		currenList.clear();
+		List<CurrencyDto> currencyList = currencyDao.getAll();
+		for (CurrencyDto currencyDto : currencyList) {
+			currencyMap.put(currencyDto.getId(), currencyDto);
+			currenList.add(currencyDto);
+		}
+	}
+	
+	private void initRechargeData(){
+		rechargeList.clear();
+		List<RechargeGradeDto> lists = currencyDao.getAllRechargeData();
+		for (Iterator<RechargeGradeDto> iterator = lists.iterator(); iterator.hasNext();) {
+			RechargeGradeDto rechargeGradeDto = (RechargeGradeDto) iterator.next();
+			if(rechargeGradeDto.getName().contains("{0}")){
+				rechargeGradeDto.setName(String.format("￥%d元", rechargeGradeDto.getNeedMoney()/100));
+			}
+			rechargeMap.put(rechargeGradeDto.getId(), rechargeGradeDto);
+		}
+		this.rechargeList = lists;
+	}
+
+	@Override
+	public List<RechargeGradeDto> getRechargeGradeDto() {
+		return rechargeList;
+	}
+
+	@Override
+	public RechargeGradeDto getByIdRechargeGradeData(int id) {
+		return rechargeMap.get(id);
+	}
+	
+}

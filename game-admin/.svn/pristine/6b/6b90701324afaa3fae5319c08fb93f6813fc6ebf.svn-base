@@ -1,0 +1,131 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>实时服务器数据</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function realdistribution(value,row,rowIndex){
+		var realLogData = row.realLogData;
+		var html="<a href='#' onclick='_realLogData(\""+realLogData + "\");'>实时数据 (在线人数/创建玩家数量/注册账号) </a>"; 
+		return html;
+	}
+	/* ---------------------主页面 ----------------------------   	*/
+	
+	function _realLogData(realLogData) {
+	    $('#realLogData').dialog({
+	     	onLoad:function(){
+   	    $('#realLogData_list').val(realLogData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/real/realLogDataList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#realLogData').dialog('open');
+		$('#realLogData').dialog('setTitle', '每日服务器数据'); 
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="5分钟数据" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'opt',title:'Operation',formatter:realdistribution" width="10">每日数据分布(5分钟)</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="22" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="realLogData"  style="display: block; top: 150px; width: 1200px; left: 300px; overflow: auto;" closed="true" buttons="#realLogData-buttons" align="center">
+	</div>
+	<div id="realLogData-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#realLogData').dialog('close');">取消</a>
+	</div>
+	
+</html>

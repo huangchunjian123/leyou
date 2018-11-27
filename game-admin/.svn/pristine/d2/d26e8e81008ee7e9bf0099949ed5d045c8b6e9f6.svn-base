@@ -1,0 +1,50 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">稀有坐骑不是永久的 需要设置有效的天数 天数0代表永久(特别注意:天数中只能填阿拉伯数字!)</font>
+<table class="tableCss">
+	<tr>
+		<td>登录名:</td>
+		<td><input id="horse_loginName" name="horse_loginName" class="easyui-validatebox"/></td>
+		<td>登录密码:</td>
+		<td><input id="horse_loginPsd" name="horse_loginName" class="easyui-validatebox" /></td>
+		<td>角色名:</td>
+		<td><input id="horse_heroName" name="horse_heroName" class="easyui-validatebox" /></td>
+		<td><input id="horse_heroId" name="horse_heroId" hidden="false" class="easyui-validatebox"  /></td>
+	</tr>
+	<tr>
+	
+	
+		<td>坐骑类型:</td>
+		<td>
+		<select id="horse_type_type" class="easyui-combobox" name="horse_always" style="width:200px;">
+		<option value="0">请选择</option>   		   
+	   	 <option value="1">普通</option>   
+ 		<option value="2">稀有</option>    
+			</select> 
+		</td>	
+	
+	
+	
+		<td>坐骑:</td>
+		<td>
+		<input id='horse_horseId' hidden="true" required="true"></input>
+		</td>
+		
+	</tr>
+	<tr>
+		<td> 品阶:</td>
+		<td><input id="horse_quality" name="horse_quality"  min="1" max="7" class="easyui-numberspinner"  style="width: 80px;" />
+		</td>
+    	<td> 星级:</td>
+		<td><input id="horse_star" name="horse_star" value="1" min="1" max="5"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr id="horse_time_hidden">
+		<td> 天数:</td>
+		<td><input id="horse_time" name="horse_time"  required="true" value="1" min="0" max="999" class="easyui-numberspinner"  style="width: 80px;" />
+		</td> 
+	</tr>
+</table>

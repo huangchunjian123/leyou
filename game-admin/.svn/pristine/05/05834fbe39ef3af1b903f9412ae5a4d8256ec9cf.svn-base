@@ -1,0 +1,91 @@
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript">
+
+</script>
+		                   
+<form id="fmroleedit" method="post" class="fm">
+	<table class="tableCss">
+	<tr>
+		<td>职业描述:</td>
+	    <td>
+	    <input id='jobDesc' name="jobDesc"  style="width: 80px;"></input>
+	     <input id='job' name="job"  hidden="true" style="width: 80px;"></input>
+		</td>
+	</tr>
+	
+	<tr>
+		<td>战队等级:</td>
+	    <td>
+	    	<input id='teamGrade' name="teamGrade"  style="width: 80px;"></input>
+	    </td>
+		<td>猎手等级:</td>
+	    <td>
+	    <input id='roleGrade' name="roleGrade"  style="width: 80px;" value="1" min="1" max="60" required="required"
+			class="easyui-numberspinner" ></input>
+		</td>
+	</tr>
+	<tr>
+	    <td>当前经验:</td>
+	    <td>
+	     <input id="nowExp" name="nowExp"  style="width: 80px;" value="0" min="0" max="99999999"
+			class="easyui-numberspinner" />
+		</td>
+	    <td>下一等级经验:</td>
+	    <td>
+	    <input id="maxExp" name="maxExp"  style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+	    <td>魂器1id:</td>
+	    <td>
+	     <input id="hunqiId1" name="hunqiId1"  style="width: 80px;" />
+	     <input id='hunqitype1'></input>
+					
+		</td>
+	    <td>魂器1等级:</td>
+	    <td>
+	     <input id="hunqiGrade1" name="hunqiGrade1"  style="width: 80px;" value="0" min="0" max="30" 
+			class="easyui-numberspinner" />
+		</td>
+		 <td>魂器2id:</td>
+	    <td>
+	     <input id="hunqiId2" name="hunqiId2"  style="width: 80px;" />
+	     <input id='hunqitype2'></input>
+		</td>
+	    <td>魂器2等级:</td>
+	    <td>
+	     <input id="hunqiGrade2" name="hunqiGrade2"  style="width: 80px;" value="0" min="0" max="30" 
+			class="easyui-numberspinner" />
+		</td>
+		 <td>魂器3id:</td>
+	    <td>
+	     <input id="hunqiId3" name="hunqiId3"  style="width: 80px;" />
+	      <input id='hunqitype3'></input>
+		</td>
+	    <td>魂器3等级:</td>
+	    <td>
+	     <input id="hunqiGrade3" name="hunqiGrade3"  style="width: 80px;" value="0" min="0" max="30" 
+			class="easyui-numberspinner" />
+		</td>
+	</tr>
+	<tr>
+	    <td>战魂星级:</td>
+	    <td>
+	     <input id="zhanhunGrade" name="zhanhunGrade"  style="width: 80px;" value="0" min="0" max="5" 
+			class="easyui-numberspinner" />
+		</td>
+	    <td>战魂品阶等级(颜色):</td>
+	    <td>
+	     <input id="zhanhunQuality" name="zhanhunQuality"  style="width: 80px;"  value="0" min="0" max="4" 
+			class="easyui-numberspinner"/>
+		</td>
+		 <td>战魂品阶等级(+):</td>
+	    <td>
+	     <input id="zhanhunSubQuality" name="zhanhunSubQuality"  style="width: 80px;"  value="0" min="0" max="4" 
+			class="easyui-numberspinner"/>
+		</td>
+	</tr>
+</table>
+</form>

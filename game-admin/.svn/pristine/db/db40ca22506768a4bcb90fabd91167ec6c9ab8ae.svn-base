@@ -1,0 +1,47 @@
+package com.game.admin.dto.currency;
+/**
+ * 充值项目
+ * @author JiaYi
+ * @date  2018年4月4日 下午5:36:56 
+ * @package com.game.admin.dto.currency
+ */
+public class RechargeGradeDto {
+	
+	private int id;
+	
+	private int needMoney;
+	
+	private String name;
+
+	public RechargeGradeDto() {
+	}
+	
+	public RechargeGradeDto(int id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getNeedMoney() {
+		return needMoney;
+	}
+
+	public void setNeedMoney(int needMoney) {
+		this.needMoney = needMoney;
+	}
+}

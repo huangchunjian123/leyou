@@ -1,0 +1,27 @@
+package com.xg.admin.service.skill;
+
+import java.util.List;
+
+import com.xg.admin.dto.skill.SkillsDto;
+
+/**
+ * 技能相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface ISkillService {
+
+	/**
+	 * 获得职业技能
+	 * @param type  所处技能面板中的分类（1职业，2装备，3共用的被动技能）
+	 * @param job 技能使用者(0.通用1.拳师2.魔剑士3.机甲)
+	 * @return
+	 */
+	public List<SkillsDto> getSkillsByTypeJob(String q,int type, int job);
+		
+	/**
+	 * 刷新内存道具列表
+	 */
+	public void initSkills();
+
+}

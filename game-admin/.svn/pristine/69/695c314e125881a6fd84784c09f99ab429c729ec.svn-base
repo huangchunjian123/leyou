@@ -1,0 +1,647 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.util.CollectionUtils;
+
+import net.paoding.rose.web.annotation.Param;
+
+import com.alibaba.fastjson.JSON;
+import com.game.admin.dto.currency.RechargeGradeDto;
+import com.game.admin.pojo.HeroModel;
+import com.game.admin.service.currency.ICurrencyService;
+import com.game.admin.service.good.HeroModelServer;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.admin.utils.StringUtilGm;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.HeroService;
+import com.game.api.hessian.dto.AddHeroDto;
+import com.game.api.hessian.dto.CloneHeroDto;
+import com.game.api.hessian.dto.HorseDTO;
+import com.game.api.hessian.dto.SkillDTO;
+import com.game.util.ObjectUtil;
+import com.game.util.StringUtil;
+
+/**
+ * 账号控制器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class HerosController extends BaseController {
+	@Resource
+	private HeroModelServer HeroJobModelService;
+
+	
+	@Resource
+	private ICurrencyService currencyService;
+	/**
+	 * 跳转至列表页面
+	 * goList
+	 * @return   
+	 * String  
+	 * @exception
+	 */
+
+	public String goHeros() {
+		return "heros/list";
+	}
+	
+	/**
+	 * 跳转到正式外网服
+	 * @return
+	 */
+	public String goOfficial(){
+		return "heros/officialServer";
+	}
+	
+	/**
+	 * 职业列表
+	 * @param q
+	 * @return
+	 */
+	public Object getJob(@Param("q") String q) {
+		List<HeroModel> list = HeroJobModelService.getAll(q, 0, 10);
+		return ResultCode.writeJson(list);
+	}
+	
+	/**
+	 * 查找玩家
+	 * @param loginName
+	 * @param serverId
+	 * @return
+	 */
+	public Object queryHeroList(@Param("serverId") int serverId, @Param("page") int page, @Param("rows") int rows, @Param("qName") String qName) {
+		String url = buildUrl(serverId);
+		if(StringUtil.isEmpty(url)) {
+			return null;
+		}
+		HeroService heroService = getHessianFactory(HeroService.class, url);
+		if (null == heroService) {
+			return ResultCode.error(String.format("查找%d服玩家账失败", serverId));
+		} else {
+			try {
+				DataGrid result = heroService.getHeroListDto(serverId, rows, page, qName);
+				if (null == result) {
+					logger.error(String.format("查找%d服玩家账号失败", serverId));
+					return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+				}
+				return ResultCode.writeJson(result);
+			} catch (Exception e) {
+				logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+	}
+	
+	
+
+	public Object addHero(@Param("pid") int pid, @Param("grade") int grade, @Param("jobId") int jobId, @Param("serverId") int serverId,
+			@Param("heroInfoJson") String heroInfoJson) {
+		AddHeroDto heroData = JSON.parseObject(heroInfoJson, AddHeroDto.class);
+		heroData.setPid(pid);
+		heroData.setServerId(serverId);
+		heroData.setJobId(jobId);
+		heroData.setGrade(grade);
+		heroData.setClientIp(getSessionInfo().getIp());
+		String loginname = heroData.getLoginName();
+		String loginPsd = heroData.getLoginPsd();
+		String heroname = heroData.getHeroName();
+		int teamgrade = heroData.getGrade();
+		int vipgrade = heroData.getVipGrade();
+		int copper= heroData.getCopper();
+		int yuanbao = heroData.getYuanbao();
+		if (null == loginname || "".equals(loginname)) {
+			return ResultCode.error("参数错误loginname");
+		}
+		if (null == loginPsd || "".equals(loginPsd)) {
+			return ResultCode.error("参数错误loginPsd");
+		}
+		heroname = StringUtilGm.filterHeroName(heroData.getHeroName());
+		if (StringUtil.isEmpty(heroname)) {
+			return ResultCode.error("参数错误玩家名称");
+		}
+		if (teamgrade < 0 || vipgrade < 0) {
+			return ResultCode.error("参数错误vipgrade or teamgrade");
+		}
+		
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int result = heroService.addHero(heroData);
+					if (result == 1) {
+						logger.error(String.format("创建的账号失败，账号名【%s】已经存在", loginname));
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerAddHero,loginname,heroname,grade
+								,vipgrade,jobId,copper,yuanbao,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("创建的账号失败，账号名【%s】已经存在", loginname));
+					}
+					if (result == 2) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerAddHero,loginname,heroname,grade
+								,vipgrade,jobId,copper,yuanbao,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("创建的账号失败，角色名【%s】已经存在", heroname));
+					}
+					recordOperateLog(String.format(OperateLogInfos.HerosControllerAddHero,loginname,heroname,grade
+							,vipgrade,jobId,copper,yuanbao,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("创建的账号成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，创建账号失败");
+	}
+
+	public Object delHero(@Param("pid") int pid, @Param("serverId") int serverId, @Param("heroId") String heroId) {
+		if (null == heroId || "".equals(heroId)) {
+			return ResultCode.error("参数错误heroId");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService  = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int result = heroService.delHero(heroId);
+					if (result == 1) {
+						logger.error(String.format("删除的账号失败，账号【%s】不存在", heroId));
+						
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerDelHero,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("删除的账号失败，账号【%s】不存在", heroId));
+					}
+					recordOperateLog(String.format(OperateLogInfos.HerosControllerDelHero,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("删除的账号成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		
+		}
+		return ResultCode.error("api出错，删除账号失败");
+	}
+
+	
+	public Object editHero(@Param("serverId") int serverId,@Param("heroInfonewJson") String heroInfonewJson,
+						   @Param("gaveHeroInfo") String gaveHeroInfo){
+		AddHeroDto editHeroData = JSON.parseObject(heroInfonewJson, AddHeroDto.class);
+		AddHeroDto gaveHeroData = JSON.parseObject(gaveHeroInfo, AddHeroDto.class);
+		if(checkAddHeroDto(editHeroData, gaveHeroData)){
+			String url = buildUrl(serverId);
+			if(!StringUtil.isEmpty(url)) {
+				HeroService heroService  = getHessianFactory(HeroService.class, url);
+				if(heroService != null){
+					try {
+						int result = heroService.editHero(editHeroData);
+						if (result == 1) {
+							recordOperateLog(betweenValue(editHeroData, gaveHeroData, serverId), 2);
+							return ResultCode.error(String.format("编辑的账号失败，账号【%s】不存在", editHeroData.getHeroId()));
+						} else if (result == 2) {
+							recordOperateLog(betweenValue(editHeroData, gaveHeroData, serverId), 2);
+							return ResultCode.error(String.format("编辑的账号失败，角色名【%s】已经存在", editHeroData.getHeroName()));
+						}else {
+							recordOperateLog(betweenValue(editHeroData, gaveHeroData, serverId), 1);
+							return ResultCode.succ("编辑的账号成功");
+						}
+					} catch (Exception e) {
+						logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+					}
+				}
+			}
+		}
+		return ResultCode.error("请检查数据，编辑账号失败");
+	}
+	
+	/**
+	 * 差值比对
+	 * @param editHeroData
+	 * @param gaveHeroData
+	 */
+	private String betweenValue(AddHeroDto editHeroData,AddHeroDto gaveHeroData,int serverId){
+		return "编辑玩家[ 角色名称:"+editHeroData.getHeroName()+
+					 " 角色等级:"+compareValue(editHeroData.getGrade(), gaveHeroData.getGrade())+
+					 " 角色经验:"+compareValue(editHeroData.getExp(), gaveHeroData.getExp())+
+					 " VIP等级:"+compareValue(editHeroData.getVipGrade(), gaveHeroData.getVipGrade())+
+					 " 角色体力:"+compareValue(editHeroData.getSp(), gaveHeroData.getSp())+
+					 " 礼金:"+compareValue(editHeroData.getGift(), gaveHeroData.getGift())+
+					 " 元宝:"+compareValue(editHeroData.getYuanbao(), gaveHeroData.getYuanbao())+
+					 " 金币:"+compareValue(editHeroData.getCopper(), gaveHeroData.getCopper())+
+					 " 银币:"+compareValue(editHeroData.getSilver(), gaveHeroData.getSilver())+
+					 " 操作:"+getByIdServerName(serverId)+
+					 " ip地址:"+getSessionInfo().getIp()+" ]";
+	}
+	
+	private String compareValue(int valueA,int valueB){
+		//5    8       
+		int number = valueA - valueB;
+		if(number > 0){
+			return StringUtilGm.ADD_STRING+number;
+		}
+		return String.valueOf(number);
+	}
+	
+	public static void main(String[] args) {
+		int a = 5;
+		int b = 8;
+		int aa = a-b;
+		System.out.println(a-b);
+		int c = 8;
+		int d = 5;
+		int bb = c-d;
+		System.out.println(c-d);
+		
+		System.err.println(String.valueOf(-8));
+	}
+	
+	
+	/**
+	 * 检查是否能发送
+	 * @param editHeroData
+	 * @param gaveHeroData
+	 * @return
+	 */
+	public boolean checkAddHeroDto(AddHeroDto editHeroData,AddHeroDto gaveHeroData){
+		if(ObjectUtil.isEmptyObject(editHeroData) || ObjectUtil.isEmptyObject(gaveHeroData)){
+			return false;
+		}
+		if(StringUtil.isEmpty(editHeroData.getHeroId())){
+			return false;
+		}
+		if(!(editHeroData.getHeroId().equals(gaveHeroData.getHeroId()))){
+			return false;
+		}
+		if(editHeroData.equals(gaveHeroData)){
+			return false;
+		}
+		if(StringUtil.isEmpty(editHeroData.getHeroName())){
+			return false;
+		}
+		String heroName = StringUtilGm.filterHeroName(editHeroData.getHeroName());
+		if(StringUtil.String_length(heroName) > 12){
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
+	
+	/**
+	 *	编辑
+	 * @param pid
+	 * @param serverId
+	 * @param heroId
+	 * @param heroInfoJson
+	 * @return
+	 */
+	public Object editHero1(@Param("pid") int pid, @Param("grade") int grade, @Param("exp") int exp, @Param("serverId") int serverId,
+			@Param("heroId") String heroId, @Param("heroInfoJson") String heroInfoJson, @Param("gift") int gift,@Param("silver") int silver,
+			@Param("sp") int sp) {
+		if (null == heroId || "".equals(heroId)) {
+			return ResultCode.error("参数错误heroId");
+		}
+
+		AddHeroDto heroData = JSON.parseObject(heroInfoJson, AddHeroDto.class);
+		heroData.setPid(pid);
+		heroData.setServerId(serverId);
+		heroData.setHeroId(heroId);
+		heroData.setExp(exp);
+		heroData.setGrade(grade);
+		heroData.setGift(gift);
+		heroData.setSilver(silver);
+		heroData.setSp(sp);
+		String  heroName = StringUtilGm.filterHeroName(heroData.getHeroName());
+		int teamgrade = heroData.getGrade();
+		int vipgrade = heroData.getVipGrade();
+		if (teamgrade < 0 || vipgrade < 0) {
+			return ResultCode.error("参数错误vipgrade or teamgrade");
+		}
+		if (StringUtil.isEmpty(heroName)) {
+			return ResultCode.error("参数错误玩家角色名称!");
+		}
+		if(StringUtil.String_length(heroName) > 12){
+			return ResultCode.error("请输入六个字以内的名字!");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int result = heroService.editHero(heroData);
+					if (result == 1) {
+						return ResultCode.error(String.format("编辑的账号失败，账号【%s】不存在", heroId));
+					}
+					if (result == 2) {
+						return ResultCode.error(String.format("编辑的账号失败，角色名【%s】已经存在", heroName));
+					}
+					return ResultCode.succ("编辑的账号成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，编辑账号失败");
+	}
+
+	/**
+	 * 踢玩家下线
+	 * @param serverId
+	 * @param heroId
+	 * @return
+	 */
+	public Object downLine(@Param("serverId") int serverId, @Param("heroId") String heroId) {
+		if (null == heroId || "".equals(heroId)) {
+			return ResultCode.error("参数错误heroId");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					int res = heroService.downLine(heroId);
+					if (res == 0) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerDownLine,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+						return ResultCode.succ("成功！已经踢玩家下线");
+					}
+					if (res == 1) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerDownLine,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("玩家已经下线，提玩家下线失败%s", heroId));
+					}
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error(String.format("踢出%s玩家账号失败", heroId));
+	}
+
+	/**
+	 * 获取所有坐骑
+	 * @param serverId
+	 * @param q
+	 * @return
+	 */
+	public Object getAllHorse(@Param("serverId") int serverId, @Param("q") String q) {
+		if(q==null||q.equals("")){
+			return ResultCode.error("类型没有传递");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					List<HorseDTO> list = heroService.queryAllHorse(q, 0, 10);
+					return ResultCode.writeJson(list);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("API出错");
+	}
+
+	/**
+	 * 当前已经选择的坐骑
+	 * @param serverId
+	 * @param heroId
+	 * @param horseId
+	 * @return
+	 */
+	public Object getHaveHorse(@Param("serverId") int serverId, @Param("heroId") String heroId, @Param("horseId") int horseId) {
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService= getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					HorseDTO dto = heroService.queryHaveHorse(heroId, horseId);
+					if(dto==null){
+					return	ResultCode.succ("没有这个坐骑");
+					}
+					return ResultCode.writeJson(dto);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("API出错");
+	}
+
+	/**
+	 * 坐骑修改添加
+	 * @param serverId
+	 * @param heroId
+	 * @param horseId
+	 * @param always
+	 * @param star
+	 * @param quality
+	 * @param time
+	 * @return
+	 */
+	public Object AddOrupdate(@Param("serverId") int serverId, @Param("heroId") String heroId, @Param("horseId") int horseId, @Param("always") int always,
+			@Param("star") int star, @Param("quality") int quality, @Param("time") int time,@Param("isOrd") int isOrd) {
+		if(horseId==0){
+		return ResultCode.error("API出错horseId为空"); 
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			boolean isAlways = always == 1 ? true : false;
+			boolean isOrdinary=always==2?false:true;
+			if(time==0){
+				isAlways=true;
+			}
+			HeroService heroService  = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int res = heroService.AddOrupdate(heroId, horseId, isAlways, star, quality, time,isOrdinary);
+					if (res == 1) {
+						return ResultCode.error("API出错HeroId为空");
+					}
+					recordOperateLog(String.format(OperateLogInfos.HerosControllerAddOrupdate,heroId,horseId,always
+							,star,quality,time,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("操作成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("API出错");
+	}
+
+	
+	public Object getSKillList(@Param("serverId") int serverId, @Param("heroId") String heroId) {
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService  = getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					List<SkillDTO> list = heroService.querySKillList(heroId);
+					if(CollectionUtils.isEmpty(list)){
+						 return ResultCode.error("玩家不存在");
+					}
+					return ResultCode.writeJson(list);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("API出错");
+	}
+	
+	
+	
+	public Object getSkill(@Param("serverId") int serverId, @Param("heroId") String heroId, @Param("skillId") int skillId) {
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					SkillDTO dto = heroService.querySkill(heroId,skillId);
+					if(dto==null){
+						return ResultCode.succ("没有这个技能");
+					}
+					return ResultCode.writeJson(dto);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("API出错");
+	}
+	
+	public Object editorSkill(@Param("serverId") int serverId, @Param("heroId") String heroId,
+				@Param("SkillID") int SkillID, @Param("level") int level) {
+			String url = buildUrl(serverId);
+			if(!StringUtil.isEmpty(url)) {
+				HeroService heroService = getHessianFactory(HeroService.class, url);
+				if(heroService!= null){
+					try {
+						int res = heroService. editorSkill( heroId, SkillID, level);
+						if (res == 1) {
+							return ResultCode.error("HeroId为空");
+						}else if (res == 2) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+											,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("技能为空不能");
+						}else if (res == 3) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+									,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("没有这个技能");
+						}else if (res == 4) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+									,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("角色等级不足，无法升级");
+						}else if (res == 5) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+									,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("招式已满级，无法升级");
+						}else if (res == 6) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+									,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("您还没有帮会，无法升级技能");
+						}else if (res == 7) {
+							recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+									,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+							return ResultCode.error("您还没有帮会，无法升级技能");
+						}
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerEditorSkill,heroId,SkillID,level
+								,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+						return ResultCode.succ("操作成功");
+					} catch (Exception e) {
+						logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+					}
+				}
+			}
+			return ResultCode.error("API出错");
+	}
+
+	
+	public Object cloneHero(@Param("pid") int pid, @Param("serverId") int serverId, @Param("heroInfoJson") String heroInfoJson) {
+		CloneHeroDto heroData = JSON.parseObject(heroInfoJson, CloneHeroDto.class);
+		heroData.setPid(pid);
+		heroData.setServerId(0);
+		String loginname = heroData.getLoginName();
+		String heroname = heroData.getHeroName();
+		if (null == heroData.getCloneHeroId() || "".equals(heroData.getCloneHeroId())) {
+			return ResultCode.error("参数错误:cloneheroId");
+		}
+		if (null == loginname || "".equals(loginname)) {
+			return ResultCode.error("参数错误");
+		}
+		heroname = StringUtilGm.filterHeroName(heroData.getHeroName());
+		if (StringUtil.isEmpty(heroname)) {
+			return ResultCode.error("参数错误玩家名称非法字符");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int result = heroService.cloneHero(heroData);
+					if (result == 1) {
+						logger.error(String.format("克隆的账号失败 克隆对象【%s】不存在", heroInfoJson));
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("克隆的账号失败，克隆对象【%s】不存在", heroInfoJson));
+					} else if (result == 2) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("克隆的账号失败，账号名【%s】已经存在", loginname));
+					} else if (result == 3) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("克隆功能被屏蔽"));
+					} else if (result == 4) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("克隆创建账号有误"));
+					} else if (result == 5) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("克隆名称重复"));
+					} else if (result == 6) {
+						recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+								,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("请检查克隆账号或密码"));
+					}
+					recordOperateLog(String.format(OperateLogInfos.HerosControllerCloneHero,heroData.getCloneHeroId()
+							,loginname,heroname,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("克隆的账号成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，克隆账号失败");
+	}
+	
+	
+	public Object recharge(@Param("serverId") int serverId,@Param("heroId") 
+							String heroId, @Param("rechargeId") int rechargeId){
+		if(StringUtil.isEmpty(heroId)){
+			return ResultCode.error("参数错误,请检查选服或玩家名称");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			RechargeGradeDto dto = currencyService.getByIdRechargeGradeData(rechargeId);
+			if(null == dto){
+				return ResultCode.error("此充值项目不存在!");
+			}
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					int result = heroService.copyRecharge(heroId,rechargeId);
+					if(result == 1){
+						return ResultCode.error("此玩家不存在!");
+					}
+					recordOperateLog(String.format(OperateLogInfos.HerosControllerRecharge,heroId,rechargeId,
+							getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("操作成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，操作失败");
+	}
+}

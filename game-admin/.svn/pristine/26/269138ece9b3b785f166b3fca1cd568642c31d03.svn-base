@@ -1,0 +1,144 @@
+
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>包裹</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+
+$(function() {
+	$("#bagTabs").tabs("select",0);
+	$('#equip').datagrid({
+		  url:'<%=request.getContextPath()%>/good/queryEquipList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:2
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,	
+	        fit:true,
+	        columns: [[
+	                   { field: 'id', title: 'id',width: 20},
+	                   { field: 'heroId', title: '角色id',width:20},
+	                   { field: 'goodName', title: '名称',width: 20},
+	                   { field: 'level', title: '等级', width: 20 },
+	                   { field: 'startLevel', title: '强化等级',width: 20 },
+	                   { field: 'quality', title: '品质',width: 20},
+	                   { field: 'gooddesc', title: '描述',width: 20 }
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield1();
+	               }
+	});
+	$('#good').datagrid({
+		  url:'<%=request.getContextPath()%>/good/queryEquipList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:0
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'heroId', title: '角色id',width: 0 },
+	                   { field: 'herogoodId', title: 'herogoodId', width: 0 },
+	                   { field: 'goodName', title: '名称',width: 15 },
+	                   { field: 'id', title: '物品id',width: 15 },
+	                   { field: 'count', title: '物品数量', width: 15 },
+	                   { field: 'gooddesc', title: '描述', width: 15 }
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield2();
+	               }
+	});
+<%-- 	$('#gem').datagrid({
+		  url:'<%=request.getContextPath()%>/good/queryGemsList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:1
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'heroId', title: '角色id',width: 0 },
+	                   { field: 'herogoodId', title: 'herogoodId', width: 0 },
+	                   { field: 'goodName', title: '名称',width: 15 },
+	                   { field: 'goodId', title: '宝石id',width: 15 },
+	                   { field: 'goodNum', title: '宝石数量', width: 15 },
+	                   { field: 'goodDesc', title: '描述', width: 15 }
+	                   
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield3();
+	               }
+	}); --%>
+	function  hiddenfield1(){
+		$('#equip').datagrid('hideColumn','heroId');
+		$('#equip').datagrid('hideColumn','id');
+	}
+	function  hiddenfield2(){
+		$('#good').datagrid('hideColumn','heroId');
+		$('#good').datagrid('hideColumn','herogoodId');
+	}
+/* 	function  hiddenfield3(){
+ 		$('#gem').datagrid('hideColumn','heroId');
+		$('#gem').datagrid('hideColumn','herogoodId'); 
+	} */
+	
+});    
+
+
+
+</script>
+</head>
+
+<body class="easyui-layout" fit="true">
+	
+	
+	<div region="center" border="false" style="overflow: auto;">
+		<div id="bagTabs" class="easyui-tabs" style="width:1200px;height:800px;">
+			<div id="equiptab" title="装备" style="padding:10px;">
+					<table id="equip" title="装备列表">
+					</table>
+				</div>
+				<div id="goodtab" title="物品" style="padding:10px;">
+					<table id="good" title="物品列表">
+					</table>
+				</div>
+<!-- 			<div id="gemtab" title="宝石" style="padding:10px;">
+					<table id="gem" title="宝石列表">
+					</table>
+				</div> -->
+				
+		</div>
+	</div>
+
+</body>
+
+
+</html>

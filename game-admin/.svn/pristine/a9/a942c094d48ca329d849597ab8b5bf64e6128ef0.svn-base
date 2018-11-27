@@ -1,0 +1,15 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<table class="tableCss">
+
+	
+	<tr>
+	<td><select id="result_List" name="sign_list" size="13"style="width: 1500px " >
+	</select>
+	</td>
+	</tr>
+
+</table>

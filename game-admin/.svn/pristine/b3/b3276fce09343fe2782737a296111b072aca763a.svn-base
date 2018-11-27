@@ -1,0 +1,131 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>生成活动奖励字符串</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+	$(document).ready(function () {  
+		$.post('<%=request.getContextPath()%>/activity/geteditreward',function(data) {
+			var d = $.parseJSON(data);
+			if(d != null){
+				$('#rewardids').text("生成的奖励："+d.rewards);
+				$('#rewardnames').text('生成的奖励名字：'+d.names);
+			}
+		});
+		  $("#goodsMoveUp,#goodsMoveDown").click(function() {  
+			  var $opt = $("#srewards option:selected:first");
+			  if (!$opt.length) return;
+			  if (this.id == 'goodsMoveUp')
+				  $opt.prev().before($opt);  
+			  else 
+				  $opt.next().after($opt);   
+		  }); 
+		  $("#srewards").dblclick(function() {
+			  if($("#srewards").val()!='' && $("#srewards").val()!=null){
+				  $.messager.prompt('修改奖励数量', '请输入奖励数量', function(r){
+		                if (r){
+				  			var tv = $("#srewards").find("option:selected");
+				 			var value = tv.val().split(":");
+				 			var text = tv.text().split(":");
+				 			tv.val(value[0]+":"+r);
+				 			tv.text(text[0]+":"+r);
+		                }
+		            });  
+			  }
+		  }); 
+	 })
+	function submitok(){
+		var grew = '';
+		$('#srewards option').each(function(){
+			grew += $(this).val()+",";
+		});
+		if(grew==''){
+			alert("请选择道具!");
+			return;
+		}
+		$.post('<%=request.getContextPath()%>/activity/editReward',{
+			srewards : grew
+		},function(data) {
+			var d = $.parseJSON(data);
+			$('#rewardids').text(d.rewards);
+			$('#rewardnames').text('生成的奖励名字：'+d.names);
+		});
+	}
+	function addselect(){
+		var num = $('#goodsnum').val();
+	    var reg = new RegExp("^[0-9]*$");
+	    if(num == '' || !reg.test(num)){
+	        alert("请输入正整数!");
+	        return;
+	    }
+		var grid=$("#goodsrew").combogrid("grid");//获取表格对象
+		var row = grid.datagrid('getSelected');//获取行数据
+		var gid = row.goodsId;
+		var gname = row.name;
+		var tv = gid +":"+num;
+		var tt = gname+":"+num;
+		$("#srewards").append("<option value='"+ tv +"'>"+tt+"</option>");
+	}
+	function delselect(){
+		var obj = document.getElementById("srewards"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	function clearselect(){
+		$("#srewards").empty(); 
+	}
+</script>
+</head>
+<body>
+	<div class="fmset">
+			<fieldset>
+			<legend>生成活动奖励字符串</legend>
+			<form id="fm" method="post">
+				<div>
+					<label>道具:</label> 
+					<select id="goodsrew" class="easyui-combogrid" style="width: 350px"
+						data-options="
+			            panelWidth: 320,
+			            idField: 'goodsId',
+			            textField: 'name',
+			            url: '<%=request.getContextPath()%>/activity/getallgoods',
+			            columns: [[
+			                {field:'name',title:'名称',width:60},
+			                {field:'goodsId',title:'ID',width:40}
+			            ]],
+			            fitColumns: true,
+						method:'post',
+						mode:'remote'
+			           "></select><br />
+				</div>
+				<div>
+					<label>数量:</label><input id="goodsnum" name="num" required="true" style="width: 310px"><br />
+				</div>
+				<div>
+					<label></label><select id="srewards" name="srewards" size="8" style="width: 350px"></select><br />
+					<label></label><font color="red" size="4">友情提示:双击道具列表可修改数量</font>
+				</div>
+				<div>
+					<label></label><a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselect()">添加</a>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselect()">删除</a>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselect()">清空</a>&nbsp;&nbsp;&nbsp;&nbsp;
+					<input type="button" value="▲" id="goodsMoveUp" title="快速鍵: alt+向上" />&nbsp;&nbsp;&nbsp;&nbsp;
+					<input type="button" value="▼" id="goodsMoveDown" title="快速鍵: alt+向下"/>  
+					<br />
+				</div>
+				<div><br/>
+					<label></label><label></label><label></label><a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitok()">生成奖励</a>
+				</div>
+		</form>
+			</fieldset>
+		<fieldset>
+			<div id="rewardids" style="color:#F00">
+			</div>
+			<br/>
+			<div id="rewardnames" style="color:#F00">
+			</div>
+		</fieldset>
+	</div>
+</body>
+</html>

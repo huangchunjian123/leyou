@@ -1,0 +1,93 @@
+package com.xg.admin.service.server;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.server.ServerDao;
+import com.xg.admin.dto.model.ServerTreeNode;
+import com.xg.admin.pojo.server.ServerData;
+
+/**
+ * 主服务器相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("serverService")
+public class ServerServiceImpl implements IServerService {
+
+	@Autowired
+	private ServerDao serverDao;
+
+	/** 主服务器列表 */
+	private static Map<Integer, ServerData> serverMap = new HashMap<Integer, ServerData>();
+
+	/**
+	 * 定时加载服务器列表
+	 */
+	@PostConstruct
+	@Override
+	public void initServerList() {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					reloadServerAll();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	/**
+	 * 重新加载服务器列表
+	 */
+	public void reloadServerAll() {
+		List<ServerData> list = serverDao.getAll();
+		if (list != null) {
+			for (ServerData server : list) {
+				serverMap.put(server.getServerId(), server);
+			}
+		}
+	}
+
+	@Override
+	public List<ServerData> getAll() {
+		List<ServerData> list = new ArrayList<ServerData>();
+		for (Entry<Integer, ServerData> en : serverMap.entrySet()) {
+			list.add(en.getValue());
+		}
+		return list;
+	}
+
+	@Override
+	public List<ServerTreeNode> getTreeeServer() {
+		List<ServerTreeNode> list = new ArrayList<ServerTreeNode>();
+		ServerTreeNode root = new ServerTreeNode("-1", "服务器");
+		List<ServerTreeNode> clroot = new ArrayList<ServerTreeNode>();
+		List<ServerData> servers = getAll();
+		for (ServerData sr : servers) {
+			ServerTreeNode node = new ServerTreeNode(String.valueOf(sr.getServerId()), "S" + sr.getServerId()+"服");
+			clroot.add(node);
+			root.setChildren(clroot);
+		}
+		list.add(root);
+		return list;
+	}
+
+	@Override
+	public ServerData getByServerId(int serverId) {
+		return serverMap.get(serverId);
+	}
+
+}

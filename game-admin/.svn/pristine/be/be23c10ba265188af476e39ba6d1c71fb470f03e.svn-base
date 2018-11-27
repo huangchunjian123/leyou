@@ -1,0 +1,171 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>封号的IP数据</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function limitIpistribution(value,row,rowIndex){
+	    var html="<a href='#' onclick='_gunlock(\""+rowIndex + "\");'>解封</a>";
+		return html;
+	}
+	/* ----------------------等级----------------------------  	*/
+	
+	function _gunlock(rowIndex) {
+		var row = $('#dg').datagrid('getData').rows[rowIndex];
+		$('#lockIp').dialog({
+	     	onLoad:function(){
+	     		$('#e_limitIp').val(row.limitIp);
+	     		$('#e_heroId').val(row.heroId);
+	     		$('#e_heroName').val(row.heroName);
+	     		$('#e_loginName').val(row.loginName);
+	     		$('#e_accountId').val(row.accountId);
+	     		$('#e_limitIp').attr("disabled","true");
+	     		$('#e_heroId').attr("disabled","true");
+	     		$('#e_heroName').attr("disabled","true");
+	     		$('#e_loginName').attr("disabled","true");
+	     		$('#e_accountId').attr("disabled","true");
+	    },
+	    href:'<%=request.getContextPath()%>/views/account/editIp.jsp',
+	    modal: true,
+	    closed: true});
+		$('#lockIp').dialog('open');
+		$('#lockIp').dialog('setTitle', '编辑封号');
+	}
+	
+	function submitedit(){
+		$.post('<%=request.getContextPath()%>/account/close',{
+			heroId : $('#e_heroId').val(),
+			type:1,
+			serverid:choseserverId,
+			operator:1,
+			ranks:"",
+			rankTime:"",
+			heroName : $('#e_heroName').val(),
+			fengIp : 1,
+			limitIp : $('#e_limitIp').val(),
+		},function(data) {
+			$('#lockIp').dialog('close');
+			$('#dg').datagrid('reload');
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+		
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:false,checkbox:false ,lines:true" ></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/account/getLimitIpList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            autoRowHeight:false,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询账号 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'loginName'" width="6" align="left">登录名称</th>
+					<th data-options="field:'accountId'" width="6" align="left">账户ID</th>
+					<th data-options="field:'heroId'" width="6" align="left">角色ID</th>
+					<th data-options="field:'heroName'" width="6" align="left">角色名称</th>
+					<th data-options="field:'limitIp'" width="8" align="left">限制IP</th>
+					<th data-options="field:'limitIpDtoWhy'" width="10" align="left">封号原因</th>
+					<th data-options="field:'limitIpTime'" width="8" align="left">封号时间</th>
+					<th data-options="field:'opt',title:'Operation',formatter:limitIpistribution" width="8">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="搜索条件" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="lockIp"  style="display: block; top: 300px; width: 800px; left: 409px; overflow: auto;" closed="true" buttons="#lockIp-buttons" align="center">
+	</div>
+	<div id="lockIp-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitedit()">解封</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#lockIp').dialog('close');">取消</a>
+	</div>
+
+</body>
+</html>

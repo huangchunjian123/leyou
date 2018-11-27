@@ -1,0 +1,44 @@
+package com.game.admin.service.instance;
+
+import java.util.List;
+
+import com.game.admin.dto.instance.InstanceDto;
+import com.game.admin.pojo.NineDay;
+import com.game.admin.pojo.PataInstanceData;
+
+/**
+ * 副本相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *o
+ */
+public interface IInstanceService {
+
+	public List<InstanceDto> getByName(String name, int offset, int pagesize);
+
+	/**
+	 * 刷新内存副本列表
+	 */
+	public void initInstance();
+
+	public InstanceDto get(int instanceId);
+
+	public String getName(int instanceId);
+
+	public List<InstanceDto> getList_juqing_instance() ;
+	
+	/**
+	 * 通过ID 获取爬塔
+	 */
+	public PataInstanceData getPata(int instanceId);
+	/**
+	 * 获取所有的爬塔副本
+	 */
+	public List<PataInstanceData> get_all_pata();
+	
+	/**
+	 * 获取所有的九重天
+	 */
+	public List<NineDay> get_all_nineDays();
+	
+	
+}

@@ -1,0 +1,607 @@
+package com.xg.admin.service.task;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.python.antlr.PythonParser.continue_stmt_return;
+import org.python.google.common.collect.Lists;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.TaskConditionDao;
+import com.xg.admin.dao.data.TaskDao;
+import com.xg.admin.dao.data.TaskRewardDao;
+import com.xg.admin.dto.task.TaskDto;
+import com.xg.admin.pojo.task.TaskConditionData;
+import com.xg.admin.pojo.task.TaskData;
+import com.xg.admin.pojo.task.TaskRewardData;
+import com.xg.admin.service.equip.IEquipService;
+import com.xg.admin.service.gemstone.IGemstoneService;
+import com.xg.admin.service.good.IGoodService;
+import com.xg.admin.service.instance.IInstanceService;
+import com.xg.admin.service.monster.IMonsterService;
+import com.xg.admin.service.npc.INpcService;
+import com.xg.game.api.hessian.DataGrid;
+
+/**
+ * 任务业务逻辑管理器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+
+@Service("taskService")
+public class TaskServiceImpl implements ITaskService, InitializingBean {
+
+	@Resource
+	private TaskDao taskDao;
+	@Resource
+	private TaskRewardDao taskRewardDao;
+	@Resource
+	private TaskConditionDao taskConditionDao;
+
+	@Resource
+	private IMonsterService monsterService;
+	@Resource
+	private IGoodService goodService;
+	@Resource
+	private IEquipService equipService;
+	@Resource
+	private IGemstoneService gemstoneService;
+	@Resource
+	private INpcService npcService;
+	@Resource
+	private IInstanceService instanceService;
+	/** 任务dto列表 */
+	private static Map<Integer, TaskDto> taskDtomap = new HashMap<Integer, TaskDto>();
+	/** 任务数据 */
+	private static Map<Integer, TaskData> taskDataMap = new HashMap<>();
+	/** 任务条件数据 */
+	private static Map<Integer, List<TaskConditionData>> taskConditionDataMap = new HashMap<>();
+	/** 任务奖励数据 */
+	private static Map<Integer, List<TaskRewardData>> taskRewardDataMap = new HashMap<>();
+
+	@Override
+	public DataGrid datagrid(int taskType, int taskId, String taskName, int offset, int pagesize) {
+		DataGrid dataGrid = new DataGrid();
+
+		dataGrid.setRows(taskDao.findParams(taskId, taskName, taskType, offset, pagesize));
+		dataGrid.setTotal(taskDao.findParamsCount(taskId, taskName, taskType));
+		return dataGrid;
+	}
+
+	private void initRewardOptions(TaskRewardData reward) {
+		List<String> values = new ArrayList<>();
+		List<String> texts = new ArrayList<>();
+		if (reward.getRewardGoods() != null && reward.getRewardGoods().length() > 0) {
+			String[] attr = reward.getRewardGoods().split(",");
+			for (String item : attr) {
+				String[] tempAttr = item.split(":");
+				int bagType = Integer.valueOf(tempAttr[0]);
+				int goodId = Integer.valueOf(tempAttr[1]);
+				String bagTypeName = "", goodName = "";
+				if (bagType == 1) {
+					bagTypeName = "装备";
+					goodName = equipService.getName(goodId);
+				} else if (bagType == 2) {
+					bagTypeName = "道具";
+					goodName = goodService.getName(goodId);
+				} else if (bagType == 3) {
+					bagTypeName = "宝石";
+					goodName = gemstoneService.getName(goodId);
+				}
+				int count = Integer.valueOf(tempAttr[2]);
+
+				StringBuffer targetGoodsValue = new StringBuffer();
+				targetGoodsValue.append(bagType).append(":").append(goodId).append(":").append(count);
+				if (bagType == 1) {
+					int equipQuality = 0;
+					if (tempAttr.length > 3) {
+						equipQuality = Integer.valueOf(tempAttr[3]);
+					}
+					targetGoodsValue.append(":").append(equipQuality);
+				}
+				values.add(targetGoodsValue.toString());
+				StringBuffer targetGoodsText = new StringBuffer();
+				targetGoodsText.append(bagTypeName).append(":").append(goodName).append(":").append(count);
+				if (bagType == 1) {
+					int equipQuality = 0;
+					if (tempAttr.length > 3) {
+						equipQuality = Integer.valueOf(tempAttr[3]);
+					}
+					String equipQualityText = null;
+					switch (equipQuality) {
+					case 0:
+						equipQualityText = "白";
+						break;
+					case 1:
+						equipQualityText = "蓝";
+						break;
+					case 2:
+						equipQualityText = "绿";
+						break;
+					case 3:
+						equipQualityText = "紫";
+						break;
+					case 4:
+						equipQualityText = "金";
+						break;
+					default:
+						break;
+					}
+					targetGoodsText.append(":").append(equipQualityText);
+				}
+				texts.add(targetGoodsText.toString());
+			}
+		}
+		reward.setGoodsValues(values);
+		reward.setGoodsTexts(texts);
+	}
+
+	private void initConditionOptions(TaskConditionData condition) {
+		List<String> targetValues = new ArrayList<>();
+		List<String> targetTexts = new ArrayList<>();
+		//任务目标类型(0杀怪;1收集物品2;商城购买;3npc对话,4穿戴装备,5完成某动作,6升级等级,7通关某副本)
+		if (condition.getTargetType() == 0) {//0杀怪
+			if (condition.getTargetKillMonster() != null && condition.getTargetKillMonster().length() > 0) {
+				String[] attr = condition.getTargetKillMonster().split(",");
+				for (String item : attr) {
+					String[] tempAttr = item.split(":");
+					int instanceId = Integer.valueOf(tempAttr[0]);
+					int monsterId = Integer.valueOf(tempAttr[1]);
+					int count = Integer.valueOf(tempAttr[2]);
+					StringBuffer targetKillMonsterValue = new StringBuffer();
+					targetKillMonsterValue.append(instanceId).append(":").append(monsterId).append(":").append(count);
+					targetValues.add(targetKillMonsterValue.toString());
+
+					StringBuffer targetKillMonsterText = new StringBuffer();
+					targetKillMonsterText.append(instanceService.getName(instanceId)).append(":")
+							.append(monsterService.getName(monsterId)).append(":").append(count);
+					targetTexts.add(targetKillMonsterText.toString());
+				}
+			}
+			condition.setTargetKillMonsterValues(targetValues);
+			condition.setTargetKillMonsterTexts(targetTexts);
+		} else if (condition.getTargetType() == 1) {//1收集物品
+			if (condition.getTargetGoods() != null && condition.getTargetGoods().length() > 0) {
+				String[] attr = condition.getTargetGoods().split(",");
+				for (String item : attr) {
+					String[] tempAttr = item.split(":");
+					int bagType = Integer.valueOf(tempAttr[0]);
+					int goodId = Integer.valueOf(tempAttr[1]);
+					String bagTypeName = "", goodName = "";
+					if (bagType == 1) {
+						bagTypeName = "装备";
+						goodName = equipService.getName(goodId);
+					} else if (bagType == 2) {
+						bagTypeName = "道具";
+						goodName = goodService.getName(goodId);
+					} else if (bagType == 3) {
+						bagTypeName = "宝石";
+						goodName = gemstoneService.getName(goodId);
+					}
+					int count = Integer.valueOf(tempAttr[2]);
+
+					StringBuffer targetGoodsValue = new StringBuffer();
+					targetGoodsValue.append(bagType).append(":").append(goodId).append(":").append(count);
+					targetValues.add(targetGoodsValue.toString());
+
+					StringBuffer targetGoodsText = new StringBuffer();
+					targetGoodsText.append(bagTypeName).append(":").append(goodName).append(":").append(count);
+					targetTexts.add(targetGoodsText.toString());
+				}
+			}
+			condition.setTargetGoodsValues(targetValues);
+			condition.setTargetGoodsTexts(targetTexts);
+		} else if (condition.getTargetType() == 2) {//2;商城购买
+			if (condition.getTargetShop() != null && condition.getTargetShop().length() > 0) {
+				String[] attr = condition.getTargetShop().split(",");
+				for (String item : attr) {
+					String[] tempAttr = item.split(":");
+					int bagType = Integer.valueOf(tempAttr[0]);
+					int goodId = Integer.valueOf(tempAttr[1]);
+					String bagTypeName = "", goodName = "";
+					if (bagType == 1) {
+						bagTypeName = "装备";
+						goodName = equipService.getName(goodId);
+					} else if (bagType == 2) {
+						bagTypeName = "道具";
+						goodName = goodService.getName(goodId);
+					} else if (bagType == 3) {
+						bagTypeName = "宝石";
+						goodName = gemstoneService.getName(goodId);
+					}
+					int count = Integer.valueOf(tempAttr[2]);
+					StringBuffer targetShopValue = new StringBuffer();
+					targetShopValue.append(bagType).append(":").append(goodId).append(":").append(count);
+					targetValues.add(targetShopValue.toString());
+
+					StringBuffer targetShopText = new StringBuffer();
+					targetShopText.append(bagTypeName).append(":").append(goodName).append(":").append(count);
+					targetTexts.add(targetShopText.toString());
+				}
+			}
+			condition.setTargetShopTexts(targetTexts);
+			condition.setTargetShopValues(targetValues);
+		} else if (condition.getTargetType() == 3) {//3npc对话
+			if (condition.getTargetTalkNpc() != null && condition.getTargetTalkNpc().length() > 0) {
+				String[] attr = condition.getTargetTalkNpc().split("##");
+				for (String item : attr) {
+					String[] tempAttr = item.split("#");
+					int npcId = Integer.valueOf(tempAttr[0]);
+					String talkContent = tempAttr[1];
+					String npcName = npcId==0?"玩家":npcService.getNpcName(npcId);
+					StringBuffer targetTalkNpcValue = new StringBuffer();
+					targetTalkNpcValue.append(npcId).append("#").append(talkContent);
+					targetValues.add(targetTalkNpcValue.toString());
+
+					StringBuffer targetTalkNpcText = new StringBuffer();
+					targetTalkNpcText.append(npcName).append("#").append(talkContent);
+					targetTexts.add(targetTalkNpcText.toString());
+				}
+			}
+			condition.setTargetTalkNpcValues(targetValues);
+			condition.setTargetTalkNpcTexts(targetTexts);
+		}
+	}
+
+	@Override
+	public void addTask(TaskData task, List<TaskConditionData> conditions, List<TaskRewardData> rewards) {
+		int id = taskDao.add(task).intValue();
+		task.setId(id);
+
+		List<TaskConditionData> conditionList = taskConditionDataMap.get(task.getTaskId());
+		if (null == conditionList) {
+			conditionList = new ArrayList<>();
+		}
+		for (TaskConditionData data : conditions) {
+			if (null == data) {
+				continue;
+			}
+			data.setTaskId(task.getTaskId());
+			int newId = taskConditionDao.add(data).intValue();
+			data.setId(newId);
+			initConditionOptions(data);
+
+			conditionList.add(data);
+		}
+		taskConditionDataMap.put(task.getTaskId(), conditionList);
+
+		List<TaskRewardData> rewardList = taskRewardDataMap.get(task.getTaskId());
+		if (null == rewardList) {
+			rewardList = new ArrayList<>();
+		}
+		for (TaskRewardData data : rewards) {
+			if (null == data) {
+				continue;
+			}
+			try {
+				data.setTaskId(task.getTaskId());
+				int newId = taskRewardDao.add(data).intValue();
+				data.setId(newId);
+				initRewardOptions(data);
+
+				rewardList.add(data);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		taskRewardDataMap.put(task.getTaskId(), rewardList);
+
+		taskDtomap.put(task.getTaskId(), new TaskDto(task.getTaskId(), task.getType(), task.getTaskName()));
+		taskDataMap.put(task.getTaskId(), task);
+	}
+
+	@Override
+	public void updateTask(TaskData data, List<TaskConditionData> conditions, List<TaskRewardData> rewards) {
+		data.setId(taskDataMap.get(data.getTaskId()).getId());
+		taskDao.update(data);
+		taskDtomap.put(data.getTaskId(), new TaskDto(data.getTaskId(), data.getType(), data.getTaskName()));
+		taskDataMap.put(data.getTaskId(), data);
+
+		updateConditions(data.getTaskId(), conditions);
+		updateRewards(data.getTaskId(), rewards);
+
+	}
+
+	private void updateRewards(int taskId, List<TaskRewardData> rewards) {
+		List<Integer> oldRewardIds = getRewardId(taskId);
+		List<TaskRewardData> updateRewards = new ArrayList<>();
+		for (TaskRewardData data : rewards) {
+			if (null == data) {
+				continue;
+			}
+			if (data.getId() == null || data.getId() == -1) {
+				data.setTaskId(taskId);
+				int id = taskRewardDao.add(data).intValue();
+				data.setId(id);
+				initRewardOptions(data);
+				List<TaskRewardData> tempList = taskRewardDataMap.get(taskId);
+				if (tempList == null) {
+					tempList = new ArrayList<>();
+				}
+				tempList.add(data);
+				taskRewardDataMap.put(taskId, tempList);
+				continue;
+			}
+			if (oldRewardIds.contains(data.getId())) {
+				updateRewards.add(data);
+				updateReward(taskId, data);
+			}
+		}
+		for (TaskRewardData data : updateRewards) {
+			if (oldRewardIds.contains(data.getId())) {
+				oldRewardIds.remove(data.getId());
+				continue;
+			}
+		}
+		for (Integer rewardId : oldRewardIds) {
+			removeReward(taskId, rewardId);
+		}
+	}
+
+	private void updateConditions(int taskId, List<TaskConditionData> newConditions) {
+		List<Integer> oldConditionIds = getConditionIds(taskId);
+		List<TaskConditionData> updateConditions = new ArrayList<>();
+		for (TaskConditionData data : newConditions) {
+			if (null == data) {
+				continue;
+			}
+			if (data.getId() == null || data.getId() == -1) {
+				data.setTaskId(taskId);
+				int id = taskConditionDao.add(data).intValue();
+				data.setId(id);
+				initConditionOptions(data);
+				List<TaskConditionData> tempList = taskConditionDataMap.get(taskId);
+				if (tempList == null) {
+					tempList = new ArrayList<>();
+				}
+				tempList.add(data);
+				taskConditionDataMap.put(taskId, tempList);
+				continue;
+			}
+			if (oldConditionIds.contains(data.getId())) {
+				updateConditions.add(data);
+				updateCondition(taskId, data);
+			}
+		}
+		for (TaskConditionData data : updateConditions) {
+			if (oldConditionIds.contains(data.getId())) {
+				oldConditionIds.remove(data.getId());
+				continue;
+			}
+		}
+		for (Integer conditionId : oldConditionIds) {
+			removeCondition(taskId, conditionId);
+		}
+	}
+
+	private void updateReward(int taskId, TaskRewardData data) {
+		data.setTaskId(taskId);
+		taskRewardDao.update(data);
+		List<TaskRewardData> tempList = taskRewardDataMap.get(taskId);
+		int size = tempList.size();
+		for (int i = 0; i < size; i++) {
+			TaskRewardData item = tempList.get(i);
+			if (item.getId().equals(data.getId())) {
+				initRewardOptions(data);
+				tempList.set(i, data);
+				break;
+			}
+		}
+	}
+
+	private void removeReward(int taskId, int rewardId) {
+		taskRewardDao.deleteByRewardId(rewardId);
+		List<TaskRewardData> tempList = taskRewardDataMap.get(taskId);
+		int size = tempList.size();
+		for (int i = 0; i < size; i++) {
+			TaskRewardData item = tempList.get(i);
+			if (item.getId() == rewardId) {
+				tempList.remove(i);
+				break;
+			}
+		}
+	}
+
+	private void removeCondition(int taskId, int conditionId) {
+		List<TaskConditionData> tempList = taskConditionDataMap.get(taskId);
+		int size = tempList.size();
+		for (int i = 0; i < size; i++) {
+			TaskConditionData item = tempList.get(i);
+			if (item.getId() == conditionId) {
+				tempList.remove(i);
+				break;
+			}
+		}
+		taskConditionDao.deleteByConditionId(conditionId);
+	}
+
+	private void updateCondition(int taskId, TaskConditionData data) {
+		data.setTaskId(taskId);
+		taskConditionDao.update(data);
+		List<TaskConditionData> tempList = taskConditionDataMap.get(taskId);
+		int size = tempList.size();
+		for (int i = 0; i < size; i++) {
+			TaskConditionData item = tempList.get(i);
+			if (item.getId().equals(data.getId())) {
+				initConditionOptions(data);
+				tempList.set(i, data);
+				break;
+			}
+		}
+	}
+
+	@Override
+	public boolean existsTaskId(int taskId) {
+		return taskDtomap.containsKey(taskId);
+	}
+
+	@Override
+	public void deleteTask(int taskId) {
+		taskDtomap.remove(taskId);
+		taskDataMap.remove(taskId);
+		taskConditionDataMap.remove(taskId);
+		taskRewardDataMap.remove(taskId);
+		taskDao.delete(taskId);
+		taskConditionDao.deleteByTaskId(taskId);
+		taskRewardDao.deleteByTaskId(taskId);
+	}
+
+	@Override
+	public void initTasks() {
+		taskDtomap.clear();
+		taskDataMap.clear();
+		taskConditionDataMap.clear();
+		taskRewardDataMap.clear();
+		List<TaskData> allTaskDatas = taskDao.getAll(-1);
+		List<TaskConditionData> allConditions = taskConditionDao.getAll();
+		List<TaskRewardData> allRewards = taskRewardDao.getAll();
+		for (TaskData data : allTaskDatas) {
+			taskDtomap.put(data.getTaskId(), new TaskDto(data.getTaskId(), data.getType(), data.getTaskName()));
+			taskDataMap.put(data.getTaskId(), data);
+			for (TaskConditionData condition : allConditions) {
+				if (condition.getTaskId().equals(data.getTaskId())) {
+					List<TaskConditionData> tempList = taskConditionDataMap.get(data.getTaskId());
+					if (null == tempList) {
+						tempList = new ArrayList<>();
+					}
+					tempList.add(condition);
+					initConditionOptions(condition);
+					taskConditionDataMap.put(data.getTaskId(), tempList);
+				}
+			}
+			for (TaskRewardData reward : allRewards) {
+				if (reward.getTaskId().equals(data.getTaskId())) {
+					List<TaskRewardData> tempList = taskRewardDataMap.get(data.getTaskId());
+					if (null == tempList) {
+						tempList = new ArrayList<>();
+					}
+					tempList.add(reward);
+					initRewardOptions(reward);
+					taskRewardDataMap.put(data.getTaskId(), tempList);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initTasks();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public List<TaskDto> getTaskDtoByname(String name, Integer excludeId, int offset, int pagesize) {
+		List<TaskDto> list = new ArrayList<TaskDto>();
+		for (Entry<Integer, TaskDto> en : taskDtomap.entrySet()) {
+			TaskDto g = en.getValue();
+			if (excludeId != null && g.getTaskId() == excludeId) {
+				continue;
+			}
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getTaskName().indexOf(name) != -1 || name.indexOf(g.getTaskName()) != -1
+						|| name.equalsIgnoreCase(g.getTaskName()) || String.valueOf(g.getTaskId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public TaskData getData(int taskId) {
+		return taskDataMap.get(taskId);
+	}
+
+	@Override
+	public List<Integer> getConditionIds(int taskId) {
+		List<TaskConditionData> list = taskConditionDataMap.get(taskId);
+		List<Integer> ids = new ArrayList<>();
+		for (TaskConditionData data : list) {
+			if (ids.contains(data.getId())) {
+				continue;
+			}
+			ids.add(data.getId());
+		}
+		return ids;
+	}
+
+	@Override
+	public TaskConditionData getCondition(int taskId, int conditionId) {
+		List<TaskConditionData> list = taskConditionDataMap.get(taskId);
+		for (TaskConditionData data : list) {
+			if (conditionId == data.getId()) {
+				return data;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<Integer> getRewardId(int taskId) {
+		List<TaskRewardData> list = taskRewardDataMap.get(taskId);
+		List<Integer> ids = new ArrayList<>();
+		for (TaskRewardData data : list) {
+			if (ids.contains(data.getId())) {
+				continue;
+			}
+			ids.add(data.getId());
+		}
+		return ids;
+	}
+
+	@Override
+	public TaskRewardData getReward(int taskId, int rewardId) {
+		List<TaskRewardData> list = taskRewardDataMap.get(taskId);
+		for (TaskRewardData data : list) {
+			if (rewardId == data.getId()) {
+				return data;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<TaskDto> getAllMainTasks(String q) {
+		List<TaskDto> getList = Lists.newArrayList();
+		for (Iterator<TaskData> iterator = taskDataMap.values().iterator(); iterator.hasNext();) {
+			TaskData taskData =  iterator.next();
+			if (taskData.getType() ==0){
+				
+				if (!StringUtils.isEmpty(q)) {
+					if (taskData.getTaskName().contains(q)|| String.valueOf(taskData.getTaskId()).contains(q)) {
+						getList.add(taskDtomap.get(taskData.getTaskId().intValue()));
+						continue;
+					}
+				} else {
+					getList.add(taskDtomap.get(taskData.getTaskId().intValue()));
+				}
+			}
+		}
+		return getList;
+	}
+
+}

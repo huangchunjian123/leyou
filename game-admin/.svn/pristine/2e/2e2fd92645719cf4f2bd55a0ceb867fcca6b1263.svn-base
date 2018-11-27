@@ -1,0 +1,62 @@
+package com.game.admin.controllers;
+
+import java.net.MalformedURLException;
+
+import net.paoding.rose.web.annotation.Param;
+
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.HeroGoodEvilService;
+import com.game.api.hessian.dto.HeroRecordDTO;
+
+/**
+ * 善恶值
+ * @author liuchengjiang
+ *
+ */
+public class EvilController extends BaseController {
+
+	public Object queryEvil(@Param("serverId") int serverId, @Param("heroId") String heroId) {
+		String url = buildUrl(serverId, "/game-server/api/service/heroGoodEvil");
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				HeroGoodEvilService heroService = (HeroGoodEvilService) factory.create(HeroGoodEvilService.class, url);
+
+				HeroRecordDTO dto = heroService.queryHeroRecordDTO(heroId);
+				if(null == dto){
+					return ResultCode.error("玩家不存在");
+				}
+				return ResultCode.writeJson(dto);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+	}
+
+	public Object updateEvil(@Param("serverId") int serverId, @Param("heroId") String heroId, @Param("evil") int evil,@Param("heroName") String heroName) {
+		String url = buildUrl(serverId, "/game-server/api/service/heroGoodEvil");
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+	
+		try {
+			HeroGoodEvilService heroService = (HeroGoodEvilService) factory.create(HeroGoodEvilService.class, url);
+			int res = heroService.updateHeroRedcordDTO(heroId, evil);
+			if(res == 11){return ResultCode.error("玩家不存在");	}
+			if(res == 2){return ResultCode.error("不能输入重复值");	}
+			if(res == 0){
+				recordOperateLog(String.format(OperateLogInfos.EvilControllerUpdateEvil,heroId,heroName,evil,getByIdServerName(serverId)), 1);
+				return ResultCode.succ("善恶值操作成功");
+			}
+		} catch (MalformedURLException e) {
+			recordOperateLog(String.format(OperateLogInfos.EvilControllerUpdateEvil,heroId,heroName,evil,getByIdServerName(serverId)), 2);
+			e.printStackTrace();
+		}
+
+		return ResultCode.error("善恶值操作失败");
+	}
+}

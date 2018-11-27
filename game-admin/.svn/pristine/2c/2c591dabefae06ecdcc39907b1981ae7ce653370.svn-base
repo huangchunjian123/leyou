@@ -1,0 +1,7 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table>
+<input id="qheroId" name="heroId" hidden="true" />
+</table>
+<p align="center"><font color="red" size="1">提醒：当前角色没有帮派，点击确认创建后即可到达创建帮派页面</font></p>

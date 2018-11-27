@@ -1,0 +1,38 @@
+package com.game.admin.pojo;
+
+import java.io.Serializable;
+
+/**
+ * 九重天
+ * @author jiayi
+ *
+ */
+public class NineDay implements Serializable{
+
+	
+	private static final long serialVersionUID = 7985664051349297082L;
+		
+	private int id;
+	private String name;
+
+	public NineDay() {
+	}
+	public NineDay(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}

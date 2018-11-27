@@ -1,0 +1,212 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>发道具</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+	function submitok(){
+		var grew = '';
+		$('#srewards option').each(function(){
+			grew += $(this).val()+",";
+		});
+		$.post('<%=request.getContextPath()%>/good/sendGoods',{
+			serverIds:'<%=request.getParameter("serverId")%>',
+			playerId :'<%=request.getParameter("accountId")%>',
+			srewards : grew,
+			gold:$('#gold').val(),
+			yuanbao:$('#yuanbao').val(),
+			emailtitle:$('#emailtitle').val(),
+			emailcontent:$('#emailcontent').val(),
+		},function(data) {
+			clearselect();
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+	function bagTypeChange(obj) {
+		var type = $(obj).children('option:selected').val();
+		var praentObj = $(obj).parent().parent();
+		if (type == 1) {
+			praentObj.find(".equip_span").show();
+			praentObj.find(".good_span").hide();
+			praentObj.find(".gemstone_span").hide();
+		} else if (type == 2) {
+			praentObj.find(".equip_span").hide();
+			praentObj.find(".good_span").show();
+			praentObj.find(".gemstone_span").hide();
+		} else {
+			praentObj.find(".equip_span").hide();
+			praentObj.find(".good_span").hide();
+			praentObj.find(".gemstone_span").show();
+		}
+	}
+	function addselect(){
+		var bagTypeSel = $(":input[name='bagType']").children('option:selected');
+		var bagType = bagTypeSel.val();
+		var bagTypeName = bagTypeSel.text();
+		var grid = $(".bagtype" + bagType).combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert("请选择道具!");
+			return;
+		}
+		var gid = row.id;
+		var gname = row.name;
+
+		var num = $('#goodsnum').val();
+	    var reg = new RegExp("^[0-9]*$");
+	    if(num == '' || !reg.test(num)){
+	        alert("请输入正整数道具数量!");
+	        return;
+	    }
+	  
+		var tv = bagType + ":" + gid + ":" + num;
+		var tt = bagTypeName + ":" + gname + ":" + num;
+		
+		if (bagType == 1) {//装备
+			  var goodsstrengthgrade = $('#goodsstrengthgrade').val();
+			    var goodsqulity = $('#goodsqulity').val();
+			if (goodsstrengthgrade == '') {
+				goodsstrengthgrade=0;
+			}    
+			if (goodsqulity == '') {
+				goodsqulity=0;
+			}    
+			   
+			tv +=":" + goodsqulity+ ":" + goodsstrengthgrade;
+			tt +=":" + goodsqulity+ ":" + goodsstrengthgrade;
+		}
+		$("#srewards").append("<option value='"+ tv +"'>"+tt+"</option>");
+	}
+	function delselect(){
+		var obj = document.getElementById("srewards"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	function clearselect(){
+		$("#srewards").empty(); 
+	}
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>发道具</legend>
+			<form id="fm" method="post" name="apLogin">
+				<div>
+					<label>标题:</label>
+					<input id="emailtitle" class="easyui-validatebox" data-options="required:true,validType:'length[1,20]'" ><br />
+				</div>
+				<div>
+					<label>内容:</label>
+					<textarea id="emailcontent" class="easyui-validatebox" data-options="required:true,validType:'length[1,60]" style="width:340px" ></textarea><br />
+				</div>
+				<div>
+					<label>道具:</label> 
+					<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this);">
+						<option value="1" selected="selected">装备</option>
+						<option value="2">道具</option>
+						<option value="3">宝石</option>
+					</select>
+					<span id="equip_span" class="equip_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath() %>/equip/getallequip',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+					<span id="good_span" style="display: none;" class="good_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/good/getallgoods',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+							          
+					</span>
+					<span id="gemstone_span" style="display: none;" class="gemstone_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype3"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+				</div>
+				<div>
+					<label>数量:</label><input id="goodsnum" name="num" required="true"
+						style="width: 310px"><br />
+				</div>
+				<div>
+					<label>装备品质:</label><input id="goodsqulity" name="goodsqulity" required="false"
+						style="width: 310px"><br />
+				</div>
+				<div>
+					<label>强化等级:</label><input id="goodsstrengthgrade" name="goodsstrengthgrade" required="false"
+						style="width: 310px"><br />
+				</div>
+				<div>
+					<label></label><select id="srewards" name="srewards" size="8"
+						style="width: 350px"></select><br />
+			           <label></label>
+				</div>
+				<div>
+					<label></label><a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="addselect()">添加</a> <a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="delselect()">删除</a> <a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="clearselect()">清空</a><br />
+				</div>
+				<div>
+						<label>金币:</label><br />
+						<input type="text" id="gold" name="gold" value="0" min="0" class="easyui-numberspinner" data-options="increment:10,required:true" required="true" style="width: 400px" />
+						<br />
+						
+						<label>钻石:</label><br />
+					<input type="text" id="yuanbao" name="yuanbao" value="0" min="0" class="easyui-numberspinner" data-options="increment:10,required:true" required="true" style="width: 400px" />
+						<br />
+					</div>
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitok()">发送道具</a>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

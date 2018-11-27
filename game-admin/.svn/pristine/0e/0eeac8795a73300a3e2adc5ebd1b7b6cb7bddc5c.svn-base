@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/task   
+    http://www.springframework.org/schema/task/spring-task-3.0.xsd  
+    http://www.springframework.org/schema/tx  
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	">
+	
+	<!-- 开启切面编程功能 -->
+	<context:annotation-config />
+	
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="file:/home/mmo/gameadmin/jdbc.properties" /> 
+	
+	<!-- 用于持有ApplicationContext,可以使用ApplicationContextHolderGm.getBean('xxxx')的静态方法得到spring 
+		bean对象 ，懒加载 需要的时候在初始化 lazy-init="false" -->
+	<bean id="ApplicationContextHolderGm" class="com.game.admin.utils.ApplicationContextHolderGm" lazy-init="false"/> 
+	
+	<bean id="basicDataSource"  class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="timeBetweenEvictionRunsMillis" value="3600000"></property>
+		<property name="minEvictableIdleTimeMillis" value="3600000"></property>
+	</bean>
+
+	<bean id="jade.dataSource.com.game.admin.dao.system" parent="basicDataSource"
+		destroy-method="close">
+		<property name="url" value="${system.jdbc.url}"></property>
+		<property name="username" value="${system.jdbc.username}"></property>
+		<property name="password" value="${system.jdbc.password}"></property>
+	</bean>
+	<bean id="jade.dataSource.com.game.admin.dao.data" parent="basicDataSource"
+		destroy-method="close">
+		<property name="url" value="${data.jdbc.url}"></property>
+		<property name="username" value="${data.jdbc.username}"></property>
+		<property name="password" value="${data.jdbc.password}"></property>
+	</bean>
+	<bean id="jade.dataSource.com.game.admin.dao.server" parent="basicDataSource"
+		destroy-method="close">
+		<property name="url" value="${login.jdbc.url}"></property>
+		<property name="username" value="${login.jdbc.username}"></property>
+		<property name="password" value="${login.jdbc.password}"></property>
+	</bean>
+	
+	
+	<!-- 自动扫描dao和service包(自动注入) -->
+	<context:component-scan base-package="com.game.admin">
+		<context:include-filter type="annotation"
+			expression="com.game.admin.eventbus.LogEventController" />
+		<context:include-filter type="annotation"
+			expression="net.paoding.rose.jade.annotation.DAO" />
+		<context:exclude-filter type="regex"
+			expression="com.game.admin.pojo" />
+		<context:exclude-filter type="regex"
+			expression="com.game.admin.dto.*" />
+		<context:exclude-filter type="regex"
+			expression="com.game.admin.utils.*" />
+	</context:component-scan>
+
+	
+	<!-- 以AspectJ方式 定义 事务
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.game.admin.service.task.*.*(..))"
+			advice-ref="txAdvice" />
+	</aop:config>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="jade.dataSource.com.game.admin.dao.data" />
+	</bean> -->
+	<!-- 基本事务定义,使用transactionManager作事务管理,默认get* find*方法的事务为readonly,其余方法按默认设置. 
+		默认的设置请参考Spring文档事务一章. 
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="find*" read-only="true" rollback-for="java.io.Exception" />
+			<tx:method name="get*" read-only="true" rollback-for="java.io.Exception" />
+			<tx:method name="add*" read-only="false" propagation="REQUIRED"
+				isolation="SERIALIZABLE" rollback-for="java.io.Exception" />
+			<tx:method name="pay*" read-only="false" isolation="SERIALIZABLE"
+				rollback-for="java.io.Exception" />
+			<tx:method name="*" read-only="false" rollback-for="java.io.Exception" />
+		</tx:attributes>
+	</tx:advice>
+-->
+</beans>

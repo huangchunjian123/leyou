@@ -1,0 +1,83 @@
+package com.game.admin.service.npc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.NpcDao;
+import com.game.admin.dto.npc.NpcDto;
+import com.game.admin.pojo.Npc;
+
+/**
+ * npc相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("npcService")
+public class NpcServiceImpl implements INpcService, InitializingBean {
+	@Autowired
+	private NpcDao npcDao;
+	/** npc列表 */
+	private static List<NpcDto> npcList = new ArrayList<>();
+
+	@Override
+	public List<NpcDto> getNpcDtoByname(String name, int offset, int pagesize) {
+		List<NpcDto> list = new ArrayList<NpcDto>();
+		for (NpcDto g : npcList) {
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void initNpcs() {
+//		npcList.clear();
+//		npcList.add(new NpcDto(0, "玩家"));
+//		List<Npc> list = npcDao.getAll();
+//		for (Npc npc : list) {
+//			npcList.add(new NpcDto(npc.getNpcId(), npc.getName()));
+//		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initNpcs();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public String getNpcName(int id) {
+//		for (NpcDto g : npcList) {
+//			if(g.getId() == id){
+//				return g.getName();
+//			}
+//		}
+		return "";
+	}
+
+}

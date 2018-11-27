@@ -1,0 +1,185 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>实时数据分析图</title>
+	<jsp:include page="../../inc.jsp"></jsp:include>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+	
+	
+	<!-- 引入 highcharts.js -->
+    <script type="text/javascript"
+    src="<%=request.getContextPath()%>/jslib/videotex/real/highcharts.js"></script>
+	<script>
+	// 图表配置
+     var options = {
+        chart: {
+            type: 'line'                          //指定图表的类型，默认是折线图（line）
+        },
+        title: {
+            text: '我的第一个图表'                 // 标题
+        },
+        xAxis: {
+            categories: ['0时0-5', '0时6-10', '0时11-15', '0时16-20', '0时21-25', 
+                          '10时26-30', '10时31-35', '10时36-40', '10时41-45']   // x 轴分类
+        },
+        yAxis: {
+            title: {
+                text: '人数'                // y 轴标题
+            }
+        },
+        series: [{                              // 数据列
+            name: '小明',                        // 数据列名
+            data: [1, 0, 4,5,2,78,1, 0, 4,5,2,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78]                     // 数据
+        }, { 
+            name: '小红',
+            data: [5, 7, 3,78,78,11, 0, 4,5,2,78,1, 0, 4,5,2,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78]
+        }, {
+        	 name: '小dd',
+             data: [5, 22, 3,48,38,11, 0, 4,5,2,78,1, 0, 4,5,2,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78,71, 0, 4,5,2,78,1, 0, 4,5,2,78]
+        }]
+    }; 
+	</script>
+	
+	
+	
+	<script type="text/javascript">
+	/*  原数据 */
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	
+	/*  引用全部需要获得数据的服务器  */
+	var choseserverId=-1;
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _opt();
+			}			
+		});
+	});
+	
+	function _opt(){	
+		$('#serverId').val(choseserverId);
+		$('#dgreal').datagrid('load',sy.serializeObject(searchForm));    
+		
+		 // 图表初始化函数
+	 /*    var chart = Highcharts.chart('container', options); */
+	}
+	
+	function  hiddenfield(){
+	}
+	
+	/* ----------------------主板----------------------------   	*/
+	function realdistribution(value,row,rowIndex){
+		var html="<a href='#' onclick='_realLogData(\""+rowIndex + "\");'>查看图表</a>&nbsp;&nbsp;<a href='#' onclick='_contrastData(\""+rowIndex + "\",\""+1+ "\");'>对比在线图</a>&nbsp;&nbsp;<a href='#' onclick='_contrastData(\""+rowIndex + "\",\""+2+ "\");'>对比注册图</a>&nbsp;&nbsp;<a href='#' onclick='_contrastData(\""+rowIndex + "\",\""+3+ "\");'>对比创建数量图</a>"; 
+		return html;
+	}
+	/* ----------------------查看图表----------------------------   	*/
+	function _realLogData(rowIndex) {
+		var row = $('#dgreal').datagrid('getData').rows[rowIndex];
+		var data = row.realLogData;
+		var str02 = data.replace(new RegExp("\\'", 'g'), "\"");
+		var obj = JSON.parse(str02); 
+		document.getElementById("container").style.display = "block";
+		// 图表初始化函数
+		var chart = Highcharts.chart('container', obj);
+    }
+	
+	function _closeContainer(){
+		document.getElementById("container").style.display = "none";
+	}
+	
+	/* ----------------------在线图 1,在线人数 2,注册人数 3,创建玩家数量 ----------------------------   	*/
+	function  _contrastData(rowIndex,askType) {
+		var row = $('#dgreal').datagrid('getData').rows[rowIndex];
+		var time = row.time;
+		$.post('<%=request.getContextPath() %>/videotex/contrastData',{
+			serverId:choseserverId,	
+			time :time ,
+			askType :askType
+		},function(data) {
+			var d = $.parseJSON(data);
+			if(d.videotexConfig==3){
+			var msg = d.msg
+			/* var str02 = msg.replace(new RegExp("\\'", 'g'), "\"");
+			var obj = JSON.parse(str02);  */
+			document.getElementById("container").style.display = "block";
+			var chart = Highcharts.chart('container', msg);
+			}
+		});	
+	}
+	
+	</script>
+</head>
+
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div> 
+    <!-- 列和页面数据 -->
+    
+    <div region="center" border="false" style="overflow: auto;">
+		<table id="dgreal" title="5分钟数据" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/videotex/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'opt',title:'Operation',formatter:realdistribution" width="10">每日数据分布(5分钟)</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<!-- 默认请求参数 -->
+	<div region="north" border="false" title="数据折线图" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+		<table>
+			<tr>
+				<td>
+					<input id="serverId" name="serverId" hidden="true" />
+					<input name="callLogType"  value="22" hidden="true" />&nbsp;
+				</td>
+				<td>
+					<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_closeContainer();"><font color="red" >关闭图表</font></a>
+				</td>
+			</tr>
+		</table>
+		</form>
+	</div>	
+	<!-- 图表容器 DOM  -->
+    <div id="container" region="center" border="false" style="min-width:400px;height:500px"></div>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>技能</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+function submitok(){
+	var heroId = $('#heroId').val();
+    if(!heroId){
+        alert("无效 heroId!");
+        return;
+    }
+	var grew = '';
+	$('#srewards option').each(function(){
+		grew += $(this).val()+",";
+	});
+	if(grew==''){
+		alert("请选择技能!");
+		return;
+	}
+	$.post('<%=request.getContextPath()%>/role/editskill',{
+		serverId:0,
+		heroId : heroId,
+		srewards : grew
+	},function(data) {
+		clearselect();
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+
+
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>技能修改</legend>
+			<form id="fmskill" method="post" name="apLogin">
+				<div>
+					<label>角色id:</label> 
+				<input type="text" id="heroId"
+						name="heroId" style="width: 310px" /><br />
+				</div>
+				<div>
+					
+					<label>猎手:</label> <input type="text" id="jobDesc"
+						name="jobDesc" style="width: 310px" /><br />
+						 <input type="text" id="job"
+						name="job" hidden="true" style="width: 310px" />
+				</div>
+					<fieldset>
+					<legend>主动技能</legend>
+				<div>
+					<label>技能:</label> 
+					<span id="skill_span" class="skill_span">
+						<select name="targetSkillsSelect" class="easyui-combogrid bagtype1"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath() %>/skill/getskllsbyJob',
+							           queryParams: {
+											type: '1',
+											job: '<%=request.getParameter("job") %>'
+											},
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+				</div>
+				<div>
+					<label>技能等级:</label>
+						   <input id='skillgrade' name="skillgrade"  style="width: 310px;" value="1" min="1" max="60" required="required"
+			class="easyui-numberspinner" ></input>
+						<br />
+				</div>
+				<div>
+					<label></label><select id="srewards" name="srewards" size="8"
+						style="width: 350px"></select><br />
+			           <label></label>
+				</div>
+				<div>
+					<label></label><a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="addselect()">添加</a> <a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="delselect()">删除</a> <a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="clearselect()">清空</a><br />
+				</div>
+					</fieldset>
+					
+					
+					<fieldset>
+						<legend>装备技能</legend>
+				<div>
+					<label>技能:</label> 
+					<span id="skill_equip_span" class="skill_span">
+						<select name="targetEquipSkillSelect" class="easyui-combogrid bagtype2"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath() %>/skill/getskllsbyJob',
+							           queryParams: {
+											type: '2',
+											job: '0'
+											},
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+				</div>
+				<div>
+					<label></label><select id="srewards_equip" name="srewards_equip" size="8"
+						style="width: 350px"></select><br />
+			           <label></label>
+				</div>
+				<div>
+					<label></label><a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="addselectEquip()">添加</a> <a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="delselectEquip()">删除</a> <a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="clearselectEquip()">清空</a><br />
+				</div>
+					</fieldset>
+					
+					
+					
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitEditSkill()">修改</a>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

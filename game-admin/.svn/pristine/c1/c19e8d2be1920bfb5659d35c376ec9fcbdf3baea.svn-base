@@ -1,0 +1,111 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>玩家当日充值金额表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="玩家当日充值金额" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询用户记录数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="10" align="left">时间</th>
+					<th data-options="field:'accountId'" width="10" align="left">账号ID</th>
+					<th data-options="field:'loginname'" width="10" align="left">登录名</th>
+					<th data-options="field:'name'" width="10" align="left">角色名</th>
+					<th data-options="field:'heroId'" width="10" align="left">玩家ID</th>
+					<th data-options="field:'rechargecount'" width="10" align="left">当日充值金额(单位/分)</th>
+					<th data-options="field:'isfirst'" width="10" align="left">是否是首次充值</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="18" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+</html>

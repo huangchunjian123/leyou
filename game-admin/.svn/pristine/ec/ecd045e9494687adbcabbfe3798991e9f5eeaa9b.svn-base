@@ -1,0 +1,25 @@
+package com.game.admin.controllers;
+
+
+
+
+
+/**
+ * 实验
+ * @author liuchengjiang
+ *
+ */
+public class DemoController extends BaseController {
+
+	
+	/**
+	 * 服务器 页面显示 
+	 * @return
+	 */
+
+	public String queryServerList() {
+		return "server/serverLists";
+	}
+
+	
+}

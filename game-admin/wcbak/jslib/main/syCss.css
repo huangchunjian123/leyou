@@ -1,0 +1,77 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #666666;
+	background: #fff;
+	text-align: left;
+}
+a {
+	color: #1E7ACE;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #000;
+	text-decoration: underline;
+}
+.fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.tableCss {
+	font-family: verdana,arial,sans-serif;
+	font-size:12px;
+	color:#333333;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+
+.tableCss tr {
+	border-width: 1px;
+	padding: 1px 6px 1px 20px;
+	border-style: solid;
+	border-color: #E2F5BC;
+}
+
+.tableCss td {
+	border-width: 1px;
+	padding: 1px 6px 1px 20px;
+	border-style: solid;
+	border-color: #E2F5BC;
+}
+.cs-north-bg {
+	width: 100%;
+	height: 100%;
+	background: url('./images/header_bg.png') repeat-x;
+}
+.cs-north-logo {
+	padding: 12px;
+	color:#fff;font-size:20px;font-weight:bold;text-decoration:none
+}
+fieldset {
+}
+
+fieldset legend {
+	color: #1E7ACE;
+	font-weight: bold;
+	padding: 3px 20px 3px 20px;
+	border: 1px solid #1E7ACE;
+	background: #fff;
+}
+.fmset {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.fmset label {
+	float: left;
+	width: 60px;
+	text-align: right;
+	padding: 4px;
+	margin: 1px;
+}
+
+.fmset div {
+	padding: 4px 20px 4px 30px;
+}

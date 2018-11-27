@@ -1,0 +1,78 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript" charset="utf-8">
+function submitok(){
+	var title =$('#title').val();
+	var content = $('#content').val();
+	var playerIds = $('#playerIds').val();
+	if(title==''){
+		alert("邮件标题不能为空!");
+		return;
+	}
+	if(content==''){
+		alert("邮件内容不能为空!");
+		return;
+	}
+	if(playerIds==''){
+		alert("玩家列表不能为空!");
+		return;
+	}
+	if (!confirm("确认要提交？(请认真检查道具和邮件描述!)")) {
+		return false;
+	}
+	$.post('<%=request.getContextPath()%>/server/deduceGoods',{
+		title : title,
+		content : content,
+		playerIds : playerIds
+	},function(data) {
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+</script>
+</head>
+<body>
+	<div class="fmset" style="margin-top:20px">
+		<fieldset>
+			<legend>批量扣不同数量道具</legend>
+		<form id="fm">
+			<table border="0">
+				<tr>
+					<td style="text-align:right;">邮件标题:</td>
+					<td><input type="text" id="title" name="title" style="width:400px" value="GM通知-道具扣除"/>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;">邮件内容:</td>
+					<td><textarea rows="4" cols="80" id="content" name="content" style="resize:none">亲爱的玩家，扣除道具</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;">玩家道具列表:</td>
+					<td>
+						<textarea rows="9" cols="80" id="playerIds" name="playerIds" style="resize:none"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" style="text-align:right;"></td>
+					<td>
+						<font color="red">*格式:玩家ID:道具表主键ID:道具数量    eg:1000081000000005:309901:2,1000081000000004:9999904:10</font><br>
+						元宝(9999900),铜钱(9999901),活跃度积分(9999905),修为(9999903),精力(9999904)
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok();">发送</a></td>
+				</tr>
+			</table>
+		</form>	
+	</fieldset>		
+	</div>
+</body>
+</html>

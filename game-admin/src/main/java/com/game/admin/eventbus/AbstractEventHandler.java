@@ -1,0 +1,24 @@
+package com.game.admin.eventbus;
+
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+
+/**
+ * log操作事件处理器
+ * @author huangchunjian
+ *
+ */
+public abstract class AbstractEventHandler {
+	
+	
+	@Resource
+	protected LogEventController logEventController;
+	//启服的时候注册
+	@PostConstruct
+	void initialize(){
+		logEventController.register(this);
+	}
+	
+}

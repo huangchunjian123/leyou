@@ -1,0 +1,17 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">友情提示:编辑盘龙殿副本，之前副本全部完成,并开启对应的命格</font>
+<table class="tableCss">
+    <tr>
+		<td>已经完成的副本列表:</td>
+		<td><select id="cur_instance_list" name="cur_instance_list" size="8"
+						style="width: 350px"></select></td>
+	</tr>
+	<tr>
+		<td>选择副本:</td>
+		<td>  <input id='instance_id'></input></td>
+		<td>  <input id='instance_hero_id' hidden="true"></input></td>
+	</tr>
+</table>

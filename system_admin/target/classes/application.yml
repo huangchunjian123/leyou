@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: systemAdmin
+  datasource:
+    # Druid\u8FDE\u63A5\u6C60\u914D\u7F6E
+    druid:
+        url: jdbc:mysql://120.26.127.134:3306/admin_system?useSSL=false&characterEncoding=utf-8&autoReconnect=true
+        username: root
+        password: admin0099
+        initial-size: 5 #\u521D\u59CB\u5316\u8FDE\u63A5
+        max-active: 20 #\u6700\u5927\u5E76\u53D1\u8FDE\u63A5\u6570
+        min-idle: 10  #\u6700\u5C0F\u7A7A\u95F2\u8FDE\u63A5\u6570
+        max-wait: 10  #\u914D\u7F6E\u83B7\u53D6\u8FDE\u63A5\u7B49\u5F85\u8D85\u65F6\u7684\u65F6\u95F4
+        filter:
+          stat:
+            log-slow-sql: true #sql
+            slow-sql-millis: 2000 #\u6162sql\u8BB0\u5F55
+        filters: stat,wall
+        remove-abandoned-timeout-millis: 300
+        remove-abandoned: true
+        log-abandoned: false
+    driver-class-name: com.mysql.jdbc.Driver
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9011/eureka/
+server:
+  port: 9012
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  #<2>
+  endpoint:
+    health:
+      show-details: ALWAYS

@@ -1,0 +1,82 @@
+package com.game.admin.service.nickname;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.NickNameDao;
+import com.game.admin.dto.nickname.NickNameDto;
+import com.game.admin.pojo.NicknameData;
+
+/**
+ * 称号相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("nickNameService")
+public class NickNameServiceImpl implements INickNameService, InitializingBean {
+	@Autowired
+	private NickNameDao nickNameDao;
+
+	/** 称号列表 */
+	private static Map<Integer, NickNameDto> cacheMap = new HashMap<Integer, NickNameDto>();
+
+	@Override
+	public List<NickNameDto> getNickNameDtoByName(String name, int offset, int pagesize) {
+		List<NickNameDto> list = new ArrayList<NickNameDto>();
+		for (Entry<Integer, NickNameDto> en : cacheMap.entrySet()) {
+			NickNameDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initNickName();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initNickName() {
+//		cacheMap.clear();
+//		List<NicknameData> list = nickNameDao.getAll();
+//		for (NicknameData data : list) {
+//			cacheMap.put(data.getId(), new NickNameDto(data.getId(), data.getNickname()));
+//		}
+	}
+
+	@Override
+	public String getName(int equipId) {
+		return cacheMap.get(equipId).getName();
+	}
+
+}

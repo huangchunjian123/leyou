@@ -1,0 +1,35 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<font color="red" size="1">提醒：帮会名称、颜色、会标、宣言可自定义</font>
+	<table class="tableCss"> 
+		<input id="qheroId" name="qheroId" hidden="true" />
+		<tr>
+			<td style="text-align: right;">帮会名称:</td>
+			<td><input type="text" id="unionname" name="unionname"
+				style="width: 400px" value=""  maxlength="12" /></td>
+		</tr>
+		<tr>
+			<td>会标颜色:</td>
+			<td>
+			<select id="icon" name="icon">
+				<option value="0">白</option>
+				<option value="1">黄</option>
+				<option value="2">棕</option>
+				<option value="3">蓝</option>
+				<option value="4">绿</option>
+				<option value="5">灰</option>
+				<option value="6">粉</option>
+				<option value="7">紫</option>
+			</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="text-align: right;">会标文字:</td>
+			<td><input type="text" id="iconText" name="iconText" min="1" max="1" maxlength="1"/></td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align: right;">帮会宣言:</td>
+			<td><textarea rows="4" cols="70" id="introduction" name="introduction" style="resize: none" /></td>
+		</tr>
+	</table>

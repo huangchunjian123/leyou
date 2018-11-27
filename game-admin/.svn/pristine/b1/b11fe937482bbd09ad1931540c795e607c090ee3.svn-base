@@ -1,0 +1,86 @@
+package com.game.admin.controllers;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.paoding.rose.web.annotation.Param;
+import net.sf.json.JSONArray;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.game.admin.service.operatelog.IOperateLogService;
+import com.game.admin.service.user.IUserService;
+import com.game.admin.utils.ResultCode;
+import com.game.admin.utils.StringUtilGm;
+
+/**
+ * 日志控制器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class LogController extends BaseController {
+
+
+	@Autowired
+	private IOperateLogService logService;
+	
+	@Autowired
+	private IUserService userService;
+	
+	/**
+	 * 跳转到日志管理页面
+	 * @return
+	 */
+	public String goLog() {
+		return "log/operatelog";
+	}
+	
+	/**
+	 * 显示日志数据
+	 * @param page
+	 * @param rows
+	 * @return 
+	 */
+	public Object datagrid(@Param("page") int page,@Param("rows") int rows,@Param("operatorsName")String operatorsName
+			,@Param("startTime")String startTime,@Param("endTime")String endTime,@Param("keyword") String keyword){
+		if(page < 0){
+			page = 1;
+		}
+		
+		int pagesize = (rows == 0) ? 10 :rows;
+		if(StringUtilGm.isEmpty(operatorsName) && StringUtilGm.isEmpty(startTime) &&  StringUtilGm.isEmpty(endTime) && StringUtilGm.isEmpty(keyword)){
+			return ResultCode.writeJson(logService.datagrid(page, pagesize));
+		}else {
+			return ResultCode.writeJson(logService.paramsQuery(page, pagesize, operatorsName, startTime, endTime, keyword));
+		}
+		
+	}
+	//功能实现了 但是不合适用重新想办法
+//	public void logxs(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+//		//HttpServletRequest request,HttpServletResponse response,
+//		/*List<String> users= userService.getUserName();*/
+//		String [] users = {"11","22","33"};
+//		/*model.add("array_", array2);*/
+//		//能不能用servlet的api->request，然后用转发  
+//		//效果是一样的
+//		request.setAttribute("users", users);
+//		request.getRequestDispatcher("operatelog.jsp").forward(request, response);
+//	}
+	
+	/**
+	 * 日志操作人(异步请求)
+	 * @return
+	 */
+	public Object getOperatorsName(){
+		List<String> oListName = userService.getUserName();
+		JSONArray jsonList = JSONArray.fromObject(oListName);
+		return jsonList.toString();
+	} 
+	
+	
+	
+}

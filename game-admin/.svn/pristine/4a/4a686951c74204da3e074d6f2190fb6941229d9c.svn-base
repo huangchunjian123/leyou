@@ -1,0 +1,22 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<form id="fmedit" method="post" class="fm">
+	<div id="editaccordion" class="easyui-accordion" style="overflow: auto;">
+		<div class="edittaskinfo" title="任务基本信息" data-options="iconCls:'icon-ok'" style="overflow: auto;"></div>
+		<div title="任务条件信息" data-options="iconCls:'icon-ok'" style="overflow: auto; padding: 8px;">
+			<div id="conditionTabEdit" class="easyui-tabs" data-options="tools:'#tab-tools-condition-edit'">
+			</div>
+			<div id="tab-tools-condition-edit">
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'" onclick="javascript:addConditionTab('edit')"></a>
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-save'" onclick="javascript:alert('save')"></a>
+			</div>
+		</div>
+		<div title="任务奖励信息" data-options="iconCls:'icon-ok'">
+			<div id="rewardTabEdit" class="easyui-tabs" data-options="tools:'#tab-tools-reward-edit'">
+			</div>
+			<div id="tab-tools-reward-edit">
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'" onclick="javascript:addRewardTab('edit')"></a>
+				<a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-save'" onclick="javascript:alert('save')"></a>
+			</div>
+		</div>
+	</div>
+</form>

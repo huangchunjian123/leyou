@@ -1,0 +1,71 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>邮件列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+	
+<script type="text/javascript">
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});
+   	$(function() {
+			$('#dg').datagrid({
+			url:'<%=request.getContextPath()%>/account/getAccountMails',
+			queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			accountId: '<%=request.getParameter("accountId")%>'
+			},
+				pageSize:300,
+			singleSelect:true,
+			rownumbers:true,
+			fitColumns:true,
+			fit:true,
+			columns: [[
+			           { field: 'accountId', title: 'accountId',width: 5 },
+			           { field: 'title', title: '标题', width: 5 },
+			           { field: 'content', title: '内容',width: 10 },
+			           { field: 'goods', title: '物品',width: 15 },
+			           { field: 'senderName', title: '发送者',width: 5 },
+			           { field: 'deleteMark', title: '是否已删除', width: 5 },
+			           { field: 'getMark', title: '是否已领取', width: 5 },
+			           { field: 'sendTime', title: '发送时间',width: 5 },
+			           { field: 'readTime', title: '阅读时间', width: 5 },
+			       ]],
+			       onBeforeLoad:function(param) {
+			       	hiddenfield();
+			       }
+			});
+	});    
+	
+	function  hiddenfield(){
+		$('#dg').datagrid('hideColumn','accountId');
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+		<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="邮件列表">
+		</table>
+	</div>
+	
+</body>
+</html>

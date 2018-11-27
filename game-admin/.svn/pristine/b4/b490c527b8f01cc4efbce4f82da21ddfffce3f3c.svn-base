@@ -1,0 +1,172 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.UnionService;
+import com.game.api.hessian.dto.UnionDto;
+import com.game.util.StringUtil;
+import net.paoding.rose.web.annotation.Param;
+
+
+/**
+ * 帮派控制器
+ * @author jiayi			
+ *
+ */
+public class UnionController extends  BaseController{
+	
+	/**
+	 * 是否有帮派
+	 * @param serverId
+	 * @param heroId
+	 * @return
+	 */
+	public boolean IsHaveUnion(@Param("serverId") int serverId,@Param("heroId")String heroId){
+		return false;
+	}
+	/**
+	 * 创建帮派
+	 * @param serverId
+	 * @param heroId
+	 * @param name
+	 * @param icon
+	 * @param iconText
+	 * @param introduction
+	 * @return
+	 */
+	public Object CreateUnion(@Param("serverId") int serverId,@Param("qheroId")String qheroId,@Param("name")String name
+			,@Param("icon")int icon,@Param("iconText")String iconText,@Param("introduction")String introduction){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			UnionService unionService = getHessianFactory(UnionService.class, url);
+			if(unionService != null){
+				try {
+					int result = unionService.CreateUnion(qheroId, name, icon, iconText, introduction);
+					switch(result){
+					case 1:
+						return ResultCode.error(String.format("玩家角色等级不够",serverId));	
+					case 2:
+						return ResultCode.error(String.format("玩家已有帮派",serverId));	
+					/*case 3:
+						return ResultCode.error(String.format("玩家银币不够",serverId));	*/
+					case 4:
+						return ResultCode.error(String.format("帮会名称上限，限制12个字符内",serverId));	
+					case 5:
+						return ResultCode.error(String.format("图标超出范围",serverId));
+					case 6:
+						return ResultCode.error(String.format("帮会公告上限，限制100个字符已内",serverId));
+					case 7:
+						return ResultCode.error(String.format("帮派名称重复",serverId));
+					case 8:
+						return ResultCode.error(String.format("玩家不可以创建帮派",serverId));
+					case 11:
+						return ResultCode.error(String.format("当前玩家不存在",serverId));
+					case 0:
+						recordOperateLog(String.format(OperateLogInfos.UnionControllerCreateUnion,
+								qheroId,name,icon,iconText,introduction,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+						return ResultCode.succ(String.format("帮派创建成功"));
+					}
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，创建帮派失败");
+	}
+	/**
+	 * 编辑帮派
+	 * @param serverId
+	 * @param heroId
+	 * @param name
+	 * @param icon
+	 * @param iconText
+	 * @param introduction
+	 * @return
+	 */
+	public Object editUnion(@Param("serverId") int serverId,@Param("heroId")String heroId,@Param("name")String name
+			,@Param("icon")int icon,@Param("iconText")String iconText,@Param("introduction")String introduction,
+			@Param("level")int level,@Param("postion") int postion){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			UnionService unionService = getHessianFactory(UnionService.class, url);
+			if(unionService != null){
+				try {
+					int result = unionService.UpdateUnion(heroId, name, icon, iconText, introduction, level);
+					switch(result){
+					case 1:
+						return ResultCode.error(String.format("玩家没有帮派",heroId));	
+					case 2:
+						return ResultCode.error(String.format("玩家没有修改帮派权限，不是帮主",heroId));	
+					case 3:
+						return ResultCode.error(String.format("帮会名称上限，限制12个字符内",heroId));	
+					case 4:
+						return ResultCode.error(String.format("图标为一个汉字",heroId));	
+					case 5:
+						return ResultCode.error(String.format("帮会公告上限，限制100个字符已内",heroId));
+					case 7:
+						return ResultCode.error(String.format("帮会名称重复",heroId));
+					case 11:
+						return ResultCode.error(String.format("玩家不存在",heroId));
+					/*case 7:
+						return ResultCode.error(String.format("获取改名道具失败",heroId));
+					case 8:
+						return ResultCode.error(String.format("扣钱失败",heroId));*/
+					case 0:
+						recordOperateLog(String.format(OperateLogInfos.UnionControllerEditUnion,
+								heroId,name,icon,iconText,introduction,level,postion,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+						return ResultCode.succ(String.format("帮派修改成功"));
+					}
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，编辑帮派失败");
+	}
+	/**
+	 * 获取帮派
+	 * @param serverId
+	 * @param heroId
+	 * @return
+	 */
+	public Object GetUnion(@Param("serverId") int serverId,@Param("heroId") String heroId){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			UnionService unionService = getHessianFactory(UnionService.class, url);
+			if(unionService != null){
+				try {
+					List<UnionDto> list = unionService.GetUnion(heroId);
+					if(list.isEmpty()){ 
+						//此处把heroId 回传给jsp页面，不自拍任何提示，页面会自己判断
+						return ResultCode.SPECIAL(String.format(heroId, heroId));
+					}
+					UnionDto unionDto=list.get(0);//如果直接获取会越界异常
+					return ResultCode.writeJson(unionDto);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，获取帮派失败");
+	}
+	
+	
+	public Object unionSetting(@Param("serverId") int serverId){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			UnionService unionService = getHessianFactory(UnionService.class, url);
+			if(unionService != null){
+				try {
+					unionService.syncServerUnionToManager(serverId);
+					recordOperateLog(String.format(OperateLogInfos.UnionControllerunionSetting,getByIdServerName(serverId),getSessionInfo().getIp()), 1);
+					return ResultCode.succ(String.format("同步本服帮派成功!"));
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，同步服务器帮派失败!");
+	}
+}
+

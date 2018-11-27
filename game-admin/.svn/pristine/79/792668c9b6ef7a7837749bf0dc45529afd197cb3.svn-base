@@ -1,0 +1,153 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>账号登录注册流失统计表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function accontLogdistribution(value,row,rowIndex){
+		var lossGarde = row.lossGarde;
+		var dayLoginNum = row.dayLoginNum;
+	    var html="<a href='#' onclick='_lossGarde(\""+lossGarde + "\");'>流失等级分布</a>&nbsp;&nbsp<a href='#' onclick='_dayLoginNum(\""+dayLoginNum + "\");'>登录次数分布</a>";
+		return html;
+	}
+	/* --------------------流失等级分布----------------------------   	*/
+	
+	function _lossGarde(lossGarde) {
+	    $('#lossGarde').dialog({
+	     	onLoad:function(){
+   	    $('#lossGarde_list').val(lossGarde);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/lossGarde.jsp',
+	    modal: true,
+	    closed: true});
+		$('#lossGarde').dialog('open');
+		$('#lossGarde').dialog('setTitle', '流失等级分布'); 
+	}
+	/* --------------------登录次数分布----------------------------   	*/
+	function _dayLoginNum(dayLoginNum){
+		$('#dayLoginNum').dialog({
+	     	onLoad:function(){
+   	    $('#dayLoginNum_list').val(dayLoginNum);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/dayLoginNum.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dayLoginNum').dialog('open');
+		$('#dayLoginNum').dialog('setTitle', '登录次数分布'); 
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="任务列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'applyNum'" width="3" align="left">注册数量  </th>
+					<th data-options="field:'createHeroNum'" width="3" align="left">创建角色次数</th>
+					<th data-options="field:'opt',title:'Operation',formatter:accontLogdistribution" width="5">等级流失和登录次数相关数据</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="19" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="lossGarde"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#lossGarde-buttons" align="center">
+	</div>
+	<div id="lossGarde-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#lossGarde').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dayLoginNum"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#dayLoginNum-buttons" align="center">
+	</div>
+	<div id="dayLoginNum-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dayLoginNum').dialog('close');">取消</a>
+	</div>
+	
+	
+</html>

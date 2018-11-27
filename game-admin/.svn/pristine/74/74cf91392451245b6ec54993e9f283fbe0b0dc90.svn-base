@@ -1,0 +1,439 @@
+package com.game.admin.controllers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.paoding.rose.web.annotation.Param;
+import org.apache.commons.lang3.StringUtils;
+import com.game.admin.dto.model.ServerTreeNode;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.MailService;
+import com.game.api.hessian.NoticeService;
+import com.game.api.hessian.ServerService;
+import com.game.api.hessian.dto.MailDto;
+import com.game.api.hessian.dto.ServersDTO;
+import com.game.util.StringUtil;
+
+/**
+ * 服务器控制器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class ServerController extends BaseController {
+
+	/**
+	 * 内网服
+	 * @return
+	 */
+	public Object servertree() {
+		List<ServerTreeNode> sr = serverService.getTreeeServer();
+		return ResultCode.writeJson(sr);
+	}
+
+	/**
+	 * 正式服
+	 * @return
+	 */
+	public Object officialServer(){
+		List<ServerTreeNode> sr = serverService.officialServer();
+		return ResultCode.writeJson(sr);
+	}
+
+	/**
+	 * 所有服
+	 * @return
+	 */
+	public Object allServertree(){
+		List<ServerTreeNode> sr = serverService.getAllTreeeServer();
+		return ResultCode.writeJson(sr);
+	}
+	
+	/**
+	 * 服务器 页面显示 
+	 * @return
+	 */
+	public String queryServerList() {
+		return "server/serverLists";
+	}
+
+	/**
+	 * 查询所有服务器列表
+	 * @param page
+	 * @param rows
+	 * @return
+	 */
+	public Object queryServerMethods(@Param("page") int page, @Param("rows") int rows) {
+		
+		String url = buildUrl(5);
+		if(!StringUtil.isEmpty(url)) {
+			ServerService serverService = getHessianFactory(ServerService.class, url);
+			if(serverService != null){
+				try {
+					DataGrid grid = serverService.getServerList(rows, page, null);
+					return ResultCode.writeJson(grid);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",5));
+				}
+			}
+		}
+		return ResultCode.writeJson(0);
+	}
+
+	/**
+	 * 添加服务器 1
+ 	 * @param roleName
+	 * @param roleDesc
+	 * @return
+	 */
+	public Object addServer(@Param("name") String name, @Param("sid") int sid, @Param("dbSid") int dbSid, @Param("isHefu") int isHefu,
+			@Param("hefuSid") int hefuSid, @Param("isTeshu") int isTeshu, @Param("comment") String comment,@Param("loginId")int loginId
+			,@Param("redisSid")int redisSid) {
+		String url = buildUrl(-2);
+		if(!StringUtil.isEmpty(url)) {
+			ServerService serverService = getHessianFactory(ServerService.class, url);
+			if(serverService != null){
+				ServersDTO serversDTO=new ServersDTO();
+				serversDTO.setComment(comment);
+				serversDTO.setDbSid(dbSid);
+				serversDTO.setHefuSid(hefuSid);
+				serversDTO.setIsHefu(isHefu+"");
+				serversDTO.setIsTeshu(isTeshu+"");
+				serversDTO.setLoginId(loginId);
+				serversDTO.setName(name);
+				//serversDTO.setOpenTime(Time);
+				serversDTO.setRedisSid(redisSid);
+				serversDTO.setSid(sid);
+				try {
+					serverService.addServer(serversDTO);
+					String isHefu1 =(isHefu == 1)?"是":"否";
+					String isTefu1 =(isTeshu == 1)?"是":"否";
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerAddServer,name,sid,dbSid,isHefu1,hefuSid,
+									isTefu1,comment,loginId,redisSid,getByIdServerName(sid),getSessionInfo().getIp()), 1);
+					return ResultCode.succ("添加成功!");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",-2));
+				}
+			}
+		}
+		return ResultCode.error("添加失败!");
+	}
+	
+	/**
+	 * 修改服务器
+	 * @param id
+	 * @param name
+	 * @param sid
+	 * @param dbSid
+	 * @param isHefu
+	 * @param hefuSid
+	 * @param isTeshu
+	 * @param comment
+	 * @param loginId
+	 * @param redisSid
+	 * @return
+	 */
+	public Object updateServer(@Param("id") int id,@Param("name") String name, @Param("sid") int sid, @Param("dbSid") int dbSid, @Param("isHefu") int isHefu,
+			@Param("hefuSid") int hefuSid, @Param("isTeshu") int isTeshu, @Param("comment") String comment,@Param("loginId")int loginId
+			,@Param("redisSid")int redisSid) {
+		String url = buildUrl(-2);
+		if(!StringUtil.isEmpty(url)) {
+			ServerService serverService = getHessianFactory(ServerService.class, url);
+			if(serverService!= null){
+				ServersDTO serversDTO=new ServersDTO();
+				serversDTO.setComment(comment);
+				serversDTO.setDbSid(dbSid);
+				serversDTO.setHefuSid(hefuSid);
+				serversDTO.setIsHefu(isHefu+"");
+				serversDTO.setIsTeshu(isTeshu+"");
+				serversDTO.setLoginId(loginId);
+				serversDTO.setName(name);
+				//serversDTO.setOpenTime(Time);
+				serversDTO.setRedisSid(redisSid);
+				serversDTO.setSid(sid);
+				serversDTO.setId(id);
+				try {
+					serverService.updateServer(serversDTO);
+					String isHefu1 =(isHefu == 1)?"是":"否";
+					String isTefu1 =(isTeshu == 1)?"是":"否";
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerUpdateServer,name,sid,dbSid,isHefu1,hefuSid,
+							isTefu1,comment,loginId,redisSid,getByIdServerName(sid),getSessionInfo().getIp()), 1);
+					return ResultCode.succ("更新成功!");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",-2));
+				}
+			}
+		}
+		return ResultCode.error("更新失败!");
+	}
+	
+	public Object deleteServer(@Param("id") int id) {
+		String url = buildUrl(-2);
+		if(!StringUtil.isEmpty(url)) {
+			ServerService serverService = getHessianFactory(ServerService.class, url);
+			if(serverService != null){
+				ServersDTO serversDTO=new ServersDTO();	
+				serversDTO.setId(id);
+				try {
+					serverService.deleteServer(serversDTO);
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerdeleteServer,id,getSessionInfo().getIp()), 1);
+					return ResultCode.succ("删除成功!");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",-2));
+				}
+			}
+		}
+		return ResultCode.error("删除失败!");
+	}
+	
+
+	/**
+	 * 发系统邮件
+	 * @return
+	 */
+	public String goSendMails() {
+		return "server/sendMails";
+	}
+
+	public String goSendServerEmails() {
+		return "server/sendServerEmails";
+	}
+	
+	public String goOfficialServerEmails() {
+		return "server/officialServerEmails";
+	}
+	
+	/**
+	 * 发送服务器邮件
+	 * @param serverIds
+	 * @param title
+	 * @param content
+	 * @param sendGoods
+	 * @param gold
+	 * @param yuanbao
+	 * @return
+	 */
+	public Object sendServerMails(@Param("serverIds") String serverIds, @Param("title") String title, @Param("content") String content,
+			@Param("sendGoods") String sendGoods , @Param("sendType") int sendType,@Param("xzsendTime") String xzsendTime) {
+		if (StringUtils.isEmpty(serverIds)) {
+			return ResultCode.error(String.format(String.format("请选择要发送的服务器")));
+		} else {
+			StringBuffer failBuffer = new StringBuffer();
+			for (String serverId : serverIds.split(",")) {
+				ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+				if (null == serverData) {
+					continue;
+				}
+				if (!sendEmail(serverData, buildMail("", title, content, sendGoods,sendType,xzsendTime))) {
+					failBuffer.append(String.format("[服务器%s],", serverId));
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerSendServerMails,serverData.getServerIp(),title,
+							content,sendGoods,sendType,xzsendTime,getSessionInfo().getIp(),serverData.getServerName()), 2);
+					return ResultCode.error(String.format(String.format("发送服务器邮件失败")));
+				}
+				recordOperateLog(String.format(OperateLogInfos.ServerControllerSendServerMails,serverData.getServerIp(),title,
+						content,sendGoods,sendType,xzsendTime,getSessionInfo().getIp(),serverData.getServerName()), 1);
+			}
+			if (!StringUtils.isEmpty(failBuffer.toString())) {
+				return ResultCode.succ(String.format("发送服务器邮件时，下列服务器列表发送失败:[%s]", failBuffer.toString()));
+			}
+		}
+		return ResultCode.succ(String.format("发送服务器邮件成功"));
+	}
+
+	private boolean sendEmail(ServerData serverData, MailDto dto) {
+		String url = buildUrl(serverData.getServerId());
+		if(!StringUtil.isEmpty(url)) {
+			MailService mailService  = getHessianFactory(MailService.class, url);
+			if(mailService != null){
+				try {
+					int result = mailService.sendServerMails(dto);
+					if (result != 0) {
+						logger.error("给服务器发系统邮件失敗");
+						return Boolean.FALSE;
+					}
+					return Boolean.TRUE;
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverData.getServerId()));
+				}
+			}
+		}
+		return Boolean.FALSE;
+	}
+	
+
+	/**
+	 * 同一批账号发送邮件
+	 * @param accountIds
+	 * @param title
+	 * @param content
+	 * @param sendGoods
+	 * @param gold
+	 * @param yuanbao
+	 * @return
+	 */
+	public Object sendMails(@Param("accountIds") String accountIds, @Param("title") String title, @Param("content") String content,
+			@Param("sendGoods") String sendGoods, @Param("currency") String currency) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		String[] accountIdStr = accountIds.split("\\,");
+		for (String accountId : accountIdStr) {
+			String[] tempAttr = accountId.split("_");
+			if (tempAttr.length != 2) {
+				continue;
+			}
+			String url = buildUrl(Integer.valueOf(tempAttr[0]));
+			if(!StringUtil.isEmpty(url)) {
+				MailService mailService= getHessianFactory(MailService.class, url);
+				if(mailService != null){
+					try {
+						int result = mailService.sendMails(buildMail(accountId, title, content, sendGoods,0,StringUtils.EMPTY));
+						if (result != 1) {
+							logger.error("给玩家发送道具失敗");
+							resultMap.put(accountId, "error");
+							continue;
+						}
+						resultMap.put(accountId, "success");
+					} catch (Exception e) {
+						logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",Integer.valueOf(tempAttr[0])));
+					}
+				}
+			}
+		}
+		return ResultCode.writeJson(resultMap);
+	}
+	
+	//格式转化  暂时不要删除 保留模块
+	/*private String buildSendGoods(String goods) {
+		StringBuffer sendGoods = new StringBuffer();
+		if (StringUtils.isNotBlank(goods)) {
+			String[] goodstr = goods.split(",");// 数据格式 包裹类型:id:数量
+			for (String item : goodstr) {
+				String[] rew = item.split(":");
+				sendGoods.append(Integer.valueOf(rew[1])).append("*").append(Integer.valueOf(rew[2])).append("*").append(Integer.valueOf(rew[0])).append(";");
+			}
+		}
+		return sendGoods.toString();
+	}*/
+	/**
+	 * 给玩家角色发送邮箱
+	 * @param serverId 
+	 * @param mailsheroId 角色Id
+	 * @param title	 标题
+	 * @param content	内容
+	 * @param sendGoods  道具
+	 * @param gold		金币
+	 * @param yuanbao	元宝
+	 * @return
+	 */
+	public Object sendMails1(@Param("serverId") int serverId,@Param("mailsheroId") String mailsheroId, @Param("title") String title, @Param("content") String content,
+			@Param("sendGoods") String sendGoods){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			MailService mailService = getHessianFactory(MailService.class, url);
+			if(mailService != null){
+				try {
+					int result = mailService.sendMails(buildMail(mailsheroId, title, content, sendGoods,0,StringUtils.EMPTY));
+					if (result != 0) {
+						logger.error("给玩家发送邮件失敗");
+						recordOperateLog(String.format(OperateLogInfos.ServerControllerSendMails1,mailsheroId,title,content,sendGoods
+								,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+					}
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerSendMails1,mailsheroId,title,content,sendGoods
+							,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					return ResultCode.succ("邮件发送成功");
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+	}
+
+	private MailDto buildMail(String accountIds, String title, String content, String sendGoods,int sendType,String sendTime) {
+		MailDto paramMailDto = new MailDto();
+		List<String> ids = new ArrayList<String>();
+	    ids.add(accountIds);//空集合，传给全服不需要账号列表
+		paramMailDto.setAccountIds(ids);
+		paramMailDto.setTitle(title);
+		paramMailDto.setContent(content);
+		paramMailDto.setGoods(sendGoods.toString());
+		paramMailDto.setSendType(sendType);
+		paramMailDto.setSendTime(sendTime);
+		if(sendType == 0 || sendType == 1){
+			paramMailDto.setSendTime("");
+		}
+		return paramMailDto;
+	}
+	
+
+	public String goSendNotice() {
+		return "server/sendNotice";
+	}
+	
+	public String goOfficialSendNotice() {
+		return "server/officialNotice";
+	}
+
+	/**
+	 * 发系统公告
+	 * @param serverIds
+	 * @param content
+	 * @return
+	 */
+	public Object sendNotice2(@Param("serverIds") String serverIds, @Param("content") String content, @Param("time") String time, @Param("period") String period) {
+		if (StringUtils.isEmpty(serverIds)) {
+
+			return ResultCode.error(String.format(String.format("请选择要发送的服务器")));
+		} else {
+			StringBuffer failBuffer = new StringBuffer();
+			for (String serverId : serverIds.split(",")) {
+				ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+				if (null == serverData) {
+					continue;
+				}
+				if (!sendNotice2(serverData, content, time, period)) {
+					recordOperateLog(String.format(OperateLogInfos.ServerControllerSendNotice2,serverData.getServerIp(),content,time
+							,period,getSessionInfo().getIp(),serverData.getServerName()), 2);
+					failBuffer.append(String.format("[服务器%s],", serverId));
+					return ResultCode.error(String.format(String.format("发送系统公告失败")));
+				}
+				recordOperateLog(String.format(OperateLogInfos.ServerControllerSendNotice2,serverData.getServerIp(),content,time
+						,period,getSessionInfo().getIp(),serverData.getServerName()), 1);
+			}
+			if (!StringUtils.isEmpty(failBuffer.toString())) {
+				return ResultCode.succ(String.format("发送系统公告时，下列服务器列表发送失败:[%s]", failBuffer.toString()));
+			}
+		}
+		
+		return ResultCode.succ(String.format("发送系统公告成功"));
+	}
+
+	/**
+	 * 发系统公告前面的调用
+	 * @param serverData
+	 * @param content
+	 * @return
+	 */
+	private boolean sendNotice2(ServerData serverData, String content, String time, String period) {
+		String url = buildUrl(serverData.getServerId());
+		if(!StringUtil.isEmpty(url)) {
+			NoticeService noticeService = getHessianFactory(NoticeService.class, url);
+			if(noticeService != null){
+				try {
+					int result = noticeService.sendNotice2(content, Integer.parseInt(time), Integer.parseInt(period));
+					if (result == 0) {
+						logger.error(String.format("发送系统公告失败"));
+						return Boolean.FALSE;
+					}
+					return Boolean.TRUE;
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverData.getServerId()));
+				}
+			}
+		}
+		return Boolean.FALSE;
+	}
+
+}

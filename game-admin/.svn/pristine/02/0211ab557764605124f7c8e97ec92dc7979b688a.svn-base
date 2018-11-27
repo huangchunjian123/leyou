@@ -1,0 +1,10 @@
+package com.game.admin.service.good;
+
+import java.util.List;
+
+import com.game.admin.pojo.HeroModel;
+
+public interface HeroModelServer {
+
+	public List<HeroModel> getAll(String name, int offset, int pagesize);
+}

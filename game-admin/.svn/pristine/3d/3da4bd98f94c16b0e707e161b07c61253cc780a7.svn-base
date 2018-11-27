@@ -1,0 +1,89 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>更新公告</title>
+	<jsp:include page="../../inc.jsp"></jsp:include>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/jslib/xheditor/xheditor-1.1.14-zh-cn.min.js"></script>
+	<script>  
+		//给框赋值
+		getUpdateNotice();
+		   
+		function submitok(){
+			var serverIds=getServerIds();
+			var cdesc=$('#editor_id').val();
+        	if(serverIds == '')
+        	{
+        		alert("服务器列表不能为空。");
+        		return false;
+        	}
+        	if (!confirm("确认要提交？(请确认选择的服务器操作)")) {
+        		return false;
+        	}
+			$.post("<%=request.getContextPath()%>/server/addUpdateNotice",
+					{
+						serverIds:serverIds,
+						curl:'',
+						cdesc:cdesc
+					},
+					function(data) {
+						var d = $.parseJSON(data);
+						$.messager.show({
+							title : '提示',
+							msg : d.msg
+						});
+					}
+				);
+		}
+		
+		function getUpdateNotice(){
+			$.ajax({
+			    type: 'get',
+			    cache:false,
+			    url: '<%=request.getContextPath()%>/server/getUpdateNotice' ,
+			    success:function(data){
+			    	var d = $.parseJSON(data);
+			    	$('#editor_id').val(d.contentDesc);
+			    	$('#curl').val(d.linkAddr);
+		        }
+			});
+		}
+		//全选 反选
+		function switchAllServer(){
+			if($("#checkAllServer").attr("checked")){
+				$("#serverIdsDiv input").attr("checked",'true');
+			}else{
+				$("#serverIdsDiv input").removeAttr("checked");
+			}
+		}
+		function getServerIds(){
+			var nodes = $('#tree').tree('getChecked');
+			var s = '';
+			for(var i=0; i<nodes.length; i++){
+				if(!$('#tree').tree('isLeaf',nodes[i].target)){
+					continue;
+				}
+				if (s != '') s += ',';
+					s += nodes[i].id;
+			}
+			return s;
+		}
+	</script>  
+</head>  
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务 器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/servertree',method:'get',animate:true,checkbox:true"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+    <br/>
+		<form id="fm" method="post">
+			<fieldset>
+				<legend>更新公告</legend>
+				<textarea id="editor_id" name="cdesc" class="xheditor" rows="20" cols="100"></textarea><br/>
+				<label> </label> <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitok()">提交</a>
+			</fieldset>	   
+		</form>
+	</div>  
+</body>
+</html>

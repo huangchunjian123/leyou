@@ -1,0 +1,27 @@
+package com.xg.admin.pojo;
+
+import java.io.Serializable;
+/**
+ * npc
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class Npc implements Serializable{
+	
+	private Integer npcId;
+	private String name;
+	public Integer getNpcId() {
+		return npcId;
+	}
+	public void setNpcId(Integer npcId) {
+		this.npcId = npcId;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+}

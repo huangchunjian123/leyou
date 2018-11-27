@@ -1,0 +1,18 @@
+package com.game.admin.dao.data;
+
+import java.util.List;
+
+import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.SQL;
+
+import com.game.admin.pojo.Life;
+
+@DAO
+public interface LifeDao {
+	
+	public final static String TABLE = "t_life";
+	
+	@SQL("select  F_life_id as id,f_life_name_desc as name from "+ TABLE)
+	public List<Life> getAllLifeData();
+	
+}

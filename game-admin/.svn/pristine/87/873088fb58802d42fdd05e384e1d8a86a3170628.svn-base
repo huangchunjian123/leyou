@@ -1,0 +1,288 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>账号列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+	    $('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	
+	function _heroaddclose(){
+		$('#dlgadd').dialog('close');
+	}
+
+	function _herocloneclose(){
+		$('#dlgclone').dialog('close');
+	}
+	
+
+
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function _jobrole(heroId,heroName){
+		var nodeurl="rolesJob/goRoles?heroId="+heroId;	
+		parent.centerTabs.tabs('add', {
+			title : heroName,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(heroName);
+				}
+			} ]
+		});
+	}
+	
+	
+	function formateroperate(value,row,rowIndex){
+		var heroId = row.heroId;
+
+		var heroName = row.heroName+'';																								
+	 	var html="<a href='#' onclick='_editcloseaccount(\""+rowIndex + "\");'>封号</a>&nbsp;&nbsp;<a href='#' onclick='_editclosechat(\""+rowIndex + "\");'>禁言</a>&nbsp;&nbsp;<a href='#' onclick='_downLine(\""+rowIndex + "\");'>掉线&nbsp;&nbsp;</a>"; 
+		return html;
+
+	}
+
+	function  hiddenfield(){
+	
+	}
+	
+	function clearselect(){
+		$("#goods").empty(); 
+	}
+	
+	
+
+	
+	
+	//jiade
+
+	function _editcloseaccount(rowIndex) {
+	
+	var row = $('#dg').datagrid('getData').rows[rowIndex];
+	$('#dlgclose').dialog({
+		left:200,
+		top:100,
+	    width: 750,    
+	    height: 400,    
+     	onLoad:function(){
+    			$('#ac_feng_heroId').val(row.heroId); 
+    			 $('#ac_feng_heroId').attr("disabled","true");
+    			 $('#ac_log_name').val(row.heroName); 
+    			 $('#ac_log_name').attr("disabled","true");
+    			 
+   		 },
+	    href:"<%=request.getContextPath()%>/views/account/closeaccount.jsp",
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgclose').dialog('open');
+		$('#dlgclose').dialog('setTitle', '编辑信息');
+	}
+
+		function submitdlgclose(){
+			var type = $('#ac_feng_type').val();
+			var operator= $('#ac_feng_isaccountclose').val();
+			var fengIp = $('#ac_feng_isIp').val();
+			if(type == "1" && fengIp=="2"){
+				if(operator == "1"){
+				alert("请选择封号");
+				return ;
+				}
+			}
+			var serverIds=choseserverId;
+			$.post('<%=request.getContextPath()%>/account/close',{
+				heroId : $('#ac_feng_heroId').val(),
+				ranks:$('#ac_feng_f_remarks').val(),
+				rankTime: $('#ac_feng_time').datetimebox("getValue"),
+				heroName : $('#ac_log_name').val(),
+				serverid:serverIds,
+				operator:operator,
+				type:type,
+				fengIp:fengIp,
+			},function(data) {
+				$('#dlgclose').dialog('close');
+				$('#dg').datagrid('reload');
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+			});
+		}
+	
+		//禁言
+		function _editclosechat(rowIndex) {
+			
+			var row = $('#dg').datagrid('getData').rows[rowIndex];
+			$('#dlgclose').dialog({
+				left:200,
+				top:100,
+		     	onLoad:function(){
+		    		$('#ac_feng_heroId').val(row.heroId);
+		    		 $('#ac_feng_heroId').attr("disabled","true");
+		    		 $('#ac_log_name').val(row.heroName);
+		    		 $('#ac_log_name').attr("disabled","true");
+		   		 },
+		    href:"<%=request.getContextPath()%>/views/account/closechat.jsp",
+		    modal: true,
+		    closed: true});
+			
+			$('#dlgclose').dialog('open');
+			$('#dlgclose').dialog('setTitle', '编辑信息');
+		}
+		
+		
+//end 
+//提掉 线
+function _downLine(rowIndex){
+	var row = $('#dg').datagrid('getData').rows[rowIndex];
+	var onlogn=row.isOnline;
+	if(onlogn=='否'){
+		alert('玩家不在线')
+		return;
+	}
+	$.messager.confirm('确认','您确认踢玩家下线 ？',function(r){    
+	    if (r){    
+	    	$.post('<%=request.getContextPath()%>/run/downLine',{
+	    		serverId:choseserverId,
+	    		heroId :row.heroId,
+	    	},function(data){
+				$('#dg').datagrid('reload');
+	    		var d = $.parseJSON(data);
+	    		$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				$('#dlgclose').dialog('close');
+	    	}); 
+	    }    
+	});  
+	
+
+}	
+
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/officialServer',method:'get',animate:true,checkbox:false" ></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/run/queryHeroList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询账号 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+				<th data-options="field:'opt',title:'Operation',formatter:formateroperate" width="10">操作</th>
+					<th data-options="field:'serverId'" width="8" align="center">区服</th>
+					<th data-options="field:'heroId'" width="8" align="left">角色Id</th>
+					<th data-options="field:'accountId'" width="8" align="left">账户Id</th>
+					<th data-options="field:'yunyingId'" width="9" align="left">运营帐号</th>
+					<th data-options="field:'loginName'" width="8" align="left">登录名</th>
+					<th data-options="field:'loginPsd'" width="8" align="left">登录密码</th>
+					<th data-options="field:'heroName'" width="9" align="left">角色名称</th>
+					<th data-options="field:'teamGrade'" width="4" align="left">等级</th>
+					<th data-options="field:'teamExp'" width="4" align="left">经验</th>
+					<th data-options="field:'vipGrade'" width="4" align="left">vip等级</th	>
+					<th data-options="field:'status'" width="5" align="left">是否封号</th>
+					<th data-options="field:'remarks'" width="5" align="left">封号原因</th>
+					<th data-options="field:'yuanbao'" width="3" align=left>元宝</th>
+					<th data-options="field:'gold'" width="3" align="left">金币</th>
+					<th data-options="field:'fightPower'" width="3" align="left">战力</th>
+					<th data-options="field:'allowChat'" width="5" align="center">是否禁止聊天</th>
+					<th data-options="field:'isOnline'" width="5" align="center">是否在线</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="搜索条件" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						关键字<input name="qName" style="width: 200px;" />&nbsp;
+					</td>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_search();">搜索</a>
+						<font color="red" size="3" ><strong>提醒:服 务 器 玩 家 数 据 以 区 服 为 准 !</strong></font>
+					</td>	
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<div id="dlgclose"  style="width: 1000px;overflow: auto;" closed="true" buttons="#dlgclose-buttons" align="center">
+	</div>
+
+	<div id="dlgclose-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgclose()">确定</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclose').dialog('close');">取消</a>
+	</div>
+	
+</body>
+</html>

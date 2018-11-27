@@ -1,0 +1,67 @@
+package com.game.admin.service.server;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.game.admin.dto.model.ServerTreeNode;
+import com.game.admin.pojo.server.ServerData;
+import com.game.api.hessian.DataGrid;
+
+/**
+ * 服务器列表接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IServerService {
+
+	/**
+	 * 获取所有服务器列表
+	 * @return
+	 */
+	public List<ServerData> getAll();
+	
+	/**
+	 * 查询服务器分页数据
+	 * @return
+	 */
+	public DataGrid datagrid(int page,int rows);
+
+	/**
+	 * 获取某服务器配置
+	 * @param serverId
+	 * @return
+	 */
+	public ServerData getByServerId(int serverId);
+
+	/**
+	 * 刷新内存服务器列表
+	 */
+	public void initServerList();
+
+	/**
+	 * 服务器操作树形菜单
+	 */
+	public List<ServerTreeNode> getTreeeServer();
+	
+	/**
+	 * 获取所有服务器id
+	 */
+	public Map<Integer,ServerData> getAllServerIds();
+	
+	/**
+	 * 正式的服
+	 * @return
+	 */
+	public List<ServerTreeNode> officialServer();
+	/**
+	 * 所有服
+	 */
+	public List<ServerTreeNode> getAllTreeeServer();
+	
+	/**
+	 * 通过类型获取服务器id
+	 * @return
+	 */
+	public Set<Integer> getByTypeServerId(int type);
+}

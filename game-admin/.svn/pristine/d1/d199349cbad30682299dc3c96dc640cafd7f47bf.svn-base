@@ -1,0 +1,17 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">友情提示:编辑九重天副本，之前副本全部完成</font>
+<table class="tableCss">
+    <tr>
+		<td>已经完成的九重天列表:</td>
+		<td><select id="cur_ninedays_list" name="cur_ninedays_list" size="8"
+						style="width: 350px"></select></td>
+	</tr>
+	<tr>
+		<td>选择九重天:</td>
+		<td>  <input id='nineDay_id'></input></td>
+		<td>  <input id='nineDay_hero_id' hidden="true"></input></td>
+	</tr>
+</table>

@@ -1,0 +1,24 @@
+package com.game.admin.service.npc;
+
+import java.util.List;
+
+import com.game.admin.dto.npc.NpcDto;
+
+/**
+ * npc相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface INpcService {
+	
+	public List<NpcDto> getNpcDtoByname(String name, int offset, int pagesize);
+	
+	
+	/**
+	 * 刷新内存npc列表
+	 */
+	public void initNpcs();
+	
+	public String getNpcName(int id);
+
+}

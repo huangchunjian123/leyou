@@ -1,0 +1,217 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function () {  
+	var rewardId=<%= request.getParameter("rewardId")%>;
+	var taskId=<%= request.getParameter("taskId")%>;
+	if(taskId&&rewardId){
+		$.ajax({
+		    type: 'post',
+		    url: "<%=request.getContextPath()%>/task/getTaskReward?taskId="+taskId+"&rewardId="+rewardId,
+		    success:function(data){
+		    	var r = $.parseJSON(data);
+		    	$("#rewardGrade"+rewardId).numberspinner('setValue', r.rewardGrade);
+		    	//$("#rewardGrade"+rewardId).val(r.rewardGrade);
+		    	$("#exp"+rewardId).numberspinner('setValue', r.exp);
+		    	$("#teamExp"+rewardId).numberspinner('setValue', r.teamExp);
+		    	$("#gold"+rewardId).numberspinner('setValue', r.gold);
+		    	$("#yuanbao"+rewardId).numberspinner('setValue', r.yuanbao);
+		    	$("#contribution"+rewardId).numberspinner('setValue', r.contribution);
+		    	$("#notice"+rewardId).val(r.notice);
+		    	if(r.title){
+		    		$("#title"+rewardId).combogrid('setValue', r.title);
+		    	}
+		    	if(r.rewardGoods){
+			    	var rewardGoodsValues = r.goodsValues;
+		    		var rewardGoodsTexts = r.goodsTexts;
+		    		 $.each(rewardGoodsValues,function(i) {
+		    			$("#rewardGoods"+rewardId).append("<option value='" + rewardGoodsValues[i] + "'>" + rewardGoodsTexts[i] + "</option>");
+		    		});
+			    }
+		    }
+		});	
+	}
+	  $(":input[name='rewardGoods']").dblclick(function() {
+		  if($(this).val()!='' && $(this).val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = $(":input[name='rewardGoods']").find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			
+			 			var valStr = value[0]+":"+value[1]+":"+r;
+			 			var textStr = text[0]+":"+text[1]+":"+r;
+			 			if(value[0] == 1){
+			 				var qualitySel=$(":input[name='equipQuality']").children('option:selected');
+			 				valStr = valStr +":"+qualitySel.val();
+			 				textStr = textStr +":"+qualitySel.text();
+			 			}
+			 			tv.val(valStr);
+			 			tv.text(textStr);
+	                }
+	            });  
+		  }
+	  }); 
+})
+</script>
+<table class="tableCss">
+<%
+	String rewardId = request.getParameter("rewardId");
+	if(rewardId!=null&&rewardId.length()>0){
+		%>
+	<input name="rewardId" value='<%=request.getParameter("rewardId") %>' type="hidden"/>
+	<%
+	}
+	%>
+	<tr>
+		<td>奖励级别:</td>
+		<td>
+			<input id="rewardGrade<%=rewardId %>" name="rewardGrade" value="1" min="1" max="10" class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>经验奖励:</td>
+		<td>
+			<input id="exp<%=rewardId %>" name="exp" value="0" min="0" class="easyui-numberspinner" data-options="increment:1000,required:true" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>金币奖励:</td>
+		<td>
+			<input id="gold<%=rewardId %>" name="gold" value="0" min="0" class="easyui-numberspinner" data-options="increment:1000,required:true" required="true" style="width: 80px;" />
+		</td>
+		<td>奖励钻石:</td>
+		<td>
+			<input id="yuanbao<%=rewardId %>" name="yuanbao" value="0" min="0" class="easyui-numberspinner" data-options="increment:10,required:true" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>奖励公会贡献度:</td>
+		<td>
+			<input id="contribution<%=rewardId %>" name="contribution" value="0" min="0" class="easyui-numberspinner" data-options="increment:10,required:true" required="true" style="width: 80px;" />
+		</td>
+		<td>奖励称号:</td>
+		<td>
+		<select id="title<%=rewardId %>" name="title" class="easyui-combogrid title"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath()%>/nickname/getallnickname',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr>
+		<td>全服公告:</td>
+		<td colspan="3"><textarea rows="4" cols="60" id="notice<%=rewardId %>"
+				name="notice" style="resize: none" class="easyui-validatebox"></textarea></td>
+	</tr>
+	
+	<tr class="rewardgoods">
+		<td>奖励物品:</td>
+		<td colspan="3">
+			<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this,'reward');">
+				<option value="1" selected="selected">装备</option>
+				<option value="2">道具</option>
+				<option value="3">宝石</option>
+			</select>
+			<span id="reward_equip_span" class="reward_equip_span">
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/equip/getallequip',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+				<select style="width:100px" name="equipQuality">
+					<option value="0" selected="selected">白</option>
+					<option value="1">绿</option>
+					<option value="2">蓝</option>
+					<option value="3">紫</option>
+					<option value="4">金</option>
+				</select>
+			</span>
+			<span id="reward_good_span" style="display: none;" class="reward_good_span">
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/good/getallgoods',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+			</span>
+			<span id="reward_gemstone_span" style="display: none;" class="reward_gemstone_span">
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype3"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+			</span>
+		</td>
+	</tr>
+	<tr class="rewardgoods">
+		<td>物品数量:</td>
+		<td colspan="3"><input id="rewardGoodsnum" value="1" min="1" max="1000"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr class="rewardgoods">
+		<td style="text-align:right;"></td>
+		<td colspan="3">
+		<table>
+			<tr>
+				<td><select id="rewardGoods<%=rewardId %>" name="rewardGoods" size="8" style="width: 350px"></select></td>
+				<td><input type="button" value="▲" id="goodsMoveUp" onclick="goodsMoveUpClick(this,'rewardGoods')"/><br/>
+					<input type="button" value="▼" id="goodsMoveDown" onclick="goodsMoveDownClick(this,'rewardGoods')"/></td>
+				<td>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselectTarget(this,'rewardgoods','rewardGoods')">添加</a>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselectTarget(this,'rewardGoods')">删除</a>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselectTarget(this,'rewardGoods')">清空</a>
+				</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td>战队经验奖励:</td>
+		<td>
+			<input id="teamExp<%=rewardId %>" name="teamExp" value="0" min="0" class="easyui-numberspinner" data-options="increment:1000,required:true" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">星魂分布:</td>
+		<td><textarea readonly="readonly" rows="23" cols="120" id="starSoulGrade_list" name="starSoulGrade_list" style="resize: none" /></td>
+	</tr>
+</table>

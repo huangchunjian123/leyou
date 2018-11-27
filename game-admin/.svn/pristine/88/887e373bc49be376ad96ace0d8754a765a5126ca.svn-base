@@ -1,0 +1,57 @@
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript">
+
+</script>
+
+<form id="fmcloseaccount" method="post" class="fm">
+    <span style="color:red">提醒：请查看账号ID是否正确</span>
+   
+						
+	<table class="tableCss">
+	<tr>
+	    <td>
+	    	<input type="text" id="ac_feng_heroId" name="heroId" /><br />
+	    	<input type="hidden" id="ac_feng_type" name="heroId" value="1"/><br />
+			<input type="text" id="ac_log_name" name="heroName" /><br />
+	    	<input type="hidden" id="ac_log_name" name="heroName" value="1"/><br />
+		</td>	
+	</tr>
+	<tr>
+		<td>是否封号:</td>
+	    <td>
+	    <select id="ac_feng_isaccountclose">  
+        <option value="1">否</option>  
+        <option value="0">是</option>  
+		</select> 
+		</td>	
+		<td>时间:</td>
+	    <td>
+	    	<td><input id="ac_feng_time" name="ac_feng_time" class="easyui-datetimebox"  style="width: 150px;" /> 
+	    </td>
+		
+	</tr>
+	<tr>
+		<td>是否封ip:</td>
+		<td>
+	    <select id="ac_feng_isIp">  
+        <option value="1">否</option>  
+        <option value="2">是</option>  
+		</select> 
+		</td>
+	</tr>
+	
+	
+		<tr>
+		<td colspan="4">原因:</td>
+		
+	</tr>
+  	<tr>
+		<td colspan="4" style="text-align:center">
+		<textarea  id="ac_feng_f_remarks" name="ac_feng_f_remarks" style="width:500px;height:100px;"></textarea>
+		</td>	
+	
+	</tr>
+</table>
+</form>

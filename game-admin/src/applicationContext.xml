@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/task   
+    http://www.springframework.org/schema/task/spring-task-3.0.xsd  
+    http://www.springframework.org/schema/tx  
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	">
+	<!-- 开启切面编程功能 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<context:annotation-config />
+
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:config.properties" />
+
+	<!-- 自动扫描dao和service包(自动注入) -->
+	<context:component-scan base-package="com.xg.admin">
+		<context:include-filter type="annotation"
+			expression="net.paoding.rose.jade.annotation.DAO" />
+		<context:exclude-filter type="regex"
+			expression="com.xg.admin.pojo" />
+		<context:exclude-filter type="regex"
+			expression="com.xg.admin.dto.*" />
+		<context:exclude-filter type="regex"
+			expression="com.xg.admin.utils.*" />
+	</context:component-scan>
+
+	<bean id="jade.dataSource.com.xg.admin.dao.system" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url"
+			value="jdbc:mysql://192.168.1.101:3306/fwar_admin?useUnicode=true&amp;characterEncoding=utf-8"></property>
+		<property name="username" value="server"></property>
+		<property name="password" value="server"></property>
+		<property name="timeBetweenEvictionRunsMillis" value="3600000"></property>
+		<property name="minEvictableIdleTimeMillis" value="3600000"></property>
+	</bean>
+	<bean id="jade.dataSource.com.xg.admin.dao.data" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<!-- -->
+		<property name="url"
+			value="jdbc:mysql://192.168.1.101:3306/fwar_data?useUnicode=true&amp;characterEncoding=utf-8"></property>
+			
+		<property name="username" value="server"></property>
+		<property name="password" value="server"></property>
+			<!--
+			 <property name="url"
+			value="jdbc:mysql://localhost:3306/fwar_data?useUnicode=true&amp;characterEncoding=utf-8"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property> -->
+		<property name="timeBetweenEvictionRunsMillis" value="3600000"></property>
+		<property name="minEvictableIdleTimeMillis" value="3600000"></property>
+	</bean>
+	<bean id="jade.dataSource.com.xg.admin.dao.server" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url"
+			value="jdbc:mysql://192.168.1.101:3306/fwar_login?useUnicode=true&amp;characterEncoding=utf-8"></property>
+		<property name="username" value="server"></property>
+		<property name="password" value="server"></property>
+		<property name="timeBetweenEvictionRunsMillis" value="3600000"></property>
+		<property name="minEvictableIdleTimeMillis" value="3600000"></property>
+	</bean>
+	<!-- 以AspectJ方式 定义 事务
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.xg.admin.service.task.*.*(..))"
+			advice-ref="txAdvice" />
+	</aop:config>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="jade.dataSource.com.xg.admin.dao.data" />
+	</bean> -->
+	<!-- 基本事务定义,使用transactionManager作事务管理,默认get* find*方法的事务为readonly,其余方法按默认设置. 
+		默认的设置请参考Spring文档事务一章. 
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="find*" read-only="true" rollback-for="java.io.Exception" />
+			<tx:method name="get*" read-only="true" rollback-for="java.io.Exception" />
+			<tx:method name="add*" read-only="false" propagation="REQUIRED"
+				isolation="SERIALIZABLE" rollback-for="java.io.Exception" />
+			<tx:method name="pay*" read-only="false" isolation="SERIALIZABLE"
+				rollback-for="java.io.Exception" />
+			<tx:method name="*" read-only="false" rollback-for="java.io.Exception" />
+		</tx:attributes>
+	</tx:advice>
+-->
+</beans>

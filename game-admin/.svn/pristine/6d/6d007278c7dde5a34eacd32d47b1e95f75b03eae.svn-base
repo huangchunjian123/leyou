@@ -1,0 +1,81 @@
+package com.game.admin.service.skill;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.SkillsDao;
+import com.game.admin.dto.skill.SkillsDto;
+import com.game.admin.pojo.Skills;
+
+/**
+ * 技能相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("skillService")
+public class SkillServiceImpl implements ISkillService, InitializingBean {
+	@Autowired
+	private SkillsDao skillsDao;
+
+	/** 道具列表 */
+	private static Map<Integer, Skills> skillsdtomap = new HashMap<Integer, Skills>();
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+//		try {
+//			Timer timer = new Timer(true);
+//			timer.schedule(new TimerTask() {
+//				public void run() {
+//					initSkills();
+//				}
+//			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+//		} catch (Exception e) {
+//			System.err.println(e);
+//		}
+	}
+
+
+	@Override
+	public void initSkills() {
+		skillsdtomap.clear();
+		List<Skills> list = skillsDao.getAll();
+		for (Skills skill : list) {
+			skillsdtomap.put(skill.getSkillsId(), skill);
+		}
+	}
+
+	@Override
+	public List<SkillsDto> getSkillsByTypeJob(String q,int type, int job) {
+		if (q!=null) {
+			q = q.trim();
+		}
+		List<SkillsDto> list = new ArrayList<SkillsDto>();
+		for (Entry<Integer, Skills> en : skillsdtomap.entrySet()) {
+			
+			if (en.getValue().getSkilltype() == type && en.getValue().getJob() == job) {
+				if(type==1 && en.getValue().getIslevelup() == 0){
+					continue;
+				}
+				if (!StringUtils.isEmpty(q)){
+					if (en.getValue().getName().contains(q)||String.valueOf(en.getValue().getSkillsId()).contains(q)) {
+						list.add(new SkillsDto(en.getValue()));
+					}
+				}else {
+					list.add(new SkillsDto(en.getValue()));
+				}
+			}
+		}
+		return list;
+	}
+
+}

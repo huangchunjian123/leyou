@@ -1,0 +1,23 @@
+package com.xg.admin.service.title;
+
+import java.util.List;
+
+import com.xg.admin.dto.npc.NpcDto;
+
+/**
+ * 称号相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface ITitleService {
+
+	public List<NpcDto> getTitleDtoByname(String name, int offset, int pagesize);
+
+	/**
+	 * 刷新内存称号列表
+	 */
+	public void initTitles();
+
+	public String getTitleName(int id);
+
+}

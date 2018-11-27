@@ -1,0 +1,24 @@
+package com.game.admin.dao.server;
+
+import java.util.List;
+
+import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.SQL;
+
+import com.game.admin.pojo.server.ServerData;
+
+/**
+ * 服务器列表dao
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@DAO
+public interface ServerDao {
+
+	public final static String TABLE = "t_vir_servers";
+
+	@SQL("SELECT vs.f_comment as serverName , vs.f_id as serverId ,vs.f_server_ip as serverIp ,"
+			+ "vs.f_port as serverPort , vs.f_server_type as serverType"+" FROM  "+TABLE+"  vs")
+	public List<ServerData> getAll();
+
+}

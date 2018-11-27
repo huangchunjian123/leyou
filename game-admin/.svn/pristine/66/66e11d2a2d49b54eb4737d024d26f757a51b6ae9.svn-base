@@ -1,0 +1,116 @@
+package com.game.admin.service.task;
+
+import java.util.List;
+
+import com.game.admin.dto.task.TaskAllData;
+import com.game.admin.dto.task.TaskDto;
+import com.game.admin.pojo.task.TaskConditionData;
+import com.game.admin.pojo.task.TaskData;
+import com.game.admin.pojo.task.TaskRewardData;
+import com.game.api.hessian.DataGrid;
+
+/**
+ * 任务操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface ITaskService {
+
+	/**
+	 * 任务列表datagrid
+	 * @param taskType
+	 * @param taskId
+	 * @param taskName
+	 * @param offset
+	 * @param pagesize
+	 * @return
+	 */
+	public DataGrid datagrid(int taskType, int taskId, String taskName, int offset, int pagesize);
+
+	/**
+	 * 刷新内存task列表
+	 */
+	public void initTasks();
+
+	/**
+	 * 加载所有任务id+名称数据
+	 * @param name
+	 * @param excludeId
+	 * @param offset
+	 * @param pagesize
+	 * @return
+	 */
+	public List<TaskDto> getTaskDtoByname(String name,Integer excludeId, int offset, int pagesize);
+
+	/**
+	 * 添加任务数据
+	 * @param data
+	 * @param conditions
+	 * @param rewards
+	 */
+	public void addTask(TaskData data, List<TaskConditionData> conditions, List<TaskRewardData> rewards);
+
+	/**
+	 * 更新任务数据
+	 * @param data
+	 * @param conditions
+	 * @param rewards
+	 */
+	public void updateTask(TaskData data, List<TaskConditionData> conditions, List<TaskRewardData> rewards);
+
+	/**
+	 * 删除任务数据
+	 * @param taskId
+	 */
+	public void deleteTask(int taskId);
+
+	/**
+	 * 判断某任务id是否已存在
+	 * @param taskId
+	 * @return
+	 */
+	public boolean existsTaskId(int taskId);
+
+	/**
+	 * 获取任务数据
+	 * @param taskId
+	 * @return
+	 */
+	public TaskData getData(int taskId);
+
+	/**
+	 * 获取任务条件id集合
+	 * @param taskId
+	 * @return
+	 */
+	public List<Integer> getConditionIds(int taskId);
+
+	/**
+	 * 获取任务条件数据
+	 * @param taskId
+	 * @param conditionId
+	 * @return
+	 */
+	public TaskConditionData getCondition(int taskId, int conditionId);
+
+	/**
+	 * 获取任务奖励id集合
+	 * @param taskId
+	 * @return
+	 */
+	public List<Integer> getRewardId(int taskId);
+
+	/**
+	 * 获取任务奖励数据
+	 * @param taskId
+	 * @param rewardId
+	 * @return
+	 */
+	public TaskRewardData getReward(int taskId, int rewardId);
+	
+	/**
+	 * 获得所有的主线任务
+	 * @return
+	 */
+	public List<TaskDto> getAllMainTasks(String q );
+}

@@ -1,0 +1,59 @@
+package com.game.admin.pojo;
+
+public class RealDataGmLog {
+	/**
+	 * 实时在线人数
+	 */
+	private int realOnLinePeople;
+	
+	/**
+	 * 实时注册人数
+	 */
+	private int realRegisteredPeoplenum;
+	
+	/**
+	 * 实时创建hero数量
+	 */
+	private int realCreateHeronum;
+	
+	private String time;
+
+	public int getRealOnLinePeople() {
+		return realOnLinePeople;
+	}
+
+	public void setRealOnLinePeople(int realOnLinePeople) {
+		this.realOnLinePeople = realOnLinePeople;
+	}
+
+	public int getRealRegisteredPeoplenum() {
+		return realRegisteredPeoplenum;
+	}
+
+	public void setRealRegisteredPeoplenum(int realRegisteredPeoplenum) {
+		this.realRegisteredPeoplenum = realRegisteredPeoplenum;
+	}
+
+	public int getRealCreateHeronum() {
+		return realCreateHeronum;
+	}
+
+	public void setRealCreateHeronum(int realCreateHeronum) {
+		this.realCreateHeronum = realCreateHeronum;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	@Override
+	public String toString() {
+		return "[在线人数=" + realOnLinePeople + ", 注册人数=" + realRegisteredPeoplenum + ", 创建玩家数量="
+				+ realCreateHeronum +"]";
+	}
+
+}

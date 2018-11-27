@@ -1,0 +1,89 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+import java.util.Set;
+
+import org.python.google.common.collect.Lists;
+
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.ServerService;
+import com.game.api.hessian.dto.QueryServerDto;
+import com.game.util.ObjectUtil;
+import com.game.util.StringUtil;
+
+import net.paoding.rose.web.annotation.Param;
+
+/**
+ * 查询每个服务器数据
+ * @author jiayi
+ *
+ */
+public class QueryServerController extends BaseController{
+	
+	public String goServerDatas(){
+		return "servers/serverData";
+	}
+	
+	public String goOutServerDatas(){
+		return "servers/wServerData";
+	}
+	
+	//内网服务器
+    public Object getServerData(@Param("serverId") int serverId){
+    	Set<Integer> sets = serverService.getByTypeServerId(0);
+		List<QueryServerDto> list = Lists.newArrayList();
+    	for (Integer setId : sets) {
+    		QueryServerDto queryServerDto = gameServerAllData(setId);
+    		if(queryServerDto != null ){
+    			list.add(queryServerDto);
+    		}
+		}
+    	DataGrid result = new DataGrid();
+    	result.setRows(list);
+		result.setTotal(list.size());
+		return ResultCode.writeJson(result);
+    }
+    
+    //做成权限分开写,外网服务器
+    public Object getOutServerData(@Param("serverId") int serverId){
+    	Set<Integer> sets = serverService.getByTypeServerId(1);
+		List<QueryServerDto> list = Lists.newArrayList();
+    	for (Integer setId : sets) {
+    		QueryServerDto queryServerDto = gameServerAllData(setId);
+    		if(queryServerDto != null ){
+    			list.add(queryServerDto);
+    		}
+		}
+    	DataGrid result = new DataGrid();
+    	result.setRows(list);
+		result.setTotal(list.size());
+		return ResultCode.writeJson(result);
+    }
+	
+    
+    private QueryServerDto gameServerAllData(int serverId){
+    	String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			ServerService iServerService = getHessianFactory(ServerService.class, url);
+			QueryServerDto queryServerDto = null;
+			if(iServerService!= null){
+				try {
+					queryServerDto = iServerService.getQueryServerData(serverId);
+					if(queryServerDto != null){
+						ServerData serverData = serverService.getByServerId(serverId);
+						if(!ObjectUtil.isEmptyObject(serverData)){
+							queryServerDto.setServerName(serverData.getServerName());
+						}
+						return queryServerDto;
+					}
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return null;
+    }
+}

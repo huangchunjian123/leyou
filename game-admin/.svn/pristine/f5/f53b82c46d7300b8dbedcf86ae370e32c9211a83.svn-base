@@ -1,0 +1,50 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<input id="heroId" name="heroId" hidden="true"/>
+	<tr>
+		<td>选择命格物品:</td>
+		<td>
+			<select id="lifeGoods" name="lifeGoods" class="easyui-combogrid bagtype1"
+			style="width: 180px"
+			data-options="
+	            panelWidth: 180,
+	            idField: 'id',
+	            textField: 'name',
+	            url: '<%=request.getContextPath() %>/life/getAllLifeData',
+	            columns: [[
+	                {field:'name',title:'名称',width:60},
+	                {field:'id',title:'ID',width:40}
+	            ]],
+	            fitColumns: true,
+				method:'post',
+				editable:false,
+				mode:'remote'">
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>物品数量:</td>
+		<td><input id="lifegoodsnum" name="lifegoodsnum" value="1" min="1" max="999" class="easyui-numberspinner" data-options="increment:1,required:true" required="true" style="width: 400px"/></td>
+	</tr>
+	<tr>
+		<td valign="top" style="text-align: right;"></td>
+		<td>
+			<select id="lifegoods" name="lifegoods" size="8" style="width: 400px"></select><br />
+		</td>
+	</tr>
+	<tr>
+		<td>命格碎片:</td>
+		<td><input id="lifeChipnum" name="lifeChipnum" value="1" min="0" max="9999" class="easyui-numberspinner" data-options="increment:1,required:true" required="true" style="width: 400px"/></td>
+	</tr>
+	<tr>
+		<td>
+		<label></label><a href="javascript:void(0)"
+			class="easyui-linkbutton" onclick="addLifeId()">添加</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			onclick="delLifeId()">删除</a> <a href="javascript:void(0)"
+			class="easyui-linkbutton" onclick="clearLifeId()">清空</a>
+		</td>
+	</tr>
+</table>

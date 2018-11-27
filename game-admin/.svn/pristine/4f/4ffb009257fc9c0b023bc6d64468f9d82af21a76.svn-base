@@ -1,0 +1,487 @@
+/**
+ * 任务操作常用的方法
+ * 
+ * @author zhangyaping
+ */
+// 任务详细信息
+function TaskInfo(taskId, name, type, groupType, preTaskId, isCancel, isRepeat,
+		dailyCount, beginNpc, endNpc, triggerGoods, oneKeyFinishConsumeYuanbao,
+		acceptBeginTime, completeEndTime, taskDesc, minGrade, maxGrade) {
+	this.taskId = taskId;
+	this.taskName = name;
+	this.type = type;
+	this.groupType = groupType;
+	this.preTaskId = preTaskId;
+	this.isCancel = isCancel;
+	this.isRepeat = isRepeat;
+	this.dailyCount = dailyCount;
+	this.beginNpc = beginNpc;
+	this.endNpc = endNpc;
+	this.triggerGoods = triggerGoods;
+	this.oneKeyFinishConsumeYuanbao = oneKeyFinishConsumeYuanbao;
+	this.acceptBeginTime = acceptBeginTime;
+	this.completeEndTime = completeEndTime;
+	this.taskDesc = taskDesc;
+	this.minGrade = minGrade;
+	this.maxGrade = maxGrade;
+}
+// 任务条件
+function TaskCondition(id, difficultyLevel, job,
+		targetType, targetKillMonster, targetGoods, targetShop, targetTalkNpc,
+		targetNeedEquip, targetAction, targetMinGrade, giveBuffId, giveGoods,
+		takeCopper, trans, targetDesc, targetInstanceId,entranceId,instance) {
+	this.id = id;
+	this.difficultyLevel = difficultyLevel;
+	this.job = job;
+	this.targetType = targetType;
+	this.targetKillMonster = targetKillMonster;
+	this.targetGoods = targetGoods;
+	this.targetShop = targetShop;
+	this.targetTalkNpc = targetTalkNpc;
+	this.targetNeedEquip = targetNeedEquip;
+	this.targetAction = targetAction;
+	this.targetMinGrade = targetMinGrade;
+	this.targetInstanceId = targetInstanceId;
+	this.giveBuffId = giveBuffId;
+	this.giveGoods = giveGoods;
+	this.takeCopper = takeCopper;
+	this.trans = trans;
+	this.targetDesc = targetDesc;
+	this.entranceId = entranceId;
+	this.instance = instance;
+}
+// 任务奖励
+function TaskReward(rewardId, rewardGrade, rewardGoods, gold, yuanbao,
+		contribution, title, exp, notice, teamExp) {
+	this.id = rewardId;
+	this.rewardGrade = rewardGrade;
+	this.rewardGoods = rewardGoods;
+	this.gold = gold;
+	this.yuanbao = yuanbao;
+	this.contribution = contribution;
+	this.title = title;
+	this.exp = exp;
+	this.notice = notice;
+	this.teamExp = teamExp;
+}
+// 构造任务详细信息对象
+function builderTaskInfo() {
+	var taskId = $('#taskId').val();
+	var taskName = $('#taskName').val();
+	var taskType = $('#taskType').val();
+	var groupType = $('#taskGroupType').val();
+	//var grid = $("#preTaskId").combogrid("grid");// 获取表格对象
+	//var row = grid.datagrid('getSelected');// 获取行数据
+	//var preTaskId = 0;
+	//if (row) {
+	//	preTaskId = row.taskId;
+	//}
+	var preTaskId = $(":input[name='preTaskId']").val();
+	if(!preTaskId){
+		preTaskId=0;
+	}
+	var isCancel = $("input[name='cancel']:checked").val();
+	var isRepeat = $("input[name='repeat']:checked").val();
+	//var beginNpc = 0;
+	//grid = $("#beginNpc").combogrid("grid");// 获取表格对象
+	//row = grid.datagrid('getSelected');// 获取行数据
+	//if (row) {
+	//	beginNpc = row.npcId;
+	//}
+	var beginNpc = $(":input[name='beginNpc']").val();
+	if(!beginNpc){
+		beginNpc=0;
+	}
+	//var endNpc = 0;
+	//grid = $("#endNpc").combogrid("grid");// 获取表格对象
+	//row = grid.datagrid('getSelected');// 获取行数据
+	//if (row) {
+	//	endNpc = row.npcId;
+	//}
+	var endNpc = $(":input[name='endNpc']").val();
+	if(!endNpc){
+		endNpc=0;
+	}
+	var limitLime = $('#limitLime').val();
+	var dailyCount = $('#dailyCount').val();
+
+	//var triggerGoods = 0;
+	//grid = $("#triggerGoods").combogrid("grid");// 获取表格对象
+	//row = grid.datagrid('getSelected');// 获取行数据
+	//if (row) {
+	//	triggerGoods = row.goodsId;
+	//}
+	
+	var triggerGoods= $(":input[name='triggerGoods']").val();
+	if(!triggerGoods){
+		triggerGoods=0;
+	}
+	var oneKeyFinishConsumeYuanbao = $('#oneKeyFinishConsumeYuanbao').val();
+	var acceptBeginTime = $('#acceptBeginTime').datetimebox('getValue');
+	var completeEndTime = $('#completeEndTime').datetimebox('getValue');
+	var taskDesc = $('#taskDesc').val();
+	var minGrade = $("#minGrade").val();
+	var maxGrade = $("#maxGrade").val();
+	var taskInfo = new TaskInfo(taskId, taskName, taskType, groupType, preTaskId,
+			isCancel, isRepeat, dailyCount, beginNpc, endNpc, triggerGoods,
+			oneKeyFinishConsumeYuanbao, acceptBeginTime, completeEndTime,
+			taskDesc,minGrade,maxGrade);
+	return taskInfo;
+}
+// 构造任务条件
+function builderTaskConditions() {
+	var idAttr = $(":input[name='conditionId']");
+	var difficultyLevelAttr = $(":input[name='difficultyLevel']");
+	var taskConditions = new Array();
+
+	var jobAttr = $(".targetJob");
+	
+	var takeCopperAttr = $(":input[name='takeCopper']");
+	var giveBuffIdAttr = $(".giveBuffId");
+	var giveGoodsAttr = $(".giveGoods");
+	var transAttr = $(":input[name='trans']");
+	var targetDescAttr = $(":input[name='targetDesc']");
+
+	var targetTypeAttr = $(".targetType");
+	var targetKillMonsterAttr = $(":input[name='targetKillMonster']");
+	var targetGoodsAttr = $(":input[name='targetGoods']");
+	var targetShopAttr = $(":input[name='targetShop']");
+	var targetTalkNpcAttr = $(":input[name='targetTalkNpc']");
+	var targetNeedEquipAttr = $(":input[name='targetNeedEquip']");
+	var targetActionAttr = $(":input[name='targetAction']");
+	var targetActionCountAttr = $(":input[name='targetActionCount']");
+	var targetMinGradeAttr = $(":input[name='targetMinGrade']");
+	var targetInstanceIdAttr = $(":input[name='targetInstanceId']");
+	var entranceIdAttr = $(":input[name='entranceId']");
+	var instanceAttr = $(":input[name='instance']");
+
+	var taskConditions = new Array(difficultyLevelAttr.size());
+	difficultyLevelAttr
+			.each(function(i) {
+				var difficultyLevel = $(difficultyLevelAttr[i]).val();
+				var job = $(jobAttr[i]).find("option:selected").val();
+				var giveBuffId = 0;
+				var grid = $(giveBuffIdAttr[i]).combogrid("grid");// 获取表格对象
+				var row = grid.datagrid('getSelected');// 获取行数据
+				if (row) {
+					giveBuffId = row.taskType;
+				}
+				var giveGoods = 0;
+				grid = $(giveGoodsAttr[i]).combogrid("grid");// 获取表格对象
+				row = grid.datagrid('getSelected');// 获取行数据
+				if (row) {
+					giveGoods = row.id;
+				}
+				var takeCopper = $(takeCopperAttr[i]).val();
+				var trans = $(transAttr[i]).val();
+				var targetDesc = $(targetDescAttr[i]).val();
+				var targetType = $(targetTypeAttr[i]).find("option:selected")
+						.val();
+				// 任务目标类型(0杀怪;1收集物品2;商城购买;3npc对话,4穿戴装备,5完成某动作,6升级等级)
+				var targetKillMonster = '', targetGoods = '', targetShop = '', targetTalkNpc = '', targetNeedEquip = '', targetAction = 0, targetMinGrade = 0, targetInstanceId = 0,entranceId='-1',instance='-1';
+				if (targetType == 0) {// 杀怪
+					$(targetKillMonsterAttr[i]).find("option").each(function() {
+						targetKillMonster += $(this).val() + ",";
+					});
+				} else if (targetType == 1) {// 收集物品
+					$(targetGoodsAttr[i]).find("option").each(function() {
+						targetGoods += $(this).val() + ",";
+					});
+				} else if (targetType == 2) {// 商城购买
+					$(targetShopAttr[i]).find("option").each(function() {
+						targetShop += $(this).val() + ",";
+					});
+				} else if (targetType == 3) {// npc对话
+					$(targetTalkNpcAttr[i]).find("option").each(function() {
+						targetTalkNpc += $(this).val() + "##";
+					});
+				} else if (targetType == 4) {// 穿戴装备
+					targetNeedEquip = $(targetNeedEquipAttr[i]).find(
+							"option:selected").val();
+				} else if (targetType == 5) {// 完成某动作
+					targetAction = $(targetActionAttr[i]).find("option:selected").val()+":"+$(targetActionCountAttr[i]).val();
+				} else if (targetType == 6) {// 升级等级
+					targetMinGrade = $(targetMinGradeAttr[i]).val();
+				} else if (targetType == 7) {// 完成副本
+					targetInstanceId = $(targetInstanceIdAttr[i]).val();
+				}
+				var tempValue=$(entranceIdAttr[i]).val();
+				if(tempValue){
+					entranceId = tempValue;
+				}
+				tempValue = $(instanceAttr[i]).val();
+				if(tempValue){
+					instance = tempValue;
+				}
+				var conditionId = -1;
+				if (idAttr && idAttr[i]) {
+					conditionId = $(idAttr[i]).val();
+				}
+				var condition = new TaskCondition(conditionId, difficultyLevel,
+						job, targetType, targetKillMonster,
+						targetGoods, targetShop, targetTalkNpc,
+						targetNeedEquip, targetAction, targetMinGrade,
+						giveBuffId, giveGoods, takeCopper, trans, targetDesc,
+						targetInstanceId,entranceId,instance);
+				taskConditions.push(condition)
+			});
+	return taskConditions;
+}
+// 构造任务奖励信息
+function builderTaskRewards() {
+	var idAttr = $(":input[name='rewardId']");
+	var rewardGradeAttr = $(":input[name='rewardGrade']");
+	var taskRewards = new Array(rewardGradeAttr.size());
+	var expAttr = $(":input[name='exp']");
+	var goldAttr = $(":input[name='gold']");
+	var yuanbaoAttr = $(":input[name='yuanbao']");
+	var contributionAttr = $(":input[name='contribution']");
+	var titleAttr = $(".title");
+	var noticeAttr = $(":input[name='notice']");
+	var rewardGoodsAttr = $(":input[name='rewardGoods']");
+	var teamExpAttr = $(":input[name='teamExp']");
+	rewardGradeAttr
+			.each(function(i) {
+				var rewardGrade = 1, rewardGoods = '', gold = 0, yuanbao = 0, contribution = 0;
+				title = 0, exp = 0, notice = '', teamExp = 0;
+				rewardGrade = $(rewardGradeAttr[i]).val();
+				$(rewardGoodsAttr[i]).find("option").each(function() {
+					rewardGoods += $(this).val() + ",";
+				});
+				exp = $(expAttr[i]).val();
+				gold = $(goldAttr[i]).val();
+				yuanbao = $(yuanbaoAttr[i]).val();
+				contribution = $(contributionAttr[i]).val();
+				teamExp = $(teamExpAttr[i]).val();
+
+				var grid = $(titleAttr[i]).combogrid("grid");// 获取表格对象
+				var row = grid.datagrid('getSelected');// 获取行数据
+				if (row) {
+					title = row.id;
+				}
+				// alert('$(noticeAttr[i]).val()='+$(noticeAttr[i]).val());
+				notice = $(noticeAttr[i]).val();
+				var rewardId = '';
+				if (idAttr && idAttr[i]) {
+					rewardId = $(idAttr[i]).val();
+				}
+				taskRewards.push(new TaskReward(rewardId, rewardGrade,
+						rewardGoods, gold, yuanbao, contribution, title, exp,
+						notice, teamExp))
+			});
+	return taskRewards;
+}
+function bagTypeChange(obj, operateflag) {
+	var type = $(obj).children('option:selected').val();
+	var praentObj = $(obj).parent().parent();
+	if (type == 1) {
+		if (operateflag == 'coll') {
+			praentObj.find(".coll_equip_span").show();
+			praentObj.find(".coll_good_span").hide();
+			praentObj.find(".coll_gemstone_span").hide();
+		} else if (operateflag == 'shop') {
+			praentObj.find(".shop_equip_span").show();
+			praentObj.find(".shop_good_span").hide();
+			praentObj.find(".shop_gemstone_span").hide();
+		} else if (operateflag == 'reward') {
+			praentObj.find(".reward_equip_span").show();
+			praentObj.find(".reward_good_span").hide();
+			praentObj.find(".reward_gemstone_span").hide();
+		}
+	} else if (type == 2) {
+		if (operateflag == 'coll') {
+			praentObj.find(".coll_equip_span").hide();
+			praentObj.find(".coll_good_span").show();
+			praentObj.find(".coll_gemstone_span").hide();
+		} else if (operateflag == 'shop') {
+			praentObj.find(".shop_equip_span").hide();
+			praentObj.find(".shop_good_span").show();
+			praentObj.find(".shop_gemstone_span").hide();
+		} else if (operateflag == 'reward') {
+			praentObj.find(".reward_equip_span").hide();
+			praentObj.find(".reward_good_span").show();
+			praentObj.find(".reward_gemstone_span").hide();
+		}
+	} else {
+		if (operateflag == 'coll') {
+			praentObj.find(".coll_equip_span").hide();
+			praentObj.find(".coll_good_span").hide();
+			praentObj.find(".coll_gemstone_span").show();
+		} else if (operateflag == 'shop') {
+			praentObj.find(".shop_equip_span").hide();
+			praentObj.find(".shop_good_span").hide();
+			praentObj.find(".shop_gemstone_span").show();
+		} else if (operateflag == 'reward') {
+			praentObj.find(".reward_equip_span").hide();
+			praentObj.find(".reward_good_span").hide();
+			praentObj.find(".reward_gemstone_span").show();
+		}
+
+	}
+}
+function targetTypeChange(obj) {
+	var type = $(obj).val();
+	// 任务目标类型(0杀怪;1收集物品2;商城购买;3npc对话,4穿戴装备,5完成某动作,6升级等级7完成某副本)
+	var parentTr = $(obj).parent().parent().parent();
+	if (type == 0) {// needmingrade、needaction、needequip、talknpc、shopgoods
+		parentTr.find(".killmonster").show();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 1) {
+		parentTr.find(".collectiongoods").show();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 2) {
+		parentTr.find(".shopgoods").show();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 3) {
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").show();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 4) {
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").show();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 5) {
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").show();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 6) {
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").show();
+		parentTr.find(".finishInstance").hide();
+	} else if (type == 7) {
+		parentTr.find(".shopgoods").hide();
+		parentTr.find(".killmonster").hide();
+		parentTr.find(".collectiongoods").hide();
+		parentTr.find(".talknpc").hide();
+		parentTr.find(".needequip").hide();
+		parentTr.find(".needaction").hide();
+		parentTr.find(".needmingrade").hide();
+		parentTr.find(".finishInstance").show();
+	}
+}
+
+function addselectTarget(obj, csstype, resultSel) {
+	var thisParent = $(obj).parent();
+	var tempTr = thisParent.parent().parent().parent().parent().parent();
+	var tv, tt;
+	if ('killmonster' == csstype) {
+		var num = tempTr.prev().find("input").val();
+		var aimSelect = tempTr.prev().prev();
+		var grid = aimSelect.find(".killmonsterinstanceSelect").combogrid(
+				"grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		var instanceId = row.id;
+		var instanceName = row.name;
+		grid = aimSelect.find(".killmonsterSelect").combogrid("grid");// 获取表格对象
+		row = grid.datagrid('getSelected');// 获取行数据
+		var monsterId = row.id;
+		var monsterName = row.name;
+		tv = instanceId + ":" + monsterId + ":" + num;
+		tt = instanceName + ":" + monsterName + ":" + num;
+	} else if ('collectiongoods' == csstype || 'shopgoods' == csstype
+			|| 'rewardgoods' == csstype) {
+		var num = tempTr.prev().find("input").val();
+		var aimSelect = tempTr.prev().prev();
+		var bagTypeSel = aimSelect.find(":input[name='bagType']").children(
+				'option:selected');
+		var bagType = bagTypeSel.val();
+		var bagTypeName = bagTypeSel.text();
+		var grid = aimSelect.find(".bagtype" + bagType).combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		var gid = row.id;
+		var gname = row.name;
+		tv = bagType + ":" + gid + ":" + num;
+		tt = bagTypeName + ":" + gname + ":" + num;
+		if('rewardgoods' == csstype){
+			var qualitySel=aimSelect.find(":input[name='equipQuality']").children('option:selected');
+			tv = tv +":"+qualitySel.val();
+			tt = tt +":"+qualitySel.text();
+		}
+	} else if ('talknpc' == csstype) {
+		var talkContent = tempTr.prev().find(":input[name='talkContent']").val();
+		if(!(talkContent!=''&&talkContent.length>0)){
+			alert('请输入对话内容！');
+			return;
+		}
+		var aimSelect = tempTr.prev().prev();
+		var grid = aimSelect.find(".talknpcselect").combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert('请选择说话人！');
+			return;
+		}
+		var gid = row.id;
+		var gname = row.name;
+		tv = gid+"#"+talkContent;
+		tt = gname+"#"+talkContent;
+	}
+	thisParent.prev().prev().find(":input[name='" + resultSel + "']").append(
+			"<option value='" + tv + "'>" + tt + "</option>");
+}
+function delselectTarget(obj, resultSel) {
+	var thisParent = $(obj).parent();
+	var removeObj = thisParent.prev().prev().find(
+			":input[name='" + resultSel + "']");
+	removeObj.children('option:selected').remove();
+}
+function clearselectTarget(obj, resultSel) {
+	var thisParent = $(obj).parent();
+	var removeObj = thisParent.prev().prev().find(
+			":input[name='" + resultSel + "']");
+	removeObj.empty();
+}
+
+function goodsMoveUpClick(obj, flag) {
+	var thisParent = $(obj).parent();
+	var selectObj = thisParent.prev().find(":input[name='" + flag + "']");
+	var $opt = selectObj.children('option:selected');
+	if (!$opt)
+		return;
+	$opt.prev().before($opt);
+}
+function goodsMoveDownClick(obj, flag) {
+	var thisParent = $(obj).parent();
+	var selectObj = thisParent.prev().find(":input[name='" + flag + "']");
+	var $opt = selectObj.children('option:selected');
+	if (!$opt)
+		return;
+	$opt.next().after($opt);
+}

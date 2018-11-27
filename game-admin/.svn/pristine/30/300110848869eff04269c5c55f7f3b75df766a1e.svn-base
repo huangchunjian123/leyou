@@ -1,0 +1,47 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>登录玩家</title>
+	<jsp:include page="../../inc.jsp"></jsp:include>
+	<script>  
+		function submitok(){
+			$.post('<%=request.getContextPath()%>/server/playerlogin',{
+				playerId : $("#playerId").val(),
+				pf : $("#pf").val()
+			},
+				function(data) {
+					var d = $.parseJSON(data);
+					window.open(d.url);
+				}
+			);
+		}
+	</script>
+</head>  
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+    <div region="center" border="false" style="overflow:auto;">
+    <br/>
+		<form id="fm" method="post">
+			<fieldset>
+				<legend>登录外网账号</legend>
+				<label>UID:</label><input id="playerId" name="playerId" type="text" size="40"><br/>
+				<label>PF:</label>
+					<select id="pf">
+						<option value="qzone">Qzone</option>
+						<option value="pengyou">Pengyou</option>
+						<option value="qqgame">QQGame</option>
+						<option value="3366">3366</option>
+						<option value="qplus">Q+</option>
+						<option value="website">腾讯官网</option>
+						<option value="union-10029-00">爱玩</option>
+						<option value="union-10029-00*union-10029-00">联盟</option>
+						<option value="box">赤兔</option>
+						<option value="weibo">weibo</option>
+					</select>
+					<br/>
+				<label></label><label></label><label></label><a href="javascript:void(0)" target="_blank" class="easyui-linkbutton" onclick="submitok()">登录</a>
+			</fieldset>	   
+		</form>
+	</div>  
+</body>
+</html>

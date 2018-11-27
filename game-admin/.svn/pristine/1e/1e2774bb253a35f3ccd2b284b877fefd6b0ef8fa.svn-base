@@ -1,0 +1,85 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>服务器总充值数量和Arpu值</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript">
+function getServerIds(){
+	var nodes = $('#tree').tree('getChecked');
+	var s = '';
+	for(var i=0; i<nodes.length; i++){
+		if(!$('#tree').tree('isLeaf',nodes[i].target)){
+			continue;
+		}
+		if (s != '') s += ',';
+			s += nodes[i].id;
+	}
+	return s;
+}
+
+<%-- function submitok(){
+	var serverIds=getServerIds();
+	$.post('<%=request.getContextPath()%>/slog/queryTotalPaylvList', {
+			serverIds:serverIds,
+		}, function(data) {
+			alert(data);
+			/* var d = $.parseJSON(data); */
+		});
+} --%>
+	
+	
+//英雄jiayi
+function submitok(){
+	var serverIds=getServerIds();
+	$('#totalPay').dialog({
+     	onLoad:function(){
+     		$.post('<%=request.getContextPath() %>/slog/queryTotalPaylvList',{
+     			serverIds:serverIds,
+    		},function(data){
+    			var d = $.parseJSON(data);
+    			$.each(d,function(i,enty) {
+    		        $("#totalPay_list").append("<option>"+"名称:"+enty.serverName+"  , 新增总数"+enty.totalLoginCount+"  ,付费总数"+enty.totalPayCount+"  ,充值总额"+enty.totalPayNum+'分    ,总付费率:'+enty.totalPaylv+"分    ,arpu:"+enty.totalArpu+"分    ,arppu总:"+enty.totalArppu+"分"+"</option>")
+    		    });
+    		});
+    },
+    href:'<%=request.getContextPath()%>/views/slog/serverPayList.jsp',
+    modal: true,
+    closed: true});
+	$('#totalPay').dialog('open');
+	$('#totalPay').dialog('setTitle', '充值数量和Arpu值');
+}
+	
+	
+
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务 器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:true"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset" style="margin-top: 20px">
+		<fieldset>
+			<legend>请选择服务器</legend>
+			<form>
+				<table >
+					<tr>
+						<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok();">发送</a></td>
+					</tr>
+				</table>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+	
+	
+	<div id="totalPay"  style="display: block; top: 200px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#totalPay-buttons" align="center">
+	</div>
+	<div id="totalPay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#totalPay').dialog('close');">取消</a>
+	</div>
+</body>
+</html>

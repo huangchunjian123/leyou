@@ -1,0 +1,23 @@
+package com.game.admin.service.equip;
+
+import java.util.List;
+
+import com.game.admin.dto.equip.EquipDto;
+
+/**
+ * 装备相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IEquipService {
+
+	public List<EquipDto> getEquipDtoByname(String name);
+
+	/**
+	 * 刷新内存装备列表
+	 */
+	public void initEquip();
+
+	public String getName(int equipId);
+
+}

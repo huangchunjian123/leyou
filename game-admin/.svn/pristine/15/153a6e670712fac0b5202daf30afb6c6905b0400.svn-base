@@ -1,0 +1,128 @@
+package com.game.admin.service.server;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
+import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.server.ServerDao;
+import com.game.admin.dto.model.ServerTreeNode;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.utils.PagingUtils;
+import com.game.api.hessian.DataGrid;
+import com.game.util.CollectionUtil;
+
+/**
+ * 主服务器相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("serverService")
+public class ServerServiceImpl implements IServerService {
+
+	@Autowired
+	private ServerDao serverDao;
+	
+	/** 内网服务器列表 */
+	private Map<Integer, ServerData> innerServerMap = Maps.newConcurrentMap();
+	
+	/** 正式服务器列表 */
+	private Map<Integer, ServerData> outerServerMap = Maps.newConcurrentMap();
+
+	private Map<Integer, ServerData> allServerMap = Maps.newConcurrentMap();
+	
+	/**
+	 * 加载服务器列表
+	 */
+	@PostConstruct
+	@Override
+	public void initServerList() {
+		List<ServerData> list = serverDao.getAll();
+		if(!CollectionUtil.isEmptyCollection(list)){
+			for (Iterator<ServerData> iterator = list.iterator(); iterator.hasNext();) {
+				ServerData serverData = (ServerData) iterator.next();
+				allServerMap.put(serverData.getServerId(), serverData);
+				if(serverData.getServerType().intValue() == 0){
+					innerServerMap.put(serverData.getServerId(), serverData);
+				}else {
+					outerServerMap.put(serverData.getServerId(), serverData);
+				}
+			}
+		}
+	}
+
+	@Override
+	public List<ServerData> getAll() {
+		List<ServerData> innerList =Lists.newArrayList(allServerMap.values());
+		return innerList;
+	}
+
+	@Override
+	public List<ServerTreeNode> getTreeeServer() {
+		return getServerTreeNode(innerServerMap);
+	}
+	
+	
+	private List<ServerTreeNode> getServerTreeNode(Map<Integer, ServerData> needTreeNodeMap){
+		List<ServerTreeNode> list = new ArrayList<ServerTreeNode>();
+		ServerTreeNode root = new ServerTreeNode("-1", "服务器");
+		List<ServerTreeNode> clroot = new ArrayList<ServerTreeNode>();
+		Collection <ServerData> innerList= needTreeNodeMap.values();
+		for (Iterator<ServerData> iterator = innerList.iterator(); iterator.hasNext();) {
+			ServerData serverData = (ServerData) iterator.next();
+			ServerTreeNode node = new ServerTreeNode(String.valueOf(serverData.getServerId()), serverData.getServerName());
+			clroot.add(node);
+			root.setChildren(clroot);
+		}
+		list.add(root);
+		return list;
+	}
+
+	@Override
+	public ServerData getByServerId(int serverId) {
+		return allServerMap.get(serverId);
+	}
+	
+	@Override
+	public Map<Integer, ServerData> getAllServerIds(){
+		return allServerMap;
+	}
+
+	@Override
+	public DataGrid datagrid(int page, int rows) {
+		List<ServerData> listAll = Lists.newArrayList();
+		for (Entry<Integer, ServerData> en : allServerMap.entrySet()) {
+			listAll.add(en.getValue());
+		}
+		return PagingUtils.getDataGrid(page, rows, listAll);
+	}
+
+	@Override
+	public List<ServerTreeNode> officialServer() {//正式外网服
+		return getServerTreeNode(outerServerMap);
+	}
+
+	@Override
+	public List<ServerTreeNode> getAllTreeeServer() {
+		return getServerTreeNode(allServerMap);
+	}
+
+	@Override
+	public Set<Integer> getByTypeServerId(int type) {
+		if(type == 0){
+			return innerServerMap.keySet();
+		}else {
+			return outerServerMap.keySet();
+		}
+	}
+}

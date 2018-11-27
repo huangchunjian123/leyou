@@ -1,0 +1,29 @@
+package com.game.admin.service.currency;
+
+import java.util.List;
+
+import com.game.admin.dto.currency.CurrencyDto;
+import com.game.admin.dto.currency.RechargeGradeDto;
+
+/**
+ * 货币接口
+ * @author JiaYi
+ * @date  2018年2月5日 下午7:52:27 
+ * @package com.game.admin.service.currency
+ */
+public interface ICurrencyService {
+
+	public List<CurrencyDto> getCurrencyDto();
+	
+	/**
+	 * 获取充值项目
+	 * @return
+	 */
+	public List<RechargeGradeDto> getRechargeGradeDto();
+	/**
+	 * 获取充值项目
+	 * @return
+	 */
+	public RechargeGradeDto getByIdRechargeGradeData(int id);
+	
+}

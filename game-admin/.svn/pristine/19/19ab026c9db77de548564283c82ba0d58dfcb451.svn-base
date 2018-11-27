@@ -1,0 +1,37 @@
+package com.xg.admin.service.server;
+
+import java.util.List;
+
+import com.xg.admin.dto.model.ServerTreeNode;
+import com.xg.admin.pojo.server.ServerData;
+
+/**
+ * 服务器列表接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IServerService {
+
+	/**
+	 * 获取所有服务器列表
+	 * @return
+	 */
+	public List<ServerData> getAll();
+
+	/**
+	 * 获取某服务器配置
+	 * @param serverId
+	 * @return
+	 */
+	public ServerData getByServerId(int serverId);
+
+	/**
+	 * 刷新内存服务器列表
+	 */
+	public void initServerList();
+
+	/**
+	 * 服务器操作树形菜单
+	 */
+	public List<ServerTreeNode> getTreeeServer();
+}

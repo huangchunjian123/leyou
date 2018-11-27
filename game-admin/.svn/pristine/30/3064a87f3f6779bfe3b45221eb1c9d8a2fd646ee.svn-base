@@ -1,0 +1,446 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>副本统计表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function instancedistribution(value,row,rowIndex){
+		var pldCeng = row.pldCeng;
+		var jctCeng = row.jctCeng;
+		var rszh = row.rszh;
+		var nhdp = row.nhdp;
+		var fnlt = row.fnlt;
+		var qxzn = row.qxzn;
+		var mtxc = row.mtxc;
+		var hqyx = row.hqyx;
+		var mxly = row.mxly;
+		var lfyd = row.lfyd;
+		
+		var xyjt= row.xyjt;
+	  	var hhyz = row.hhyz;
+		var qlcx = row.qlcx;
+		var zxd = row.zxd;
+		var hslj = row.hslj;
+		var pld = row.pld;
+		var jct = row.jct;
+	    var html="<a href='#' onclick='_pldCeng(\""+pldCeng + "\");'>盘龙殿层数分布</a>&nbsp;&nbsp;<a href='#' onclick='_jctCeng(\""+jctCeng + "\");'>九重天层数分布</a>&nbsp;&nbsp;<a href='#' onclick='_rszh(\""+rszh + "\");'>日蚀之痕</a>&nbsp;&nbsp;<a href='#' onclick='_nhdp(\""+nhdp + "\");'>摄魂夺魄</a>&nbsp;&nbsp;<a href='#' onclick='_fnlt(\""+fnlt + "\");'>佛怒唐莲</a>&nbsp;&nbsp;<a href='#' onclick='_qxzn(\""+qxzn + "\");'>群星之怒</a>&nbsp;&nbsp;<a href='#' onclick='_mtxc(\""+mtxc + "\");'>满天星辰</a>&nbsp;&nbsp;<a href='#' onclick='_hqyx(\""+hqyx + "\");'>花前月下</a>&nbsp;&nbsp;<a href='#' onclick='_mxly(\""+mxly + "\");'>魔刑炼狱</a>&nbsp;&nbsp;<a href='#' onclick='_lfyd(\""+lfyd + "\");'>雷斧营地</a>&nbsp;&nbsp;<a href='#' onclick='_xyjt(\""+xyjt + "\");'>血樱祭坛</a>&nbsp;&nbsp;<a href='#' onclick='_hhyz(\""+hhyz + "\");'>航海远征</a>&nbsp;&nbsp;<a href='#' onclick='_qlcx(\""+qlcx + "\");'>麒麟巢穴</a>&nbsp;&nbsp;<a href='#' onclick='_zxd(\""+zxd + "\");'>镇邪殿</a>&nbsp;&nbsp;<a href='#' onclick='_hslj(\""+hslj + "\");'>华山论剑</a>&nbsp;&nbsp;<a href='#' onclick='_pld(\""+pld + "\");'>盘龙殿</a>&nbsp;&nbsp;<a href='#' onclick='_jct(\""+jct + "\");'>九重天</a>";
+		return html;
+	}
+	/* ---------------------盘龙殿----------------------------   	*/
+	
+	function _pldCeng(pldCeng) {
+	    $('#pldCeng').dialog({
+	     	onLoad:function(){
+   	    $('#pldCeng_list').val(pldCeng);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/pld.jsp',
+	    modal: true,
+	    closed: true});
+		$('#pldCeng').dialog('open');
+		$('#pldCeng').dialog('setTitle', '盘龙殿分布');
+	}
+	/* ---------------------九重天 ----------------------------   	*/
+	function _jctCeng(jctCeng) {
+	    $('#jctCeng').dialog({
+	     	onLoad:function(){
+   	    $('#jctCeng_list').val(jctCeng);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/jct.jsp',
+	    modal: true,
+	    closed: true});
+		$('#jctCeng').dialog('open');
+		$('#jctCeng').dialog('setTitle', '九重天分布');
+	}
+	/* -----------------------日蚀之痕--------------------------   	*/
+	function _rszh(rszh) {
+	    $('#rszh').dialog({
+	     	onLoad:function(){
+   	    $('#rszh_list').val(rszh);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/rszh.jsp',
+	    modal: true,
+	    closed: true});
+		$('#rszh').dialog('open');
+		$('#rszh').dialog('setTitle', '日蚀之痕');
+	}
+	/* -----------------------摄魂夺魄--------------------------   	*/
+	
+	function _nhdp(nhdp) {
+	    $('#nhdp').dialog({
+	     	onLoad:function(){
+   	    $('#nhdp_list').val(nhdp);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/nhdp.jsp',
+	    modal: true,
+	    closed: true});
+		$('#nhdp').dialog('open');
+		$('#nhdp').dialog('setTitle', '摄魂夺魄');
+	}
+	
+	/* -----------------------佛怒唐莲--------------------------   	*/
+	
+	function _fnlt(fnlt) {
+	    $('#fnlt').dialog({
+	     	onLoad:function(){
+   	    $('#fnlt_list').val(fnlt);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/fnlt.jsp',
+	    modal: true,
+	    closed: true});
+		$('#fnlt').dialog('open');
+		$('#fnlt').dialog('setTitle', '佛怒唐莲');
+	}
+	/* -----------------------群星之怒--------------------------   	*/
+	function _qxzn(qxzn) {
+	    $('#qxzn').dialog({
+	     	onLoad:function(){
+   	    $('#qxzn_list').val(qxzn);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/qxzn.jsp',
+	    modal: true,
+	    closed: true});
+		$('#qxzn').dialog('open');
+		$('#qxzn').dialog('setTitle', '群星之怒');
+	}
+	/* -----------------------满天星辰--------------------------   	*/
+	function _mtxc(mtxc) {
+	    $('#mtxc').dialog({
+	     	onLoad:function(){
+   	    $('#mtxc_list').val(mtxc);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/mtxc.jsp',
+	    modal: true,
+	    closed: true});
+		$('#mtxc').dialog('open');
+		$('#mtxc').dialog('setTitle', '满天星辰');
+	}
+	
+	/* -----------------------花前月下--------------------------   	*/
+	function _hqyx(hqyx) {
+	    $('#hqyx').dialog({
+	     	onLoad:function(){
+   	    $('#hqyx_list').val(hqyx);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/hqyx.jsp',
+	    modal: true,
+	    closed: true});
+		$('#hqyx').dialog('open');
+		$('#hqyx').dialog('setTitle', '花前月下');
+	}
+	
+	/* -----------------------魔刑炼狱--------------------------   	*/
+	function _mxly(mxly) {
+	    $('#mxly').dialog({
+	     	onLoad:function(){
+   	    $('#mxly_list').val(mxly);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/mxly.jsp',
+	    modal: true,
+	    closed: true});
+		$('#mxly').dialog('open');
+		$('#mxly').dialog('setTitle', '魔刑炼狱');
+	}
+	
+	/* -----------------------雷斧营地--------------------------   	*/
+	function _lfyd(lfyd) {
+	    $('#lfyd').dialog({
+	     	onLoad:function(){
+   	    $('#lfyd_list').val(lfyd);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/lfyd.jsp',
+	    modal: true,
+	    closed: true});
+		$('#lfyd').dialog('open');
+		$('#lfyd').dialog('setTitle', '雷斧营地');
+	}
+	
+	/* -----------------------血樱祭坛--------------------------   	*/
+	function _xyjt(xyjt) {
+	    $('#xyjt').dialog({
+	     	onLoad:function(){
+   	    $('#xyjt_list').val(xyjt);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/xyjt.jsp',
+	    modal: true,
+	    closed: true});
+		$('#xyjt').dialog('open');
+		$('#xyjt').dialog('setTitle', '血樱祭坛');
+	}
+	/* -----------------------航海远征--------------------------   	*/
+	function _hhyz(hhyz) {
+	    $('#hhyz').dialog({
+	     	onLoad:function(){
+   	    $('#hhyz_list').val(hhyz);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/hhyz.jsp',
+	    modal: true,
+	    closed: true});
+		$('#hhyz').dialog('open');
+		$('#hhyz').dialog('setTitle', '航海远征');
+	}
+	/* -----------------------麒麟巢穴--------------------------   	*/
+	function _qlcx(qlcx) {
+	    $('#qlcx').dialog({
+	     	onLoad:function(){
+   	    $('#qlcx_list').val(qlcx);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/qlcx.jsp',
+	    modal: true,
+	    closed: true});
+		$('#qlcx').dialog('open');
+		$('#qlcx').dialog('setTitle', '麒麟巢穴');
+	}
+	/* -----------------------镇邪殿--------------------------   	*/
+	function _zxd(zxd) {
+	    $('#zxd').dialog({
+	     	onLoad:function(){
+   	    $('#zxd_list').val(zxd);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/zxd.jsp',
+	    modal: true,
+	    closed: true});
+		$('#zxd').dialog('open');
+		$('#zxd').dialog('setTitle', '镇邪殿');
+	}
+	/* -----------------------华山论剑--------------------------   	*/
+	function _hslj(hslj) {
+	    $('#hslj').dialog({
+	     	onLoad:function(){
+   	    $('#hslj_list').val(hslj);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/hslj.jsp',
+	    modal: true,
+	    closed: true});
+		$('#hslj').dialog('open');
+		$('#hslj').dialog('setTitle', '华山论剑');
+	}
+	/* -----------------------盘龙殿--------------------------   	*/
+	function _pld(pld) {
+	    $('#pld').dialog({
+	     	onLoad:function(){
+   	    $('#pld_list').val(pld);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/pldLog.jsp',
+	    modal: true,
+	    closed: true});
+		$('#pld').dialog('open');
+		$('#pld').dialog('setTitle', '盘龙殿');
+	}
+	
+	/* -----------------------九重天--------------------------   	*/
+	function _jct(jct) {
+	    $('#jct').dialog({
+	     	onLoad:function(){
+   	    $('#jct_list').val(jct);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/insance/jctLog.jsp',
+	    modal: true,
+	    closed: true});
+		$('#jct').dialog('open');
+		$('#jct').dialog('setTitle', '九重天');
+	}
+
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="副本列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'opt',title:'Operation',formatter:instancedistribution" width="10">副本相关数据</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="7" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="pldCeng"  style="display: block; top: 250px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#pldCeng-buttons" align="center">
+	</div>
+	<div id="pldCeng-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#pldCeng').dialog('close');">取消</a>
+	</div>
+	
+	
+	<div id="jctCeng"  style="display: block; top: 250px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#jctCeng-buttons" align="center">
+	</div>
+	<div id="jctCeng-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#jctCeng').dialog('close');">取消</a>
+	</div>
+	
+	<div id="rszh"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#rszh-buttons" align="center">
+	</div>
+	<div id="rszh-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#rszh').dialog('close');">取消</a>
+	</div>
+	
+	<div id="nhdp"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#nhdp-buttons" align="center">
+	</div>
+	<div id="nhdp-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#nhdp').dialog('close');">取消</a>
+	</div>
+	
+	<div id="fnlt"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#fnlt-buttons" align="center">
+	</div>
+	<div id="fnlt-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#fnlt').dialog('close');">取消</a>
+	</div>
+	
+	<div id="qxzn"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#qxzn-buttons" align="center">
+	</div>
+	<div id="qxzn-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#qxzn').dialog('close');">取消</a>
+	</div>
+	
+	<div id="mtxc"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#mtxc-buttons" align="center">
+	</div>
+	<div id="mtxc-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#mtxc').dialog('close');">取消</a>
+	</div>
+	
+	<div id="hqyx"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#hqyx-buttons" align="center">
+	</div>
+	<div id="hqyx-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#hqyx').dialog('close');">取消</a>
+	</div>
+	
+	<div id="mxly"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#mxly-buttons" align="center">
+	</div>
+	<div id="mxly-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#mxly').dialog('close');">取消</a>
+	</div>
+	
+	
+	<div id="lfyd"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#lfyd-buttons" align="center">
+	</div>
+	<div id="lfyd-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#lfyd').dialog('close');">取消</a>
+	</div>
+	
+	<div id="xyjt"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#xyjt-buttons" align="center">
+	</div>
+	<div id="xyjt-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#xyjt').dialog('close');">取消</a>
+	</div>
+	
+	<div id="hhyz"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#hhyz-buttons" align="center">
+	</div>
+	<div id="hhyz-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#hhyz').dialog('close');">取消</a>
+	</div>
+	
+	<div id="qlcx"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#qlcx-buttons" align="center">
+	</div>
+	<div id="qlcx-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#qlcx').dialog('close');">取消</a>
+	</div>
+	
+	<div id="zxd"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#zxd-buttons" align="center">
+	</div>
+	<div id="zxd-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#zxd').dialog('close');">取消</a>
+	</div>
+	
+	<div id="hslj"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#hslj-buttons" align="center">
+	</div>
+	<div id="hslj-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#hslj').dialog('close');">取消</a>
+	</div>
+	
+	<div id="pld"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#pld-buttons" align="center">
+	</div>
+	<div id="pld-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#pld').dialog('close');">取消</a>
+	</div>
+	
+	<div id="jct"  style="display: block; top: 250px; width: 600px; left: 409px; overflow: auto;" closed="true" buttons="#jct-buttons" align="center">
+	</div>
+	<div id="jct-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#jct').dialog('close');">取消</a>
+	</div>
+	
+</html>

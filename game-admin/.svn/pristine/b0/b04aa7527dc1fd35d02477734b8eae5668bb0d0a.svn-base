@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">日蚀之痕:</td>
+		<td><textarea readonly="readonly" rows="3" cols="50" id="rszh_list" name="rszh_list" style="resize: none" /></td>
+	</tr>
+</table>

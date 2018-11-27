@@ -1,0 +1,1627 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>账号列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/* function getServerId(){
+		if(node != null){
+			alert(node.text);
+		}
+		return node!=null?node.id:1;
+	} */
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+	
+	/* 去掉选服务器弹窗暂时
+	function checkServerIds()
+	{
+		var serverIds=getServerId();
+		 if(serverIds == '')
+		{
+			alert("请选择服务器。");
+			return false;
+		} 
+		if (!confirm("确认要提交？(请确认选择的服务器操作)")) {
+			return false;
+		}
+		return true;
+	} 
+ */
+	function _search(){	
+		/* if(!checkServerIds())return;  */
+			/*  var serverId=getServerId(); */
+			$('#serverId').val(choseserverId);
+		    $('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	//添加账户
+	function _newHero() {
+		rewardIndexAdd = 0;
+		conditionIndexAdd = 0;
+		url = "<%=request.getContextPath()%>/heros/addHero";
+		$('#fmadd').empty();
+		$('#dlgadd').dialog({
+	     	onLoad:function(){
+	    		$('#fmadd').form('clear');
+	    		   $('#addaccordion').accordion('select','基本信息');
+		    		 $('#addaccordion').accordion('getSelected').panel('refresh','<%=request.getContextPath()%>/views/heros/addheroinfo.jsp');  
+				//addRewardTab('add');
+	    		//addConditionTab('add');
+	    },
+	    href:'<%=request.getContextPath()%>/views/heros/addHero.jsp',
+        modal: true,
+        closed: true});
+		$('#dlgadd').dialog('open');
+		$('#dlgadd').dialog('setTitle', '添加账户');
+	}
+	
+	function _clonerole(heroId){
+		url = "<%=request.getContextPath()%>/heros/cloneHero";
+		$('#fmadd').empty();
+		$('#dlgclone').dialog({
+	     	onLoad:function(){
+				//addRewardTab('add');
+	    		//addConditionTab('add');
+		    	$("#c_cloneHeroId").val(heroId);
+		    	 $('#c_cloneHeroId').attr("disabled","true");
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/cloneheroinfo.jsp',
+        modal: true,
+        closed: true});
+		$('#dlgclone').dialog('open');
+		$('#dlgclone').dialog('setTitle', '克隆账户');
+	}
+	
+	function submitclone(){
+		if($("#fmadd").form('validate')){
+			var heroInfos = builderHeroCloneInfo();
+			$.post(url,{
+				serverId:choseserverId,
+				pid:0,
+			//	heroInfoJson:JSON.stringify(heroInfos)+''
+				heroInfoJson:jQuery.toJSON(heroInfos)
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				if(d.status==0){
+					_herocloneclose();
+					$('#dg').datagrid('reload');
+				}else{
+					$('#addaccordion').accordion('select','基本信息');
+				}
+			});			
+		}else{
+			$('#addaccordion').accordion('select','基本信息');
+		}
+	}
+	
+	
+	function submitadd() {
+		if($("#fmadd").form('validate')){
+			
+			var grid = $("#job_span_sel").combogrid("grid");// 获取表格对象
+			var row = grid.datagrid('getSelected');// 获取行数据
+			if(!row){
+				alert("请选择职业 !");
+				return;
+			}
+			var gid = row.id;
+			var gname = row.name;
+	
+			var heroInfos = builderHeroInfo();
+			$.post(url,{
+				serverId:choseserverId,
+				pid:0,
+				jobId:gid,
+				grade:$('#a_teamGrade').val(),
+				heroInfoJson:jQuery.toJSON(heroInfos)
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				if(d.status==0){
+					_heroaddclose();
+					$('#dg').datagrid('reload');
+				}else{
+					$('#addaccordion').accordion('select','基本信息');
+				}
+			});			
+		}else{
+			$('#addaccordion').accordion('select','基本信息');
+		}
+	}
+	
+	function _heroaddclose(){
+		$('#dlgadd').dialog('close');
+	}
+
+	function _herocloneclose(){
+		$('#dlgclone').dialog('close');
+	}
+	
+
+
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function _jobrole(heroId,heroName){
+		var nodeurl="rolesJob/goRoles?heroId="+heroId;	
+		parent.centerTabs.tabs('add', {
+			title : heroName,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(heroName);
+				}
+			} ]
+		});
+	}
+	
+	function _bags(heroId,bagName){
+		var nodeurl="good/goBag?heroId="+heroId+"&serverId="+choseserverId;			
+			parent.centerTabs.tabs('add', {
+			title : bagName,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(bagName);
+				}
+			} ]
+		});
+	}
+	
+	function _delhero(heroId){
+		url = "<%=request.getContextPath()%>/heros/delHero";
+		$('#fmadd').empty();
+		$('#dlgdel').dialog({
+	     	onLoad:function(){
+		    	$("#d_heroId").val(heroId);
+		    	 $('#d_heroId').attr("disabled","true");
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/delheroinfo.jsp',
+        modal: true,
+        closed: true});
+		
+		$('#dlgdel').dialog('open');
+		$('#dlgdel').dialog('setTitle', '删除账户');
+	}
+	
+	function submitdel() {
+		$.post(url,{
+			serverId:choseserverId,
+			pid:0,
+			heroId:$("#d_heroId").val()
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dg').datagrid('reload');
+			}
+		});	
+		$('#dlgdel').dialog('close');
+		$('#dg').datagrid('reload');
+	}
+	
+	function _edithero(id,index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#dlgedit').dialog({
+	     	onLoad:function(){
+	     		var loginName = row.loginName;
+	     		var loginPsd = row.loginPsd;
+	     		var heroName = row.heroName;
+	     		var Grade = row.teamGrade;
+	     		var Exp = row.teamExp;
+	     		var vipGrade =  row.vipGrade;
+	     		var sp = row.sp;
+	     		var gift = row.gift;
+	     		var yuanbao = row.yuanbao;
+	     		var copper = row.gold;
+	     		var silver = row.silver;
+	     		var heroId = row.heroId;
+	     		var gaveHeroInfo = new HeroInfoNew(loginName, loginPsd, heroName, Grade, 
+	     				Exp, vipGrade, sp, gift, yuanbao, copper, silver, heroId);
+	     		$('#e_loginName').val(loginName);
+	    		$('#e_loginPsd').val(loginPsd);
+	    		$('#e_heroName').val(heroName);
+	    		$('#e_heroId').val(heroId);
+	    		$('#e_loginName').attr("disabled","true");
+	    		$('#e_loginPsd').attr("disabled","true");
+	    		$('#e_teamGrade').val(Grade);
+	    		$('#e_teamMaxExp').attr("disabled","true");
+	    		$('#e_vipGrade').val(vipGrade);
+	    		$('#e_yuanbao').val(yuanbao);
+	    		$('#e_copper').val(copper);
+	    		$('#e_gift').val(gift);
+	    		$('#e_silver').val(silver);
+	    	    $('#e_sp').val(sp);
+	    		$('#e_teamExp').val(Exp);
+	    		$('#e_gaveHeroInfo').val(jQuery.toJSON(gaveHeroInfo));
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editheroinfo.jsp',
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgedit').dialog('open');
+		$('#dlgedit').dialog('setTitle', '账号详细信息');
+	}
+	
+	function submitedit(){
+		url = "<%=request.getContextPath()%>/heros/editHero";
+		var heroInfonew = builderEditHeroInfoNEW();
+		$.post(url,{
+			serverId:choseserverId,
+			heroInfonewJson:jQuery.toJSON(heroInfonew),
+			gaveHeroInfo:$("#e_gaveHeroInfo").val()
+		},function(data) {		
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dg').datagrid('reload');
+				$('#dlgedit').dialog('close');
+			}
+		});	
+		
+	}
+	
+	function formateroperate(value,row,rowIndex){
+		var heroId = row.heroId+'';
+
+		var heroName = row.heroName+'';																								
+		var html="<a href='#' onclick='_edithero(\""+row.id + "\",\""+rowIndex + "\");'>编辑</a>&nbsp;&nbsp;<a href='#' onclick='_delhero(\""+heroId + "\");'>删除</a>&nbsp;&nbsp<a href='#' onclick='_bags(\""+heroId + "\",\""+heroName + "的包裹\");'>包裹</a>&nbsp;&nbsp;<a href='#' onclick='_editHeroEvilGood(\""+row.heroId + "\",\""+heroName + "\");'>善恶 </a><a href='#' onclick='_edittask(\""+rowIndex + "\");'>任务 </a><a href='#' onclick='_editcloseaccount(\""+rowIndex + "\");'>封号</a>&nbsp;&nbsp;<a href='#' onclick='_editclosechat(\""+rowIndex + "\");'>禁言</a>&nbsp;&nbsp;<a href='#' onclick='_downLine(\""+rowIndex + "\");'>掉线&nbsp;&nbsp;</a><a href='#' onclick='_onSkills(\""+rowIndex + "\");'>技能</a>&nbsp;&nbsp;<a href='#' onclick='_onMount(\""+rowIndex + "\");'>坐骑</a>&nbsp;&nbsp;<a href='#' onclick='_editinstance(\""+rowIndex + "\");'>副本</a>&nbsp;&nbsp;<a href='#' onclick='_nineDays(\""+rowIndex + "\");'>九重天</a>&nbsp;&nbsp;<a href='#' onclick='_sendMails(\""+heroId + "\",\""+rowIndex + "\");'>邮箱</a>&nbsp;&nbsp;<a href='#' onclick='_queryunion(\""+heroId + "\");'>帮派</a>&nbsp;&nbsp;<a href='#' onclick='_clonerole(\""+heroId + "\");'>克隆</a>&nbsp;&nbsp<a href='#' onclick='_Newbieguide(\""+heroId + "\",\""+heroName + "\");'>新手引导</a>&nbsp;&nbsp;<a href='#' onclick='_life(\""+heroId + "\");'>命格</a>&nbsp;&nbsp;<a href='#' onclick='_copyRecharge(\""+heroId + "\");'>模拟充值</a>";
+		return html;
+
+	}
+
+	function  hiddenfield(){
+	
+	}
+	//善恶
+	function _editHeroEvilGood (heroId,heroName){
+		$('#dlgbEvil').dialog({	
+			top:200,
+			onLoad:function(){
+	    		$.post('<%=request.getContextPath() %>/evil/queryEvil',{
+	    			serverId:choseserverId,
+	    			heroId:heroId
+	    		},function(data) {
+	    			var d = $.parseJSON(data)
+	    			$('#evil_hero_name').val(heroName);
+	    			$('#evil_goodEvil').val(d.goodEvil);	    	
+	    			$('#evil_heroId').val(heroId);
+	    			 $('#evil_hero_name').attr("disabled","true");
+	    		}); 
+	   		 },
+	   	href:'<%=request.getContextPath()%>/views/heros/editEvilGood.jsp',
+	    modal: true,
+	    closed: false});
+		$('#dlgbEvil').dialog('open');
+		$('#dlgbEvil').dialog('setTitle', '编辑善恶值')
+	}
+	function cleanEvil(){
+		$('#evil_goodEvil').val(0);	
+	}
+	function  submitvil(){
+		$.post('<%=request.getContextPath() %>/evil/updateEvil',{
+			serverId:choseserverId,
+			heroId:$('#evil_heroId').val(),
+			heroName:$('#evil_hero_name').val(),
+			evil:$('#evil_goodEvil').val()
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgbEvil').dialog('close');
+			}
+		});	
+	}
+	//善恶 end
+	//邮箱mails-buttons  dlgadd
+	 function _sendMails(heroId,index){
+		$('#dlgMails').dialog({	
+			top:100,
+			onLoad:function(){
+			$("#mailsheroId").val(heroId);
+			 $("#mailsheroId").attr("disabled","true");
+   		 },
+	   	href:'<%=request.getContextPath()%>/views/heros/sendEmails.jsp',
+        modal: true,
+        closed: true});
+		$('#dlgMails').dialog('open');
+		$('#dlgMails').dialog('setTitle', '发送邮箱');
+	} 
+	//jia
+	function  subMails(){
+		mailsheroId =$('#mailsheroId').val();
+	    var title =$('#title').val();
+		var content = $('#content').val();
+		if(title==''){
+			alert("邮件标题不能为空!");
+			return;
+		}
+		if(content==''){
+			alert("邮件内容不能为空!");
+			return;
+		}
+		 var grew = '';
+		$('#goods option').each(function(){
+			grew += $(this).val()+",";
+		});  
+		$.post('<%=request.getContextPath() %>/server/sendMails1',{
+			serverId:choseserverId,	
+			mailsheroId :mailsheroId,
+			title : title,
+			content : content,
+			sendGoods:grew
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgMails').dialog('close');
+			}
+		});	
+	}
+	function _queryunion(heroId){
+		$.post('<%=request.getContextPath() %>/union/GetUnion',{
+			serverId:choseserverId,
+			heroId:heroId
+		},function(data){
+			var d = $.parseJSON(data);
+			if(d.status==2){
+				var qheroId = d.msg;
+				$('#dlgcreate').dialog({
+			     	onLoad:function(){
+			     		$('#qheroId').val(qheroId);
+			     	},
+			    href:'<%=request.getContextPath()%>/views/heros/confirm.jsp',
+		        modal: true,
+		       closed: true});
+				$('#dlgcreate').dialog('open');
+				$('#dlgcreate').dialog('setTitle', '是否创建');
+			}else {
+					$('#dlgEditUnion').dialog({
+						top:200,
+				     	onLoad:function(){
+				     		$('#heroId').val(d.heroId);
+				    		$('#name').val(d.name);
+				    		$('#icon').val(d.icon);
+				    		$('#iconText').val(d.iconText);
+				    		$('#introduction').val(d.introduction);
+				    		$('#level').val(d.level);
+				    		$('#postion').val(d.postion);
+				    		$('#postion').attr("disabled","true");
+				   		 },
+					 href:'<%=request.getContextPath()%>/views/heros/editUnion.jsp',
+					  modal: true,
+					  closed: true});	
+					$('#dlgEditUnion').dialog('open');
+					$('#dlgEditUnion').dialog('setTitle', '帮派信息');
+			}
+		});
+	}
+	
+	//确认框
+	function subCreatePage() {
+		var qheroId = $('#qheroId').val();
+		$('#dlgUnion').dialog({
+			top:200,
+			onLoad:function(){
+				$('#qheroId').val(qheroId);
+				 $("#qheroId").attr("disabled","true");
+			},
+		href:'<%=request.getContextPath()%>/views/heros/createUnion.jsp',
+		modal: true,
+        closed: true});
+		$('#dlgUnion').dialog('open');
+		$('#dlgUnion').dialog('setTitle', '创建帮派');
+		$('#dlgcreate').dialog('close');
+	}
+	
+	
+	
+	//显示跳转的页面
+	
+	 function unionpage(d){
+		$('#dlgEditUnion').dialog({
+			top:150,
+	     	onLoad:function(){
+	     		$('#heroId').val(d.heroId);
+	    		$('#name').val(d.name);
+	    		$('#icon').val(d.icon);
+	    		$('#iconText').val(d.iconText);
+	    		$('#introduction').val(d.introduction);
+	    		$('#level').val(d.level);
+	    		$('#postion').val(d.postion);
+	     		
+	   		 },
+		 href:'<%=request.getContextPath()%>/views/heros/editUnion.jsp',
+		  modal: true,
+		  closed: true});	
+		$('#dlgEditUnion').dialog('open');
+		$('#dlgEditUnion').dialog('setTitle', '帮派信息');
+	} 
+	
+	
+	//修改后提交
+	function subUpdateUnion(){
+		$.post('<%=request.getContextPath() %>/union/editUnion',{
+			serverId:choseserverId,
+			heroId:$('#heroId').val(),
+			name:$('#name').val(),
+			icon:$('#icon').val(),
+			iconText:$('#iconText').val(),
+			introduction:$('#introduction').val(),
+			level:$('#level').val(),
+			postion:$('#postion').val(),
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgEditUnion').dialog('close');
+			}
+		});		
+	}
+	
+	
+	
+	function subCreateUnion(){
+		qheroId =$('#qheroId').val();
+		var name =$('#unionname').val();
+		var icon =$('#icon').val();
+		var iconText =$('#iconText').val();
+		if(name==''){
+			alert("帮会名称不能为空");
+			retrun;
+		}
+		if(icon==''){
+			alert("会标颜色不能为空！");
+			return;
+		}
+			
+		if(iconText==''){
+			alert("会标文字不能为空!");
+			return;
+		}
+		$.post('<%=request.getContextPath() %>/union/CreateUnion',{
+			serverId:choseserverId,	
+			qheroId:$('#qheroId').val(),
+			name:name,
+			icon:icon,
+			iconText:iconText,
+			introduction:$('#introduction').val()
+		},function(data){
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgUnion').dialog('close');
+			}
+		});	
+	}
+	
+	
+	function bagTypeChange(obj) {
+		var type = $(obj).children('option:selected').val();
+		var praentObj = $(obj).parent().parent();
+		if (type == 1) {
+			praentObj.find(".equip_span").show();
+			praentObj.find(".good_span").hide();
+			praentObj.find(".gemstone_span").hide();
+			praentObj.find(".currency_span").hide();
+			$('#equip_quality_hidden').show();
+			$('#is_bind').show();
+		} else if (type == 2) {
+			praentObj.find(".equip_span").hide();
+			praentObj.find(".good_span").show();
+			praentObj.find(".gemstone_span").hide();
+			praentObj.find(".currency_span").hide();
+			$('#equip_quality_hidden').hide();
+			$('#is_bind').show();
+		} else if(type == 3){
+			praentObj.find(".equip_span").hide();
+			praentObj.find(".good_span").hide();
+			praentObj.find(".currency_span").hide();
+			praentObj.find(".gemstone_span").show();
+			$('#equip_quality_hidden').hide();
+			$('#is_bind').show();
+		}else {
+			praentObj.find(".equip_span").hide();
+			praentObj.find(".good_span").hide();
+			praentObj.find(".gemstone_span").hide();
+			praentObj.find(".currency_span").show();
+			$('#equip_quality_hidden').hide();
+			$('#is_bind').hide();
+		} 
+	}
+	function addselect(){
+		var bagTypeSel = $(":input[name='bagType']").children('option:selected');
+		var bagType = bagTypeSel.val();
+		var bagTypeName = bagTypeSel.text();
+		var grid = $(".bagtype" + bagType).combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert("请选择道具!");
+			return;
+		}
+		var gid = row.id;
+		var gname = row.name;
+		
+		var options = $('#equip_quality option:selected');
+		var quality = options.val();
+		var qualityName = options.text();
+		
+		var isBind = $('#good_is_bind option:selected');
+		var bind = isBind.val();
+		var bindName = isBind.text();
+		
+		var num = $('#goodsnum').val();
+	    var reg = new RegExp("^[0-9]*$");
+	    if(num == '' || !reg.test(num)){
+	        alert("请输入正整数道具数量!");
+	        return;
+	    }
+	    if(bagType == 1){
+	    	var tv = bagType + ":" + gid + ":" + num +":" +bind+ ":" + quality;
+			var tt = bagTypeName + ":" + gname + ":" + num +":"+bindName+":" + qualityName;
+	    }else{
+			var tv = bagType + ":" + gid + ":" + num+":"+bind;
+			var tt = bagTypeName + ":" + gname + ":" + num +":"+bindName;
+	    }
+		$("#goods").append("<option value='"+ tv +"'>"+tt+"</option>");
+	}
+	function delselect(){
+		var obj = document.getElementById("goods"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	function clearselect(){
+		$("#goods").empty(); 
+	}
+	//jiade
+
+	
+	
+	
+		//封号
+		function _editcloseaccount(rowIndex) {
+		
+		var row = $('#dg').datagrid('getData').rows[rowIndex];
+		$('#dlgclose').dialog({
+			left:200,
+			top:100,
+		    width: 750,    
+		    height: 400,    
+	     	onLoad:function(){
+	    			$('#ac_feng_heroId').val(row.heroId); 
+	    			 $('#ac_feng_heroId').attr("disabled","true");
+	    			 $('#ac_log_name').val(row.heroName); 
+	    			 $('#ac_log_name').attr("disabled","true");
+	    			 
+	   		 },
+	    href:"<%=request.getContextPath()%>/views/account/closeaccount.jsp",
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgclose').dialog('open');
+		$('#dlgclose').dialog('setTitle', '编辑信息');
+	}
+
+		function submitdlgclose(){
+			var serverIds=choseserverId;
+			$.post('<%=request.getContextPath()%>/account/close',{
+				serverid:serverIds,
+				heroId : $('#ac_feng_heroId').val(),
+				operator:$('#ac_feng_isaccountclose').val(),
+				ranks:$('#ac_feng_f_remarks').val(),
+				rankTime:$('#ac_feng_time').val(),
+				type:$('#ac_feng_type').val(),
+				heroName : $('#ac_log_name').val()
+			},function(data) {
+				$('#dlgclose').dialog('close');
+				$('#dg').datagrid('reload');
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+			});
+		}
+	
+		//禁言
+		function _editclosechat(rowIndex) {
+			
+			var row = $('#dg').datagrid('getData').rows[rowIndex];
+			$('#dlgclose').dialog({
+				left:200,
+				top:100,
+		     	onLoad:function(){
+		    		$('#ac_feng_heroId').val(row.heroId);
+		    		 $('#ac_feng_heroId').attr("disabled","true");
+		    		 $('#ac_log_name').val(row.heroName);
+		    		 $('#ac_log_name').attr("disabled","true");
+		   		 },
+		    href:"<%=request.getContextPath()%>/views/account/closechat.jsp",
+		    modal: true,
+		    closed: true});
+			
+			$('#dlgclose').dialog('open');
+			$('#dlgclose').dialog('setTitle', '编辑信息');
+		}
+		
+		
+//end 
+//提掉 线
+function _downLine(rowIndex){
+	var row = $('#dg').datagrid('getData').rows[rowIndex];
+	var onlogn=row.isOnline;
+	if(onlogn=='否'){
+		alert('玩家不在线')
+		return;
+	}
+	$.messager.confirm('确认','您确认踢玩家下线 ？',function(r){    
+	    if (r){    
+	    	$.post('<%=request.getContextPath()%>/heros/downLine',{
+	    		serverId:choseserverId,
+	    		heroId :row.heroId,
+	    	},function(data){
+	    		
+				$('#dlgclose').dialog('close');
+				$('#dg').datagrid('reload');
+	    		
+	    		var d = $.parseJSON(data);
+	    		$.messager.show({
+	    			title : '提示',
+	    			msg : data.msg
+	    		});
+	    	}); 
+	    }    
+	});  
+	
+
+}	
+//end	
+	
+	function _editblood(index){
+
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#dlgblood').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#bl_hero_id').val(row.heroId);
+	    		 
+	    		$.post('<%=request.getContextPath() %>/bloody/getBloodys'
+	    		,function(d) {
+	    			$('#blood_id').combobox({ 
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'id',
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        		}); 
+	    		}); 
+	    		$.post('<%=request.getContextPath() %>/bloody/getBloodyId',{
+	    			serverId:serverId,
+	    			heroId:row.heroId
+	    		},function(d) {
+	    			$('#cur_blood_id').val(d);
+	    			 $('#cur_blood_id').attr("disabled","true");
+	    		}); 
+	   		 },
+	  href:'<%=request.getContextPath()%>/views/heros/editblood.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dlgblood').dialog('open');
+		$('#dlgblood').dialog('setTitle', '编辑闯关');
+	}
+	function submitdlgblood(){
+		$.post('<%=request.getContextPath() %>/bloody/perfectBloodyPalace',{
+			heroId:$('#bl_hero_id').val(),
+			bloodyId:$('#blood_id').combobox('getValue')
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgblood').dialog('close');
+			}
+		});	
+	}
+	
+	/* 任务切换 */
+	function taskTypeChange(obj){
+		var type = $(obj).children('option:selected').val();
+		var praentObj = $(obj).parent().parent();
+		if (type == 1) {
+			praentObj.find(".main_span").show();
+			praentObj.find(".zhixian_span").hide();
+			praentObj.find(".daily_span").hide();
+			praentObj.find(".union_span").hide();
+			praentObj.find(".hide_span").hide();
+			praentObj.find(".other_span").hide();
+		} else if (type == 2) {
+			praentObj.find(".main_span").hide();
+			praentObj.find(".zhixian_span").show();
+			praentObj.find(".daily_span").hide();
+			praentObj.find(".union_span").hide();
+			praentObj.find(".hide_span").hide();
+			praentObj.find(".other_span").hide();
+		} else if (type == 3) {
+			praentObj.find(".main_span").hide();
+			praentObj.find(".zhixian_span").hide();
+			praentObj.find(".daily_span").show();
+			praentObj.find(".union_span").hide();
+			praentObj.find(".hide_span").hide();
+			praentObj.find(".other_span").hide();
+		} else if (type == 4) {
+			praentObj.find(".main_span").hide();
+			praentObj.find(".zhixian_span").hide();
+			praentObj.find(".daily_span").hide();
+			praentObj.find(".union_span").show();
+			praentObj.find(".hide_span").hide();
+			praentObj.find(".other_span").hide();
+		}else if (type == 5) {
+			praentObj.find(".main_span").hide();
+			praentObj.find(".zhixian_span").hide();
+			praentObj.find(".daily_span").hide();
+			praentObj.find(".union_span").hide();
+			praentObj.find(".hide_span").show();
+			praentObj.find(".other_span").hide();
+		}else {
+			praentObj.find(".main_span").hide();
+			praentObj.find(".zhixian_span").hide();
+			praentObj.find(".daily_span").hide();
+			praentObj.find(".union_span").hide();
+			praentObj.find(".hide_span").hide();
+			praentObj.find(".other_span").show();
+			/* $('#now_zhu_task').hide();
+			$('#now_zhi_task').hide();
+			$('#now_daily_task').hide();
+			$('#now_union_task').hide();
+			$('#now_other_task').show(); */
+		}
+	}
+	
+	
+	
+	
+	/* 新任务  */
+	function _edittask(index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#dlgtask').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#task_hero_id').val(row.heroId);
+	     		$("#task_hero_id").attr("disabled","true");
+	     		$.post('<%=request.getContextPath() %>/task/getCurrentAllTask',{
+	    			serverId:choseserverId,
+	    			heroId:row.heroId
+	    		},function(data) {
+	    			var d = $.parseJSON(data);
+	    			$('#now_zhu_task').val(d.mainTaskName);
+	    			 $('#now_zhu_task').attr("disabled","true");
+	    			 $('#now_zhi_task').val(d.zhiTaskName);
+	    			 $('#now_zhi_task').attr("disabled","true");
+	    			 $('#now_daily_task').val(d.dailyTaskName);
+	    			 $('#now_daily_task').attr("disabled","true");
+	    			 $('#now_union_task').val(d.unionTaskName);
+	    			 $('#now_union_task').attr("disabled","true");
+	    			 $('#now_hide_task').val(d.hideTaskName);
+	    			 $('#now_hide_task').attr("disabled","true");
+	    			 $('#now_other_task').val(d.otherTaskName);
+	    			 $('#now_other_task').attr("disabled","true");
+	    		}); 
+	     },
+	    href:'<%=request.getContextPath()%>/views/heros/editTask.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dlgtask').dialog('open');
+		$('#dlgtask').dialog('setTitle', '编辑任务');
+	}
+	
+	function submitdlgtask(){
+		var taskheroId =$('#task_hero_id').val();
+		var taskTypeSel = $(":input[name='taskType']").children('option:selected');
+		var taskType = taskTypeSel.val();
+		var taskTypeName = taskTypeSel.text();
+		var grid = $(".taskType" + taskType).combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert("请选择任务!");
+			return;
+		}
+		var gid = row.taskId;
+		var gname = row.taskName;
+		var tv = taskType + ":" + gid;
+		$.post('<%=request.getContextPath() %>/task/perfectTasks',{
+			serverId:choseserverId,
+			taskheroId:taskheroId,
+			taskId:gid,
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgtask').dialog('close');
+			}
+		});	
+	}
+	
+	
+	
+	
+	/* 旧任务代码*/
+	<%-- function _edittask(index){
+
+		var row = $('#dg').datagrid('getData').rows[index];
+	
+		$('#dlgtask').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#tsk_hero_id').val(row.heroId);
+	    		 
+	    		$.post('<%=request.getContextPath() %>/task/getMainTaskList',{
+	    			q:'',
+	    			serverId:choseserverId
+	    		}
+	    		,function(d) {
+	    			$('#task_id').combobox({ 
+	        			data:$.parseJSON(d),
+	        			valueField:'taskId', 
+	        			textField:'taskName',
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        			 onChange: function (n,o) {
+
+	        				 console.info()
+
+	        				 }
+	        		}); 
+	    		}); 
+	    		
+	    		$.post('<%=request.getContextPath() %>/task/getCurrentTaskId',{
+	    			serverId:choseserverId,
+	    			heroId:row.heroId
+	    		},function(data) {
+	    			
+	    			var d = $.parseJSON(data);
+	    			$('#cur_task_id').val(d.taskName);
+	    			 $('#cur_task_id').attr("disabled","true");
+	    		}); 
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editherotask.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dlgtask').dialog('open');
+		$('#dlgtask').dialog('setTitle', '编辑任务');
+	} --%>
+	<%-- function submitdlgtask(){
+		$.post('<%=request.getContextPath() %>/task/perfectTasks',{
+			serverId:choseserverId,
+			heroId:$('#task_hero_id').val(),
+			mainTaskId:$('#task_id').combobox('getValue')
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgtask').dialog('close');
+			}
+		});	
+	} --%>
+	// renwu end
+	
+		//技能
+	function  _onSkills(index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		
+		$('#dlgeditSkills').dialog({
+	     	onLoad:function(){
+
+				$('#skill_loginName').val(row.loginName);
+	    		$('#skill_loginPsd').val(row.loginPsd);
+	    		$('#skill_heroName').val(row.heroName);
+	    		$('#skill_heroId').val(row.heroId);
+	    		 $('#skill_loginName').attr("disabled","true");
+	    		 $('#skill_loginPsd').attr("disabled","true");
+	    		 $('#skill_heroName').attr("disabled","true"); 
+	    		 $('#skill_heroId').attr("disabled","true");
+		    		$.post('<%=request.getContextPath() %>/heros/getSKillList',{
+		    			heroId:row.heroId,
+		    			serverId:choseserverId
+		    		}
+		    		,function(d) {
+		    			
+		    			$('#skill_SkillID').combobox({ 
+		        			data:$.parseJSON(d),
+		        			valueField:'skillID', 
+		        			textField:'skillName',
+		        			multiple:false,
+		        			 required:false,
+		        			 editable:false,
+		        			 onHidePanel:function(){
+		        			var skillId=$("#skill_SkillID").combobox('getValue');
+		        			
+		        		    $.post('<%=request.getContextPath() %>/heros/getSkill',{
+		        		  	 heroId:row.heroId,
+		        		  	 serverId:choseserverId,
+		        		  	skillId:skillId
+		        		    }
+		        		   ,function(data) {
+
+		        			  var h=$.parseJSON(data);
+		        			$('#skill_level').val(h.skillLevel==null?1:h.skillLevel);							
+		        		   }); 
+		        			}
+		        	}); 
+		    		}); 
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editSkills.jsp',
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgeditSkills').dialog('open');
+		$('#dlgeditSkills').dialog('setTitle', '技能信息');
+	}
+			
+	function subEditSkill(){
+	
+		$.post('<%=request.getContextPath() %>/heros/editorSkill',{
+			serverId:choseserverId,
+			heroId:$('#skill_heroId').val(),
+			SkillID:$('#skill_SkillID').combobox('getValue'),
+			level:$('#skill_level').val()
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgeditSkills').dialog('close');
+			}
+		});	
+	//技能end
+	}
+	//坐骑 
+	function   _onMount(index){
+
+		var row = $('#dg').datagrid('getData').rows[index];
+	
+		$('#dlgeditHores').dialog({
+	     	onLoad:function(){
+
+				$('#horse_loginName').val(row.loginName);
+	    		$('#horse_loginPsd').val(row.loginPsd);
+	    		$('#horse_heroName').val(row.heroName);
+	    		$('#horse_heroId').val(row.heroId);
+	    		 $('#horse_loginName').attr("disabled","true");
+	    		 $('#horse_loginPsd').attr("disabled","true");
+	    		 $('#horse_heroName').attr("disabled","true"); 
+	   			
+	    		 
+	    		 $('#horse_type_type').combobox({ 
+        			multiple:false,
+        			 required:false,
+        			 editable:false,
+        			 onSelect: function(rec){
+        					if(rec.value==2){
+								$('#horse_time_hidden').show();
+							}else{
+								$('#horse_time_hidden').hide();
+							}
+        					$.post('<%=request.getContextPath() %>/heros/getAllHorse',{
+        		    			q:rec.value,
+        		    			serverId:choseserverId
+        		    		}
+        		    		,function(d) {
+        		    			
+        		    			$('#horse_horseId').combobox({ 
+        		        			data:$.parseJSON(d),
+        		        			valueField:'horseId', 
+        		        			textField:'horseName',
+        		        			multiple:false,
+        		        			 required:false,
+        		        			 editable:false,
+        		        			 onHidePanel:function(){
+        		        			var horseId=$("#horse_horseId").combobox('getValue');
+        		        			
+        		        		    $.post('<%=request.getContextPath() %>/heros/getHaveHorse',{
+        		        		  	 heroId:row.heroId,
+        		        		  	 serverId:choseserverId,
+        		        		    horseId:horseId
+        		        		    }
+        		        		   ,function(data) {
+        		        			  var h=$.parseJSON(data);
+        		        			$('#horse_quality').val(h.quality==null?1:h.quality);
+        		        			$('#horse_quality').attr("disabled","true"); 
+        		    	    		$('#horse_star').val(h.star==null?1:h.star);
+        		    	    		$('#horse_time').val(h.lastDate==null?1:h.lastDate);
+        		    	    		$('#horse_horseType').val(h.horseType);
+        		    	    		$('#horse_always').combobox('setValue',h.always==null?"否":h.always);
+        		    	    		 $('#horse_horseType').attr("disabled","true"); 
+        		        	
+        		        		   }); 
+        		        			},
+        		        			 onChange: function (n,o) {
+        		        	}
+        		        	}); 
+        		    		}); 
+        			}
+        		});
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editHorse.jsp',
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgeditHores').dialog('open');
+		$('#dlgeditHores').dialog('setTitle', '坐骑信息');
+	}
+	function subEditHores(){
+		$.post('<%=request.getContextPath() %>/heros/AddOrupdate',{
+			serverId:choseserverId,
+			heroId:$('#horse_heroId').val(),
+			horseId:$('#horse_horseId').combobox('getValue'),
+			star:$('#horse_star').val(),
+			quality:$('#horse_quality').val(),
+			time:$('#horse_time').val(),
+			always:$('#horse_type_type').combobox('getValue')
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgeditHores').dialog('close');
+			}
+		});	
+	}
+	/* 九重天副本 */
+	function _nineDays(index) {
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#nineDay').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#nineDay_hero_id').val(row.heroId);
+	    		 //所有的九重天
+	    		$.post('<%=request.getContextPath() %>/instance/getAllNineDays',{
+	    			q:''
+	    		}
+	    		,function(d) {
+	    			$('#nineDay_id').combobox({
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'name', 
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        		}); 
+	    		}); //完成的九重天
+	    		 $.post('<%=request.getContextPath() %>/instance/getCompleteNineDays',{
+	    			serverId:choseserverId,
+	    			heroId:row.heroId
+	    		},function(data) {
+	    			var d = $.parseJSON(data);
+	    			$.each(d,function(a,enty) {
+	    				 $("#cur_ninedays_list").append("<option value='"+ enty.id +"'>"+enty.id+':'+enty.name+"</option>");
+	    				});
+	    		});  
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editninedays.jsp',
+	    modal: true,
+	    closed: true});
+		$('#nineDay').dialog('open');
+		$('#nineDay').dialog('setTitle', '编辑九重天副本');
+	}
+	
+	
+	function submitnineday(){
+		$.post('<%=request.getContextPath() %>/instance/perfectNineDay',{
+			serverId:choseserverId,
+			heroId:$('#nineDay_hero_id').val(),
+			mainInstanceId:$('#nineDay_id').combobox('getValue')
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#nineDay').dialog('close');
+			}
+		});	
+	}
+	
+	
+	
+	/* 爬塔副本 */
+	function _editinstance(index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#dlginstance').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#instance_hero_id').val(row.heroId);
+	    		 //所有的副本
+	    		$.post('<%=request.getContextPath() %>/instance/getAllPata',{
+	    			q:''
+	    		}
+	    		,function(d) {
+	    			$('#instance_id').combobox({
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'name', 
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        		}); 
+	    		}); //完成的副本
+	    		 $.post('<%=request.getContextPath() %>/instance/getCompletePata',{
+	    			serverId:choseserverId,
+	    			heroId:row.heroId
+	    		},function(data) {
+	    			var d = $.parseJSON(data);
+	    			$.each(d,function(a,enty) {
+	    				 $("#cur_instance_list").append("<option value='"+ enty.id +"'>"+enty.id+':'+enty.name+"</option>");
+	    				});
+	    		});  
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/heros/editheroinstance.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dlginstance').dialog('open');
+		$('#dlginstance').dialog('setTitle', '编辑盘龙殿副本');
+	}
+	function submitdlginstance(){
+		$.post('<%=request.getContextPath() %>/instance/perfectInstances',{
+			serverId:choseserverId,
+			heroId:$('#instance_hero_id').val(),
+			mainInstanceId:$('#instance_id').combobox('getValue')
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlginstance').dialog('close');
+			}
+		});	
+	}
+	
+	function _Newbieguide(heroId,heroName){
+		$('#dlgnew').dialog({
+			top:200,
+	     	onLoad:function(){
+	     		$('#newbie_hero_id').val(heroId);
+	     		$("#newbie_hero_id").attr("disabled","true");
+	     		$('#hero_name').val(heroName);
+	     		$("#hero_name").attr("disabled","true");
+	     		$.post('<%=request.getContextPath() %>/newbie/nowNewbIeid',{
+	    			serverId:choseserverId,
+	    			heroId:heroId
+	    		},function(data) {
+	    			var d = $.parseJSON(data);
+	    			$('#newbie_hero_name').val(d.name);
+	    			 $('#newbie_hero_name').attr("disabled","true");
+	    		}); 
+	     },
+	    href:'<%=request.getContextPath()%>/views/heros/editNewbie.jsp',
+	    modal: true,
+	    closed: true});
+		$('#dlgnew').dialog('open');
+		$('#dlgnew').dialog('setTitle', '新手引导');
+		
+	}
+	
+	function submitdlgNewbie(){
+		var grid = $("#newbie_data").combogrid("grid");
+		var row = grid.datagrid('getSelected');
+		if(!row){
+			alert("请选择需要完成的引导!");
+		}
+		var bieId = row.id;
+		$.post('<%=request.getContextPath() %>/newbie/editNewBies',{
+			serverId:choseserverId,
+			heroId:$('#newbie_hero_id').val(),
+			newbieId:bieId
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgnew').dialog('close');
+			}
+		});		
+	}	
+	
+	
+	function _life(heroId){
+		$('#dlgLife').dialog({	
+			top:220,
+			onLoad:function(){
+			$("#heroId").val(heroId);
+			 $("#heroId").attr("disabled","true");
+   		 },
+	   	href:'<%=request.getContextPath()%>/views/heros/sendLife.jsp',
+        modal: true,
+        closed: true});
+		$('#dlgLife').dialog('open');
+		$('#dlgLife').dialog('setTitle', '发送命格');
+	}
+	
+	function addLifeId(){
+		var grid = $("#lifeGoods").combogrid("grid");
+		var row = grid.datagrid('getSelected');
+		if(!row){
+			alert("请选择命格物品!");
+		}
+		var lifenName = row.name;
+		var num = $('#lifegoodsnum').val();
+		var tt = "ID:"+row.id+",数量:"+num+",名称:"+lifenName;
+		var tv = row.id +":"+ num;
+		$("#lifegoods").append("<option value='"+ tv +"'>"+tt+"</option>");
+	}
+	
+	function delLifeId(){
+		var obj = document.getElementById("lifegoods"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	
+	function clearLifeId(){
+		$("#lifegoods").empty(); 
+	}
+	
+	function subLifeGoods(){
+		var goodDatas = '';
+		$('#lifegoods option').each(function(){
+			goodDatas += $(this).val()+",";
+		});
+		$.post('<%=request.getContextPath() %>/life/sendLifeGoods',{
+			serverId:choseserverId,	
+			heroId :$('#heroId').val(),
+			lifeChipnum:$('#lifeChipnum').val(),
+			lifeGood:goodDatas
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgLife').dialog('close');
+			}
+		});	
+	} 
+	
+	//模拟充值
+	function _copyRecharge(heroId){
+		$('#copyRecharge').dialog({	
+			top:320,
+			onLoad:function(){
+			$("#heroId").val(heroId);
+			$("#heroId").attr("disabled","true");
+   		},
+	   	href:'<%=request.getContextPath()%>/views/heros/copyRecharge.jsp',
+        modal: true,
+        closed: true});
+		$('#copyRecharge').dialog('open');
+		$('#copyRecharge').dialog('setTitle', '模拟充值');
+	}
+	
+	function subCopyRecharge(){
+		var grid = $("#recharge").combogrid("grid");
+		var row = grid.datagrid('getSelected');
+		if(!row){
+			alert("请选择需要充值的项目!");
+		}
+		var rechargeId = row.id;
+		alert(rechargeId);
+		$.post('<%=request.getContextPath() %>/heros/recharge',{
+			serverId:choseserverId,	
+			heroId :$('#heroId').val(),
+			rechargeId :rechargeId
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#copyRecharge').dialog('close');
+			}
+		});	
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/officialServer',method:'get',animate:false,checkbox:false ,lines:true" ></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/heros/queryHeroList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            autoRowHeight:false,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询账号 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+				    <th data-options="field:'opt',title:'Operation',formatter:formateroperate" width="75">操作</th>
+					<th data-options="field:'serverId'" width="8" align="center">区服</th>
+					<th data-options="field:'heroId'" width="8" align="left">角色Id</th>
+					<th data-options="field:'accountId'" width="8" align="left">账户Id</th>
+					<th data-options="field:'yunyingId'" width="9" align="left">运营帐号</th>
+					<th data-options="field:'loginName'" width="8" align="left">登录名</th>
+					<th data-options="field:'loginPsd'" width="8" align="left">登录密码</th>
+					<th data-options="field:'heroName'" width="9" align="left">角色名称</th>
+					<th data-options="field:'teamGrade'" width="4" align="left">等级</th>
+					<th data-options="field:'teamExp'" width="4" align="left">经验</th>
+					<th data-options="field:'vipGrade'" width="4" align="left">vip等级</th	>
+					<th data-options="field:'status'" width="5" align="left">是否封号</th>
+					<th data-options="field:'remarks'" width="5" align="left">封号原因</th>
+					<th data-options="field:'yuanbao'" width="3" align=left>元宝</th>
+					<th data-options="field:'gold'" width="3" align="left">金币</th>
+					<th data-options="field:'fightPower'" width="3" align="left">战力</th>
+					<th data-options="field:'allowChat'" width="5" align="center">是否禁止聊天</th>
+					<th data-options="field:'isOnline'" width="5" align="center">是否在线</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="搜索条件" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						关键字<input name="qName" style="width: 200px;" />&nbsp;
+					</td>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_search();">搜索</a>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_newHero();">添加</a>
+						<font color="red" size="3" ><strong>提醒:服 务 器 玩 家 数 据 以 区 服 为 准 !</strong></font>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<div id="dlgadd"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgadd-buttons" align="center">
+		
+	</div>
+	<div id="dlgadd-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitadd()">添加</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgadd').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgedit"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgedit-buttons" align="center">
+		
+	</div>
+	<div id="dlgedit-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitedit()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgedit').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgclone"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgclone-buttons" align="center">
+		
+	</div>
+	<div id="dlgclone-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitclone()">添加</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclone').dialog('close');">取消</a>
+	</div>
+	<div id="dlgdel"  style="width: 400px; overflow: auto;" closed="true" buttons="#dlgdel-buttons" align="left">
+		
+	</div>
+	<div id="dlgdel-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdel()">删除该账号</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgdel').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgblood"  style="width: 400px; overflow: auto;" closed="true" buttons="#dlgblood-buttons" align="left">
+		
+	</div>
+	<div id="dlgblood-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgblood()">提交</a>
+	</div>
+	<div id="dlgtask"  style="width: 800px; overflow: auto;" closed="true" buttons="#dlgtask-buttons" align="left">
+		
+	</div>
+	<div id="dlgtask-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgtask()">提交</a>
+	</div>
+	<div id="dlginstance"  style="width: 800px; overflow: auto;" closed="true" buttons="#dlginstance-buttons" align="left">
+		
+	</div>
+	<div id="dlginstance-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlginstance()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlginstance').dialog('close');">取消</a>
+	</div>
+	
+	<div id="nineDay"  style="width: 800px; overflow: auto;" closed="true" buttons="#nineDay-buttons" align="left">
+		
+	</div>
+	<div id="nineDay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitnineday()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#nineDay').dialog('close');">取消</a>
+	</div>
+	
+	
+		<div id="dlgbEvil"  style="width: 400px; overflow: auto;" closed="true" buttons="#dlgEvil-buttons" align="left">
+		
+	</div>
+	<div id="dlgEvil-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="cleanEvil()">清空</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitvil()">提交</a>
+	</div>
+		<div id="dlgclose"  style="width: 1000px;overflow: auto;" closed="true" buttons="#dlgclose-buttons" align="center">
+		
+	</div>
+	
+	<div id="dlgclose-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgclose()">确定</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclose').dialog('close');">取消</a>
+	</div>
+  
+
+	<div id="dlgeditHores"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgeditHores-buttons" align="center">
+		
+	</div>
+	<div id="dlgeditHores-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subEditHores()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgeditHores').dialog('close');">取消</a>
+	</div>
+
+
+ 	<div id="dlgeditSkills"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgeditSkills-buttons" align="center"> 
+		
+	</div>
+	<div id="dlgeditSkills-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subEditSkill()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgeditSkills').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgMails" style="width: 800px;overflow: auto;" closed="true" buttons="#dlgMails-buttons" align="center">
+	
+	</div>
+	<div id="dlgMails-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subMails()">发送</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgMails').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgUnion" style="width: 800px;overflow: auto;" closed="true" buttons="#dlgUnion-buttons" align="center">
+	
+	</div>
+	<div id="dlgUnion-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subCreateUnion()">创建</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgUnion').dialog('close');">取消</a>
+	</div>
+	<div id="dlgEditUnion" style="width: 800px;overflow: auto;" closed="true" buttons="#dlgEditUnion-buttons" align="center">
+	</div>
+	<div id="dlgEditUnion-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subUpdateUnion()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgEditUnion').dialog('close');">取消</a>
+	 </div>
+	
+	<!--当玩家没有帮派的时候 弹出一个框是否确认创建帮派 -->
+	<div id="dlgcreate"  style="width: 400px; overflow: auto;" closed="true" buttons="#dlgcreate-buttons" align="left">
+		
+	</div>
+	<div id="dlgcreate-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subCreatePage()">确认创建</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgcreate').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgnew"  style="width: 500px; overflow: auto;" closed="true" buttons="#dlgnew-buttons" align="left">
+	</div>
+	<div id="dlgnew-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgNewbie()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgnew').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgLife" style="width: 700px;overflow: auto;" closed="true" buttons="#dlgLife-buttons" align="center">
+	
+	</div>
+	<div id="dlgLife-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subLifeGoods()">发送</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgLife').dialog('close');">取消</a>
+	</div>
+	
+	<div id="copyRecharge" style="width: 500px;overflow: auto;" closed="true" buttons="#copyRecharge-buttons" align="center">
+	
+	</div>
+	<div id="copyRecharge-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="subCopyRecharge()">充值</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#copyRecharge').dialog('close');">取消</a>
+	</div>
+	
+</body>
+</html>

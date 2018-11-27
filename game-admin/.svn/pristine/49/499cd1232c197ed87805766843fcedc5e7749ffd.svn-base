@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">衣服信息:</td>
+		<td><textarea readonly="readonly" rows="14" cols="120" id="clothes_list" name="clothes_list" style="resize: none" /></td>
+	</tr>
+</table>

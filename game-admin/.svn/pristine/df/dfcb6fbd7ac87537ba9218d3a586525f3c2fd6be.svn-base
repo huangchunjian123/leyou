@@ -1,0 +1,109 @@
+//package com.game.admin.controllers;
+//
+//import java.util.List;
+//
+//import net.paoding.rose.web.annotation.Param;
+//
+//import org.springframework.beans.factory.annotation.Autowired;
+//
+//import com.caucho.hessian.client.HessianProxyFactory;
+//import com.game.admin.pojo.NewBieData;
+//import com.game.admin.service.newbie.INewBieService;
+//import com.game.admin.utils.OperateLogInfos;
+//import com.game.admin.utils.ResultCode;
+//import com.game.api.hessian.HeroService;
+//import com.game.util.ObjectUtil;
+//import com.game.util.StringUtil;
+//
+///**
+// * 新手引导控制器
+// * @author jiayi
+// *
+// */
+//public class NewbieController extends BaseController{
+//	
+//	
+//	@Autowired
+//	private INewBieService newBieService ;
+//	
+//	
+//	/**
+//	 * 取新手引导数据副本
+//	 * @return
+//	 */
+//	public Object getNewLists(@Param("q") String q){
+//		List<NewBieData> ListDatas =  newBieService.getAllNewData();
+//		return ResultCode.writeJson(ListDatas);
+//	}
+//	
+//	
+//	/**
+//	 * 跳过选择的新手引导id
+//	 * @param serverId
+//	 * @param heroId
+//	 * @param newBiwId
+//	 * @return
+//	 */
+//	public Object editNewBies(@Param("serverId") int serverId,
+//			@Param("heroId") String heroId, @Param("newbieId") int newbieId){
+//		if(StringUtil.isEmpty(heroId)){
+//			return ResultCode.error("参数错误heroId为null");
+//		}
+//		String url = buildUrl(serverId);
+//		if(!StringUtil.isEmpty(url)) {
+//			HeroService heroService  = getHessianFactory(HeroService.class, url);
+//			if(heroService != null){
+//				try {
+//					int result = heroService.completeNewbie(heroId,newbieId);//这块得加个接口
+//					if(result == 1){
+//						return ResultCode.error("静态数据配置异常");
+//					}else if (result == 2) {
+//						return ResultCode.error("此引导已经完成");
+//					}
+//					recordOperateLog(String.format(OperateLogInfos.NewbieControllerEditNewBies,heroId,newbieId,getSessionInfo().getIp(),
+//												getByIdServerName(serverId)), 1);
+//					return ResultCode.succ("操作成功");
+//				} catch (Exception e) {
+//					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+//				}
+//			}
+//		}
+//		return ResultCode.error("api出错，操作失败");
+//	}
+//	
+//	/**
+//	 * 获取当前的新手引导进度
+//	 * @param serverId
+//	 * @param heroId
+//	 * @return
+//	 */
+//	public Object nowNewbIeid(@Param("serverId") int serverId,@Param("heroId") String heroId){//获取当前的新手引导id
+//		if(StringUtil.isEmpty(heroId)){
+//			return ResultCode.error("参数错误heroId为null");
+//		}
+//		String url = buildUrl(serverId);
+//		if(!StringUtil.isEmpty(url)) {
+//			HeroService heroService = getHessianFactory(HeroService.class, url);
+//			if(heroService!= null){
+//				try {
+//					NewBieData newbieData = new NewBieData();
+//					//加api远程接口
+//					int result = heroService.getNowBieId(heroId);
+//					if(result == 2){
+//						ResultCode.error("角色不存在!");
+//					}else if(result == 1){
+//						newbieData.setName("正在进行新手副本!");
+//					}else if(result == 0){
+//						newbieData.setName("未开始引导");
+//					}else {
+//						newbieData = newBieService.getNewBieName(result);
+//					}
+//					return ResultCode.writeJson(newbieData);
+//				} catch (Exception e) {
+//					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+//				}
+//			}
+//		}
+//		return ResultCode.error(String.format("操作新手引导玩家账号失败", serverId));
+//	}
+//}

@@ -1,0 +1,100 @@
+/**
+ * @Param("pid") int pid, @Param("serverId") int serverId, @Param("loginName") String loginname,
+			@Param("heroName") String heroname, @Param("teamGrade") int teamgrade, @Param("vipGrade") int vipgrade,
+			@Param("yuanbao") int yuanbao, @Param("copper") int copper, @Param("sp") int sp
+ */
+
+function HeroInfo(loginName,loginPsd, heroName, Grade, vipGrade, yuanbao,
+		copper, sp,Exp) {
+	this.loginName = loginName;
+	this.loginPsd = loginPsd;
+	this.heroName = heroName;
+	this.Grade = Grade;
+	this.vipGrade = vipGrade;
+	this.yuanbao = yuanbao;
+	this.copper = copper;
+	this.sp = sp;
+	this.Exp =Exp;
+}
+
+function HeroCloneInfo(loginName, heroName, loginPsd, cloneHeroId) {
+	this.loginName = loginName;
+	this.heroName = heroName;
+	this.loginPsd = loginPsd;
+	this.cloneHeroId = cloneHeroId;
+}
+
+function HeroInfoNew(loginName,loginPsd,heroName,Grade,Exp,
+		vipGrade,sp,gift,yuanbao,copper,silver,heroId){
+	this.loginName = loginName;
+	this.loginPsd  = loginPsd;
+	this.heroName = heroName;
+	this.Grade = Grade;
+	this.Exp = Exp;
+	this.vipGrade = vipGrade;
+	this.sp = sp;
+	this.gift = gift;
+	this.yuanbao = yuanbao;
+	this.copper = copper;
+	this.silver = silver;
+	this.heroId = heroId;
+}
+
+function builderHeroInfo() {
+	var loginName = $('#a_loginName').val();
+	var loginPsd = $('#a_loginPsd').val();
+	var heroName = $('#a_heroName').val();
+	var Grade = $('#a_teamGrade').val();	
+	var vipGrade = $('#a_vipGrade').val();
+	var yuanbao = $('#a_yuanbao').val();
+	var copper = $('#a_copper').val();
+	var sp =10000;
+	var Exp =$('#e_teamExp').val();
+	var heroInfo = new HeroInfo(loginName, loginPsd,heroName, Grade, vipGrade, yuanbao,
+			copper, sp,Exp);
+	return heroInfo;
+}
+
+function builderEditHeroInfo() {
+	var loginName = $('#e_loginName').val();
+	var loginPsd = $('#e_loginPsd').val();
+	var heroName = $('#e_heroName').val();
+	var Grade = $('#e_teamGrade').val();
+	var vipGrade = $('#e_vipGrade').val();
+	var yuanbao = $('#e_yuanbao').val();
+	var copper = $('#e_copper').val();
+	var sp = $('#e_sp').val();
+	var Exp = $('#e_teamExp').val();
+	var heroInfo = new HeroInfo(loginName, loginPsd,heroName, Grade, vipGrade, yuanbao,
+			copper, sp,Exp);
+	return heroInfo;
+}
+
+/**新的编辑的玩家信息*/
+function builderEditHeroInfoNEW(){
+	var loginName = $('#e_loginName').val();
+	var loginPsd = $('#e_loginPsd').val();
+	var heroName = $('#e_heroName').val();
+	var Grade = $('#e_teamGrade').val();
+	var Exp = $('#e_teamExp').val();
+	var vipGrade = $('#e_vipGrade').val();
+	var sp = $('#e_sp').val();
+	var gift = $('#e_gift').val();
+	var yuanbao = $('#e_yuanbao').val();
+	var copper = $('#e_copper').val();
+	var silver = $('#e_silver').val();
+	var heroId = $('#e_heroId').val();
+	var heroInfonew = new HeroInfoNew(loginName, loginPsd, heroName, Grade, Exp, vipGrade, 
+						sp, gift, yuanbao, copper, silver, heroId)
+	return heroInfonew;
+}
+
+
+function builderHeroCloneInfo() {
+	var loginName = $('#c_loginName').val();
+	var heroName = $('#c_heroName').val();
+	var loginPsd = $('#c_loginPsd').val();
+	var cloneHeroId = $('#c_cloneHeroId').val();
+	var heroInfo = new HeroCloneInfo(loginName, heroName, loginPsd, cloneHeroId);
+	return heroInfo;
+}

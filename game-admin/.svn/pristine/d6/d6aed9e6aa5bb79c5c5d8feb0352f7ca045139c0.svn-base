@@ -1,0 +1,79 @@
+package com.game.admin.pojo;
+
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+/**
+ * 
+ * 爬塔
+ * @author Administrator
+ *
+ */
+public class PataInstanceData implements Serializable {
+	
+	
+	
+	private static final long serialVersionUID = -5529803090601800991L;
+	/**
+	 * 副本的id   F_key
+	 */
+	private java.lang.Integer id;
+	/**
+	 * 副本的名称  	f_name
+	 */
+	private java.lang.String  name;
+	/**
+	 * 副本的难易程度    F_difficult
+	 */
+	private java.lang.Integer difficult;
+	
+	public PataInstanceData() {
+	}
+	public PataInstanceData(int id,String name,int difficult){
+		this.id = id;
+		this.name = name;
+		this.difficult = difficult;
+	}
+	
+	public java.lang.Integer getId() {
+		return id;
+	}
+	public void setId(java.lang.Integer id) {
+		this.id = id;
+	}
+	public java.lang.String getName() {
+		return name;
+	}
+	public void setName(java.lang.String name) {
+		this.name = name;
+	}
+	public java.lang.Integer getDifficult() {
+		return difficult;
+	}
+	public void setDifficult(java.lang.Integer difficult) {
+		this.difficult = difficult;
+	}
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(getId()).toHashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof PataInstanceData == false){
+			return false;
+		}
+		if(this == obj){
+			return true;
+		}
+		PataInstanceData other =(PataInstanceData)obj;
+		return new EqualsBuilder().append(getId(), other.getId()).isEquals();
+	}
+	
+}

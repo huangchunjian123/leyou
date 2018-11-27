@@ -1,0 +1,82 @@
+package com.xg.admin.service.equip;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.EquipDao;
+import com.xg.admin.dto.equip.EquipDto;
+import com.xg.admin.pojo.EquipmentData;
+
+/**
+ * 装备相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("equipService")
+public class EquipServiceImpl implements IEquipService, InitializingBean {
+	@Autowired
+	private EquipDao equipDao;
+
+	/** 装备列表 */
+	private static Map<Integer, EquipDto> equipMap = new HashMap<Integer, EquipDto>();
+
+	@Override
+	public List<EquipDto> getEquipDtoByname(String name, int offset, int pagesize) {
+		List<EquipDto> list = new ArrayList<EquipDto>();
+		for (Entry<Integer, EquipDto> en : equipMap.entrySet()) {
+			EquipDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initEquip();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initEquip() {
+		equipMap.clear();
+		List<EquipmentData> list = equipDao.getAll();
+		for (EquipmentData data : list) {
+			equipMap.put(data.getId(), new EquipDto(data.getId(), data.getName()));
+		}
+	}
+
+	@Override
+	public String getName(int equipId) {
+		return equipMap.get(equipId).getName();
+	}
+
+}

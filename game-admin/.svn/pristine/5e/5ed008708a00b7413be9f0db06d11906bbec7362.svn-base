@@ -1,0 +1,122 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<head>
+	<jsp:include page="../../inc.jsp"></jsp:include>
+	<script type="text/javascript">
+		$(function() {
+			 $("#dlgCdkey-buttons").hide();
+			 $("#dlgCdkeySuss-buttons").hide();
+		});
+		function createCdkey() {
+			$('#cdkey').dialog({	
+				top:150,
+		   	href:'<%=request.getContextPath()%>/views/util/cdkey.jsp',
+		    modal: true,
+		    closed: false});s
+			$('#cdkey').dialog('open');
+			$('#cdkey').dialog('setTitle', '兑换码生成')
+		}
+	
+		function cleanCdkey(){
+			$('#create_cdkey').val(0);	
+		}
+		
+		function submitCdkey(){
+			createNum = $('#create_cdkey').val();
+			if(createNum <= 0){
+				alert("请输入大于0的整数");
+				return;
+			}
+			$.post('<%=request.getContextPath() %>/utils/createCdKey',{
+				createNum:$('#create_cdkey').val(),
+			},function(data) {
+				$('#cdkey').dialog('close');
+				var d = $.parseJSON(data);
+				$('#cdkey_suss').dialog({
+					top:200,
+			     	onLoad:function(){
+			     		$('#cdkeyOk').val(d);
+			   		},
+				  href:'<%=request.getContextPath()%>/views/util/cdkeyOk.jsp',
+				  modal: true,
+				  closed: true});	
+				$('#cdkey_suss').dialog('open');
+				$('#cdkey_suss').dialog('setTitle', 'cdkey生成');
+			});		
+		}
+		
+		
+	</script>
+	
+	<title>工具</title>
+</head>
+<body class="no-skin">
+								<div class="row">
+									<div>
+										<h3 class="row header smaller lighter grey">
+										<span class="col-sm-6">常用工具</span>
+										</h3><!-- /.row -->
+										<p>
+											<button  onclick="createCdkey()">CdKey生成工具</button>
+										</p>
+									</div>
+									<hr />
+									<div class="col-sm-12" id="default-buttons">
+										<h3 class="row header smaller lighter grey">
+											<span class="col-sm-6">常用按钮</span><!-- /.col -->
+											
+										</h3><!-- /.row -->
+										<div class="hr hr-dotted hr-16"></div>
+
+										<p>
+											<button class="btn">
+												<i class="ace-icon fa fa-pencil align-top bigger-125"></i>
+												默认背景颜色
+											</button>
+
+											<button class="btn btn-primary">
+												<i class="ace-icon fa fa-flask align-top bigger-125"></i>
+												蓝色背景
+											</button>
+
+											<button class="btn btn-info">
+												浅蓝色背景
+												<i class="ace-icon fa fa-print  align-top bigger-125 icon-on-right"></i>
+											</button>
+
+											<button class="btn btn-success">
+												<i class="ace-icon fa fa-check"></i>
+												绿色背景
+											</button>
+										</p>
+
+									</div><!-- /.col -->
+								<hr />
+									<div class="col-sm-6">
+										<h3 class="header smaller lighter grey">按照尺寸分按钮</h3>
+
+										<p>
+											<button class="btn btn-minier btn-yellow">最小</button>
+											<button class="btn btn-xs">很小</button>
+											<button class="btn btn-sm btn-primary">偏小</button>
+											<button class="btn btn-info">默认大小</button>
+											<button class="btn btn-lg btn-success">大尺寸</button>
+										</p>
+									</div><!-- /.col -->
+								</div><!-- /.row -->
+								<hr />
+								<hr />
+	<div id="cdkey"  style="width: 550px; overflow: auto;" closed="true" buttons="#dlgCdkey-buttons" align="left">
+	</div>
+	<div id="dlgCdkey-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitCdkey()">生成</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#cdkey').dialog('close');" >取消</a>
+	</div>
+	<div id="cdkey_suss"  style="width: 860px; overflow: auto;" closed="true" buttons="#dlgCdkeySuss-buttons" align="left">
+	</div> 
+	<div id="dlgCdkeySuss-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#cdkey_suss').dialog('close');" >关闭</a>
+	</div>
+	</body>
+	</html>
+	

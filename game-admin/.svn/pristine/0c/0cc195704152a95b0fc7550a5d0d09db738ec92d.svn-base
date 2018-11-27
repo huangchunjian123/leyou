@@ -1,0 +1,28 @@
+package com.game.admin.service.good;
+
+import java.util.List;
+
+import com.game.admin.dto.good.GoodsDto;
+import com.game.admin.pojo.Goods;
+
+/**
+ * 道具相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IGoodService {
+
+	public List<GoodsDto> getGoodsDtoByname(String name, int offset, int pagesize);
+
+	public List<GoodsDto> getGoodsByname(String name, int offset, int pagesize);
+
+	public Goods getGoodsByid(int goodsId);
+	
+	public String getName(int goodId);
+
+	/**
+	 * 刷新内存道具列表
+	 */
+	public void initGoods();
+
+}

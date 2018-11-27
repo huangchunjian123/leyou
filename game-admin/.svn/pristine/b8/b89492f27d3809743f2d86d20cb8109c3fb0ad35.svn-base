@@ -1,0 +1,36 @@
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript">
+
+</script>
+
+<form id="fmclosechat" method="post" class="fm">
+    <span style="color:red">提醒：当</span>
+   
+						
+	<table class="tableCss">
+	<tr>
+	    <td>
+	  	<input type="text" id="ac_feng_heroId" name="heroId" />
+	  	<input type="hidden" id="ac_feng_type" name="ac_feng_type" value="2"/><br />
+    	<input type="hidden" id="ac_feng_f_remarks" name="ac_feng_type" value="1"/><br />
+    	<input type="hidden" id="ac_log_name" name="ac_log_name" value="2"/><br />
+		</td>	
+	</tr>
+	<tr>
+		<td>是否禁言:</td>
+	    <td>
+	    <select id="ac_feng_isaccountclose">  
+        <option value="1">否</option>  
+        <option value="0">是</option>  
+		</select> 
+		</td>
+		<td>禁言时间:</td>			
+	    <td>
+	    	<input id="ac_feng_time" class="easyui-datetimebox" name="birthday" data-options="showSeconds:false"  style="width:150px">  
+	    </td>
+			
+	</tr>
+</table>
+</form>

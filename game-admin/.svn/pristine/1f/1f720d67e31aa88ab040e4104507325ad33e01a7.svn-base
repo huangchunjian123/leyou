@@ -1,0 +1,297 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>任务列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+<script type="text/javascript">
+$(document).ready(function () { 
+	$.extend($.fn.validatebox.defaults.rules, {
+		maxGradeValidete: {
+		validator: function(value,param){
+			//alert(value+'---'+$("input[name='minGrade']").val());//find("input[name='minGrade']").val());
+			return value >= $("input[name='minGrade']").val();
+		},
+		message: '玩家等级上限不能小于等级下限.'
+		}
+		});
+});
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});
+	
+	var rewardIndexAdd = 0;
+	var rewardIndexEdit = 0;
+	//添加任务
+	function _newTask() {
+		rewardIndexAdd = 0;
+		conditionIndexAdd = 0;
+		//$('#dlgadd').dialog('open').dialog('setTitle', '添加任务');
+		url = "<%=request.getContextPath()%>/task/add";
+		$("#fmedit").empty();
+		$('#fmadd').empty();
+		$('#dlgadd').dialog({
+	     	onLoad:function(){
+	    		$('#fmadd').form('clear');
+	    		$('#addaccordion').accordion('select','任务基本信息');
+	    		$('#addaccordion').accordion('getSelected').panel('refresh','<%=request.getContextPath()%>/views/task/addtaskinfo.jsp');  //调用refresh方法载入新内容
+				addRewardTab('add');
+	    		addConditionTab('add');
+	    },
+	    href:'<%=request.getContextPath()%>/views/task/addtaskdialog.jsp',
+        modal: true,
+        closed: true});
+		$('#dlgadd').dialog('open').dialog('setTitle', '添加任务');
+		//$('.targetJob').combobox("unselect", '0');
+		//$('.targetJob').combobox("select", '3');
+		//$(".targetJob").combobox('setValues','1,2,3'.split(','));
+	}
+	//添加任务奖励配置选项卡
+	function addRewardTab(type,rewardId,taskId){
+		type=='add'?++rewardIndexAdd:++rewardIndexEdit;
+		var obj= type=='add'?'#rewardTabAdd':'#rewardTabEdit';
+		$(obj).tabs('add',{
+			title:'任务奖励配置 ' + (type=='add'?rewardIndexAdd:rewardIndexEdit),
+			closable:true,
+			cache:true,
+			href:'<%=request.getContextPath()%>/views/task/reward.jsp'+(rewardId&&rewardId>0?"?rewardId="+rewardId+"&taskId="+taskId:"")
+		});
+	}
+	var conditionIndexAdd = 0;
+	var conditionIndexEdit = 0;
+	//添加任务条件配置选项卡
+	function addConditionTab(type,conditionId,taskId){
+		type=='add'?++conditionIndexAdd:++conditionIndexEdit;
+		$(type=='add'?'#conditionTabAdd':'#conditionTabEdit').tabs('add',{
+			title:'任务条件配置 ' + (type=='add'?conditionIndexAdd:conditionIndexEdit),
+			closable:true,
+			cache:true,
+			href:'<%=request.getContextPath()%>/views/task/condition.jsp'+(conditionId&&conditionId>0?"?conditionId="+conditionId+"&taskId="+taskId:"")
+		});
+	}
+	
+	//更新任务
+	function _updateTask(taskId) {
+		//alert($(".easyui-tabs").empty());
+		//conditionTabEdit、rewardTabEdit
+		//$(".easyui-tabs").children().empty();
+		//$("#conditionTabEdit").empty();
+		rewardIndexEdit = 0;
+		conditionIndexEdit = 0;
+		//$('#dlgadd').dialog('close');//edittaskdialog.jsp
+		$("#fmedit").empty();
+		$('#fmadd').empty();
+		$('#dlgedit').dialog({
+     	onLoad:function(){
+     		$("#fmedit").form('clear');
+     		$('#editaccordion').accordion('getSelected').panel('refresh','<%=request.getContextPath()%>/views/task/edittaskinfo.jsp?taskId='+taskId);  //调用refresh方法载入新内容
+    		$('#editaccordion').accordion('select','任务基本信息');
+    		//获取任务所有条件id,加载条件选项卡
+    		$.ajax({
+    		    type: 'post',
+    		    url: "<%=request.getContextPath()%>/task/getTaskConditionIds?taskId="+taskId,
+    		    success:function(data){
+    		    	var ids = $.parseJSON(data);
+    		    	 $.each(ids, function(i,val){
+    		    		 addConditionTab('edit',val,taskId);
+    		    	  });
+    		    }
+    		});
+    		//获取任务所有奖励id，加载奖励选项卡
+    		$.ajax({
+    		    type: 'post',
+    		    url: "<%=request.getContextPath()%>/task/getTaskRewardIds?taskId="+taskId,
+    		    success:function(data){
+    		    	var ids = $.parseJSON(data);
+    		    	 $.each(ids, function(i,val){
+    		    		 addRewardTab('edit',val,taskId);
+    		    	  });
+    		    }
+    		});
+        }
+        });//href:'<%=request.getContextPath()%>/views/task/addtaskdialog.jsp'
+		$('#dlgedit').dialog('open').dialog('setTitle', '编辑任务');
+		
+		url = "<%=request.getContextPath()%>/task/update";
+	}	
+	function _dlgeditclose(){
+		$('#dlgedit').dialog('close');
+	}
+	
+	function submitadd() {
+		if($("#fmadd").form('validate')){
+			var taskInfo = builderTaskInfo();
+			var taskConditions = builderTaskConditions();
+			var taskRewards = builderTaskRewards();
+			$.post(url,{
+				taskJson:JSON.stringify(taskInfo)+'',
+				conditionJson:JSON.stringify(taskConditions)+'',
+				rewardJson:JSON.stringify(taskRewards)+''
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				if(d.status==0){
+					$('#dlgadd').dialog('close');
+					$('#dg').datagrid('reload');
+				}else{
+					$('#addaccordion').accordion('select','任务基本信息');
+				}
+			});			
+		}else{
+			$('#addaccordion').accordion('select','任务基本信息');
+		}
+	}
+	
+	function submitedit() {
+		if($("#fmedit").form('validate')){
+			var taskInfo = builderTaskInfo();
+			var taskConditions = builderTaskConditions();
+			var taskRewards = builderTaskRewards();
+			$.post(url,{
+				taskJson:JSON.stringify(taskInfo)+'',
+				conditionJson:JSON.stringify(taskConditions)+'',
+				rewardJson:JSON.stringify(taskRewards)+''
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				if(d.status==0){
+					$('#dlgedit').dialog('close');
+					$('#dg').datagrid('reload');
+				}else{
+					$('#editaccordion').accordion('select','任务基本信息');
+				}
+			});			
+		}else{
+			$('#editaccordion').accordion('select','任务基本信息');
+		}
+	}
+
+	//更新任务
+	function _deleteTask(taskId) {
+		if (!confirm("确认删除任务["+taskId+"]？(请认真任务相关信息!)")) {
+			return false;
+		}
+		$.post("<%=request.getContextPath()%>/task/deleteByTaskId",{
+			taskId:taskId
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if(d.status==0){
+				$('#dlgedit').dialog('close');
+				$('#dg').datagrid('reload');
+			}
+		});	
+	}
+	function _search(){
+	    $('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+
+	function formateroperate(value,row,rowIndex){
+		return "<a href='#' onclick='_updateTask("+  row.taskId +");'>编辑</a>&nbsp;&nbsp;<a href='#' onclick='_deleteTask("+  row.taskId +");'>删除</a>";
+	}
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="任务列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/task/getTaskList',
+            method:'post',
+            pageSize:30,
+            pageList: [10, 15, 20, 25, 30],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+            	//0主线任务；1日常任务；2公会任务；3其他任务
+            	var name='';
+            	if(value=='0'){
+            		name='主线任务';
+            	}else if(value=='1'){
+            		name='日常任务';
+            	}else if(value=='2'){
+            		name='公会任务';
+            	}else{
+            		name='其他任务';
+            	}
+                return name + ' - ' + rows.length + '条';
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>
+					<th data-options="field:'taskId'" width="50">任务id</th>
+					<th data-options="field:'taskName'" width="70">任务名称</th>
+					<th data-options="field:'opt',title:'Operation',formatter:formateroperate" width="100">操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="搜索条件" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						任务类型 <select style="width: 100px" name="qTaskType">
+							<option value="-1" checked="checked">所有类型</option>
+							<option value="0">主线任务</option>
+							<option value="1">日常任务</option>
+							<option value="2">公会任务</option>
+							<option value="3">其他任务</option>
+						</select>
+					</td>
+					<td>
+						任务id<input name="qTaskId" style="width: 200px;" />&nbsp;
+					</td>
+					<td>
+						关键字<input name="qTaskName" style="width: 200px;" />&nbsp;
+					</td>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_search();">搜索</a>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_newTask();">添加</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<%-- 添加任务弹出面板 --%>
+	<div id="dlgadd"  style="width: 800px;overflow: auto;" closed="true" buttons="#dlgadd-buttons" align="center">
+		
+	</div>
+	<div id="dlgadd-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitadd()">添加</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgadd').dialog('close')">取消</a>
+	</div>
+	
+	<%-- 更新任务弹出面板 --%>
+	<div id="dlgedit" class="easyui-dialog" style="width: 800px; height: 600px;" closed="true" buttons="#dlgedit-buttons" data-options="closed:true,href:'<%=request.getContextPath()%>/views/task/edittaskdialog.jsp'" align="center">
+	</div>
+	<div id="dlgedit-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitedit()">更新</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:_dlgeditclose()">取消</a>
+	</div>
+</body>
+</html>

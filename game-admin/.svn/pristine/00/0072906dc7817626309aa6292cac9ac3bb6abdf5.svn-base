@@ -1,0 +1,37 @@
+package com.game.admin.pojo;
+
+import java.io.Serializable;
+
+/**
+ * 命格物品
+ * @author jiayi
+ *
+ */
+public class Life implements Serializable{
+
+	private static final long serialVersionUID = 5979875060696005919L;
+
+	private int id;
+	private String name;
+	
+	public Life() {
+	}
+	
+	public Life(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}

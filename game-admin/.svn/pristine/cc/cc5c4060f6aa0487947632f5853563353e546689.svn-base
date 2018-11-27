@@ -1,0 +1,63 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>活动查询</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+function submitcache(url){
+	$.post(url,function(data) {
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="center" border="false" style="overflow: auto;">
+		<div class="fmset">
+			<fieldset>
+				<legend>刷新缓存数据</legend>
+				<form id="fm" method="post" name="refreshFm">
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/task/refresh')">刷新任务缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/equip/refresh')">刷新装备缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/good/refresh')">刷新道具缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/gemstone/refresh')">刷新宝石缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/npc/refresh')">刷新NPC缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/monster/refresh')">刷新怪缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/instance/refresh')">刷新副本缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/nickname/refresh')">刷新称号缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/hunqi/refresh')">刷新魂器缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/bloody/refresh')">刷新闯关缓存</a>
+					</div>
+					<div>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitcache('<%=request.getContextPath()%>/skill/refresh')">刷新技能缓存</a>
+					</div>
+				</form>
+			</fieldset>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>用户留存率</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询留存率数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="15" align="left">注册时间</th>
+					<th data-options="field:'newcount'" width="15" align="left">新增用户数</th>
+					<th data-options="field:'activecount'" width="10" align="left">日活跃 </th>
+					<th data-options="field:'paycount'" width="10" align="left">日付费数</th>
+					<th data-options="field:'paylv'" width="8" align="left">日付费率  </th>
+					<th data-options="field:'newpaycount'" width="8" align="left">新付费数 </th>
+					<th data-options="field:'payTotalcount'" width="18" align="left">充值总金额 (分)</th>
+					<th data-options="field:'arpu'" width="15" align="left">日付费ARPU(分)</th>
+					<th data-options="field:'arppu'" width="15" align="left">日付费ARPPU(分)</th>
+					<th data-options="field:'day1'" width="15" align="left">第一天留存率</th>
+					<th data-options="field:'day2'" width="15" align="left">第二天留存率</th>
+					<th data-options="field:'day3'" width="15" align="left">第三天留存率</th>
+					<th data-options="field:'day4'" width="15" align="left">第四天留存率</th>
+					<th data-options="field:'day5'" width="15" align="left">第五天留存率</th>
+					<th data-options="field:'day6'" width="15" align="left">第六天留存率</th>
+					<th data-options="field:'day7'" width="15" align="left">第七天留存率</th>
+					<th data-options="field:'day14'" width="15" align="left">第十四天留存率</th>
+					<th data-options="field:'day30'" width="15" align="left">第三十天留存率</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="14" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+</html>

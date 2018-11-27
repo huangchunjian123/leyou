@@ -1,0 +1,62 @@
+package com.game.admin.controllers;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.game.admin.service.server.IServerService;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.UnionService;
+import com.game.api.hessian.union.GmServiceUnionBattleType;
+
+import net.paoding.rose.web.annotation.Param;
+
+
+/**
+ * 服务器帮派
+ * @author jiayi
+ *
+ */
+public class ServiceUnionInfosController extends BaseController{
+
+	@Autowired
+	private IServerService serverService;
+	
+	/**
+	 * 转到服务器帮派页面
+	 * @return
+	 */
+	public String goServiceUnionInfos(){
+		return "serviceUnion/unionInfo";
+	}
+	
+	public Object queryServerUnion(@Param("page") int page, @Param("rows") int rows){
+		if(page < 0){
+			page = 1;
+		}
+		int pagesize = (rows == 0) ? 10 : rows;
+		return ResultCode.writeJson(serverService.datagrid(page, pagesize));
+	}
+	
+	public Object serverUnionData(@Param("serverId") int serverId,@Param("battleType") int battleType){
+		String url =  buildUrl(serverId,"/game-server/api/service/union");
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				UnionService unionService=(UnionService)factory.create(UnionService.class,url);
+				if(null == unionService){
+					logger.error("查询服务器帮战信息,unionService为空");
+					return ResultCode.error(String.format("查询服务器帮战信息",serverId));
+				}else {
+					DataGrid result = unionService.getServiceUnionBattle(GmServiceUnionBattleType.getUnionBattleType(battleType));
+					return ResultCode.writeJson(result);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return ResultCode.error("api出错，获取帮派失败");
+	}
+}

@@ -1,0 +1,782 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<table class="tableCss">
+	<%
+	String condition = request.getParameter("conditionId");
+	if(condition!=null&&condition.length()>0){
+		%>
+	<input name="conditionId" value='<%=request.getParameter("conditionId") %>' type="hidden"/>
+	<%
+	}
+	%>
+	<tr>
+		<td>难度级别:</td>
+		<td><input name="difficultyLevel" id='difficultyLevel<%= request.getParameter("conditionId")%>' value="1" min="1" max="10"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>职业限制:</td>
+		<td>
+			<select id="targetJob<%= request.getParameter("conditionId")%>" class="easyui-validatebox targetJob" name="job" style="width:200px;" data-options="panelHeight:'auto'" required="true">
+			<option value="0"checked="checked">无职业限制</option>
+			<option value="1">拳师</option>
+			<option value="2">魔剑士</option>
+			<option value="3">机械师</option>
+			<option value="4">法师</option>
+			<option value="5">剑灵</option>
+			<option value="6">神龟</option>
+			</select>
+		</td>
+	</tr>
+	
+	<tr>
+		<td>消耗铜钱:</td>
+		<td><input id="takeCopper<%= request.getParameter("conditionId")%>" name="takeCopper" value="0" min="0"
+			class="easyui-numberspinner" data-options="increment:1000,required:true" style="width: 80px;" />
+		</td>
+		<td>获得BUFF:</td>
+		<td>
+		<select id="giveBuffId<%= request.getParameter("conditionId")%>" name="giveBuffId" class="easyui-combogrid giveBuffId"
+			style="width: 100px"
+			data-options="
+				            panelWidth: 100,
+				            idField: 'taskType',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/getalltasks',
+				            columns: [[
+				           		{field:'taskType',title:'类型',width:60},
+				                {field:'taskName',title:'名称',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr>
+		<td>入口id:</td>
+		<td><input id="entranceId<%= request.getParameter("conditionId")%>" name="entranceId" value="-1" class="easyui-validatebox" validType="length[0,45]" required="true" style="width: 80px;" />
+		</td>
+		<td>入口关卡:</td>
+		<td><input id="instance<%= request.getParameter("conditionId")%>" name="instance" value="-1" class="easyui-validatebox" validType="length[0,45]" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr>
+		<td>获得道具:</td>
+		<td>
+			<%-- <input id="giveGoods<%= request.getParameter("conditionId")%>" name="giveGoods" class="giveGoods allgoodsInput" />   --%>
+			
+			<select id="giveGoods<%= request.getParameter("conditionId")%>" name="giveGoods" class="easyui-combogrid giveGoods"
+			style="width: 100px"
+			data-options="
+				            panelWidth: 100,
+				            idField: 'id',
+				            textField: 'id',
+				            url: '<%=request.getContextPath()%>/good/getallgoods',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+				        
+		</td>
+	</tr>
+	
+	<tr>
+		<td>传送位置:</td>
+		 <td colspan="3">
+		  <input id="trans<%= request.getParameter("conditionId")%>" name="trans" class="easyui-validatebox" validType="length[0,45]"/>
+		   <strong>*接任务后，传送至指定地图指定坐标。格式：场景id_x_y_距离</strong>
+		</td>
+	</tr>
+	<tr>
+		<td>任务目标:</td>
+		<td><select name="targetType" id="targetType<%= request.getParameter("conditionId")%>"
+			class="easyui-validatebox targetType" required="true" onchange="javascript:targetTypeChange(this);">
+				<option value="0" checked="checked">杀怪</option>
+				<option value="1">收集物品</option>
+				<option value="2">商城购买</option>
+				<option value="3">npc对话</option>
+				<option value="4">穿戴装备</option>
+				<option value="5">完成某动作</option>
+				<option value="6">升级等级</option>
+				<option value="7">完成副本</option>
+		</select></td>
+	</tr>
+	<tr class="killmonster">
+		<td>杀怪:</td>
+		<td colspan="3" name="targetKillMonsterTd">
+			<%--<input class="killmonsterinstanceSelect allInstanceInput" />--%>
+			
+			<select class="easyui-combogrid killmonsterinstanceSelect"
+			style="width: 180px"
+			></select> 
+			<select class="easyui-combogrid killmonsterSelect" 
+			style="width: 180px"
+			></select>
+		</td>
+	</tr>
+	<tr class="killmonster">
+		<td>杀怪数量:</td>
+		<td colspan="3"><input id="targetKillMonsterNum" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr class="killmonster">
+		<td style="text-align:right;"></td>
+		<td colspan="3">
+		<table>
+			<tr>
+				<td><select id='targetKillMonster<%= request.getParameter("conditionId")%>' name="targetKillMonster" size="8" style="width: 250px"></select></td>
+				<td>
+					<input type="button" value="▲" id="goodsMoveUp" onclick="goodsMoveUpClick(this,'targetKillMonster')"/><br/>
+					<input type="button" value="▼" id="goodsMoveDown" onclick="goodsMoveDownClick(this,'targetKillMonster')"/>
+				</td>
+				<td>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselectTarget(this,'killmonster','targetKillMonster')">添加</a> 
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselectTarget(this,'targetKillMonster')">删除</a> 
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselectTarget(this,'targetKillMonster')">清空</a></td>
+				</tr>
+		</table>
+		</td>
+	</tr>
+	
+	<tr class="collectiongoods" style="display: none;">
+		<td>收集物品:</td>
+		<td colspan="3">
+			<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this,'coll');">
+				<option value="1" selected="selected">装备</option>
+				<option value="2">道具</option>
+				<option value="3">宝石</option>
+			</select>
+			<span id="coll_equip_span" class="coll_equip_span">
+				<%--<input name="targetGoodsSelect" class="bagtype1 allEquipInput" />--%>
+				 
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath() %>/equip/getallequip',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+			</span>
+			<span id="coll_good_span" style="display: none;" class="coll_good_span">
+				<%-- <input name="targetGoodsSelect" class="bagtype2 allgoodsInput" /> --%>
+				
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/good/getallgoods',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+					          
+			</span>
+			<span id="coll_gemstone_span" style="display: none;" class="coll_gemstone_span">
+				<%-- 	<input name="targetGoodsSelect" class="bagtype3 allGemstoneInput" />--%>
+			
+				<select name="targetGoodsSelect" class="easyui-combogrid bagtype3"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+			</span>
+		</td>
+	</tr>
+	<tr class="collectiongoods" style="display: none;">
+		<td>收集数量:</td>
+		<td colspan="3"><input id="targetGoodsNum" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr class="collectiongoods" style="display: none;">
+		<td style="text-align:right;"></td>
+		<td colspan="3">
+		<table>
+			<tr>
+				<td><select id='targetGoods<%= request.getParameter("conditionId")%>' name="targetGoods" size="8" style="width: 250px"></select></td>
+				<td><input type="button" value="▲" id="goodsMoveUp" onclick="goodsMoveUpClick(this,'rewardGoods')"/><br/>
+					<input type="button" value="▼" id="goodsMoveDown" onclick="goodsMoveDownClick(this,'targetGoods')"/></td>
+			<td>
+				<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselectTarget(this,'collectiongoods','targetGoods')">添加</a> 
+				<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselectTarget(this,'targetGoods')">删除</a> 
+				<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselectTarget(this,'targetGoods')">清空</a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	
+	<tr class="shopgoods" style="display: none;">
+		<td>购买物品:</td>
+		<td colspan="3">
+			<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this,'shop');">
+				<option value="1" selected="selected">装备</option>
+				<option value="2">道具</option>
+				<option value="3">宝石</option>
+			</select>
+			<span id="shop_equip_span" class="shop_equip_span">
+				<%--<input name="targetShopSelect" class="bagtype1 allEquipInput" />
+				 --%>
+				<select name="targetShopSelect" class="easyui-combogrid bagtype1"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/equip/getallequip',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+			</span>
+			<span id="shop_good_span" style="display: none;" class="shop_good_span">
+				<%-- <input name="targetShopSelect" class="bagtype2 allgoodsInput" /> --%>
+				
+				<select name="targetShopSelect" class="easyui-combogrid bagtype2"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/good/getallgoods',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select>
+					          
+			</span>
+			<span id="shop_gemstone_span" style="display: none;" class="shop_gemstone_span">
+				<%--<input name="targetShopSelect" class="bagtype3 allGemstoneInput" />--%>
+				
+				<select name="targetShopSelect" class="easyui-combogrid bagtype3"
+				style="width: 180px"
+				data-options="
+					            panelWidth: 180,
+					            idField: 'id',
+					            textField: 'name',
+					            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+					            columns: [[
+					                {field:'name',title:'名称',width:60},
+					                {field:'id',title:'ID',width:40}
+					            ]],
+					            fitColumns: true,
+								method:'post',
+								mode:'remote'
+					           "></select> 
+			</span>
+		</td>
+	</tr>
+	<tr class="shopgoods" style="display: none;">
+		<td>购买数量:</td>
+		<td colspan="3"><input id="targetShopNum" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr class="shopgoods" style="display: none;">
+		<td style="text-align:right;"></td>
+		<td colspan="3">
+		<table>
+			<tr>
+				<td><select  id='targetShop<%= request.getParameter("conditionId")%>' name="targetShop" size="8" style="width: 250px"></select></td>
+				<td><input type="button" value="▲" id="goodsMoveUp" onclick="goodsMoveUpClick(this,'targetShop')"/><br/>
+					<input type="button" value="▼" id="goodsMoveDown" onclick="goodsMoveDownClick(this,'targetShop')"/></td>
+			<td>
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselectTarget(this,'shopgoods','targetShop')">添加</a> 
+				<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselectTarget(this,'targetShop')">删除</a> 
+				<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselectTarget(this,'targetShop')">清空</a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	
+	<tr class="talknpc" style="display: none;">
+		<td>说话人:</td>
+		<td colspan="3">
+			<select name="targetTalkNpcSelect" class="easyui-combogrid talknpcselect"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'name',
+				            url: '<%=request.getContextPath()%>/npc/getallnpcs',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr class="talknpc" style="display: none;">
+		<td>说话内容:</td>
+		<td colspan="3">
+			<textarea rows="4" cols="80" id="talkContent" name="talkContent" style="resize: none" class="easyui-validatebox"></textarea>
+			<br/>
+			<strong>*说话内容中不能包含#，#作为字符串分隔使用</strong>
+		</td>
+	</tr>
+	<tr class="talknpc" style="display: none;">
+		<td style="text-align:right;"></td>
+		<td colspan="3">
+		<table>
+			<tr>
+				<td><select id='targetTalkNpc<%= request.getParameter("conditionId")%>' name="targetTalkNpc" size="8" style="width: 250px"></select></td>
+				<td><input type="button" value="▲" id="goodsMoveUp" onclick="goodsMoveUpClick(this,'targetTalkNpc')"/><br/>
+					<input type="button" value="▼" id="goodsMoveDown" onclick="goodsMoveDownClick(this,'targetTalkNpc')"/>
+				</td>
+				<td>
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addselectTarget(this,'talknpc','targetTalkNpc')">添加</a> 
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="delselectTarget(this,'targetTalkNpc')">删除</a> 
+					<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearselectTarget(this,'targetTalkNpc')">清空</a>
+				</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	
+	<tr class="needequip" style="display: none;">
+		<td>穿戴装备:</td>
+		<td colspan="3">
+			<select style="width:100px" name="targetNeedEquip" id='targetNeedEquip<%= request.getParameter("conditionId")%>'>
+				<option value="0" selected="selected"></option>
+				<option value="1">武器</option>
+				<option value="2">衣服</option>
+				<option value="3">裤子</option>
+				<option value="4">项链</option>
+				<option value="5">腰带</option>
+				<option value="6">靴子</option>
+			</select>
+		</td>
+	</tr>
+	
+	<tr class="needaction" style="display: none;">
+		<td>动作:</td>
+		<td colspan="3">
+		<select style="width:100px" name="targetAction" id='targetAction<%= request.getParameter("conditionId")%>'>
+				<option value="0" selected="selected"></option>
+				<option value="1">使用恢复类道具</option>
+				<option value="2">装备升级</option>
+				<option value="3">宝石合成</option>
+				<option value="4">宝石镶嵌</option>
+				<option value="5">买入道具</option>
+				<option value="6">卖出道具</option>
+				<option value="7">升级技能</option>
+				<option value="8">购买体力</option>
+				<option value="9">星光许愿</option>
+				<option value="10">点石成金</option>
+				<option value="11">神格boss挑战</option>
+				<option value="12">活动boss挑战</option>
+				<option value="13">通关任意普通副本</option>
+				<option value="14">通关任意精英副本</option>
+				<option value="15">通关任意挑战副本</option>
+				<option value="16">完成公会任务</option>
+				<option value="17">竞技场挑战</option>
+				<option value="18">竞技场获胜</option>
+				<option value="19">装备强化</option>
+				<option value="20">装备升星</option>
+				<option value="21">装备重铸</option>
+				<option value="22">魂石碎片合成</option>
+				<option value="23">通关经验副本</option>
+				<option value="24">通关钻石副本</option>
+				<option value="25">通关金币副本</option>
+				<option value="26">闯关挑战</option>
+				<option value="27">击杀公会boss</option>
+				<option value="28">伤害公会boss</option>
+				<option value="29">升级公会神器</option>
+				<option value="30">购买公会商城道具</option>
+				<option value="31">创建公会战城池</option>
+				<option value="32">参与公会战战斗</option>
+				<option value="33">取得公会战胜利</option>
+				<option value="34">派遣公会战佣兵</option>
+				<option value="35">强化魂器</option>
+				<option value="36">使用公会战BUFF</option>
+				<option value="37">申请公会boss奖励</option>
+				<option value="38">获得魂器</option>
+			</select>
+			<input name="targetActionCount" value="1" min="1" max="1000" id='targetActionCount<%= request.getParameter("conditionId")%>'
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	
+	<tr class="needmingrade" style="display: none;">
+		<td>达到等级:</td>
+		<td colspan="3">
+		<input name="targetMinGrade" value="0" min="0" max="200" id='targetMinGrade<%= request.getParameter("conditionId")%>'
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+	</tr>
+	<tr class="finishInstance" style="display: none;">
+		<td>完成副本:</td>
+		<td colspan="3">
+			<%--<input id='targetInstanceId<%= request.getParameter("conditionId")%>' name="targetInstanceId" class="targetInstanceId allInstanceInput" />
+			--%>
+			<select id='targetInstanceId<%= request.getParameter("conditionId")%>' name="targetInstanceId" class="easyui-combogrid targetInstanceId"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'id',
+				            textField: 'id',
+				            url: '<%=request.getContextPath()%>/instance/getallinstance',
+				            columns: [[
+				                {field:'name',title:'名称',width:60},
+				                {field:'id',title:'ID',width:40},
+				                {field:'rewardgrade',title:'关卡星级',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select> 
+		</td>
+	</tr>
+	<tr>
+		<td>目标描述:</td>
+		<td colspan="3"><textarea rows="4" cols="60"  id='targetDesc<%= request.getParameter("conditionId")%>'
+				name="targetDesc" style="resize: none" class="easyui-validatebox"
+				required="true"></textarea></td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function () {
+	var conditionId=<%= request.getParameter("conditionId")%>;
+	var taskId=<%= request.getParameter("taskId")%>;
+	<%-- 
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/good/getallgoods",
+	    success:function(data){
+	    	var goodJson = $.parseJSON(data);
+	    	$(".allgoodsInput").each(function(){
+	    	 $(this).combogrid({
+	             panelWidth: 180,
+	             value: 'ID',
+	             idField: 'id',
+	             textField: 'name',
+	             columns: [[
+			                {field:'name',title:'名称',width:100},
+			                {field:'id',title:'ID',width:80}
+			            ]],
+			            fitColumns: true
+	         }).combogrid("grid").datagrid("loadData", goodJson);
+	    	});
+	    }
+	});	
+	//<%=request.getContextPath() %>/equip/getallequip
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/equip/getallequip",
+	    success:function(data){
+	    	var goodJson = $.parseJSON(data);
+	    	$(".allEquipInput").each(function(){
+	    	 $(this).combogrid({
+	             panelWidth: 180,
+	             value: 'ID',
+	             idField: 'id',
+	             textField: 'name',
+	             columns: [[
+			                {field:'name',title:'名称',width:100},
+			                {field:'id',title:'ID',width:80}
+			            ]]
+	         }).combogrid("grid").datagrid("loadData", goodJson);
+	    	});
+	    }
+	});	
+	//<%=request.getContextPath()%>/gemstone/getallgemstone
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/gemstone/getallgemstone",
+	    success:function(data){
+	    	var goodJson = $.parseJSON(data);
+	    	$(".allGemstoneInput").each(function(){
+	    	 $(this).combogrid({
+	             panelWidth: 180,
+	             value: 'ID',
+	             idField: 'id',
+	             textField: 'name',
+	             columns: [[
+			                {field:'name',title:'名称',width:100},
+			                {field:'id',title:'ID',width:80}
+			            ]]
+	         }).combogrid("grid").datagrid("loadData", goodJson);
+	    	});
+	    }
+	});	
+	
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/instance/getallinstance",
+	    success:function(data){
+	    	var instanceJson = $.parseJSON(data);
+	    	$(".allInstanceInput").each(function(){
+	    	 $(this).combogrid({
+	             panelWidth: 180,
+	             value: 'ID',
+	             idField: 'id',
+	             textField: 'name',
+	             columns: [[
+						{field:'name',title:'名称',width:60},
+						{field:'id',title:'ID',width:40},
+						{field:'rewardgrade',title:'关卡星级',width:40}
+			            ]]
+	         }).combogrid("grid").datagrid("loadData", instanceJson);
+	    	});
+	    }
+	});	
+	--%>
+	//alert("<%=request.getContextPath()%>/task/getTaskCondition?taskId="+taskId+"&conditionId="+conditionId)
+	if(taskId&&conditionId){
+	$.ajax({
+		cache: false,
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/task/getTaskCondition?taskId="+taskId+"&conditionId="+conditionId,
+	    success:function(data){
+	    	//alert('conditionId='+conditionId+"--data="+data);
+	    	var c = $.parseJSON(data);
+	    	$("#difficultyLevel"+conditionId).numberspinner('setValue',c.difficultyLevel);
+	    	if(c.job){
+	    		//$("#targetJob"+conditionId).combogrid('setValue',c.job);
+	    		$("#targetJob"+conditionId+" option[value='"+c.job+"']").attr("selected", true);
+	    	}
+	    	
+	    	$("#entranceId"+conditionId).val(c.entranceId);
+	    	$("#instance"+conditionId).val(c.instance);
+	    	$("#takeCopper"+conditionId).numberspinner('setValue',c.takeCopper);
+	    	if(c.giveBuffId){
+	    		$("#giveBuffId"+conditionId).combogrid('setValue', c.giveBuffId);
+	    	}
+	    	if(c.giveGoods){
+	    		$("#giveGoods"+conditionId).combogrid('setValue', c.giveGoods);
+	    	}
+	    	$("#trans"+conditionId).val(c.trans);
+	    	$("#targetType"+conditionId+" option[value='"+c.targetType+"']").attr("selected", true);
+	    	$("#targetType"+conditionId).change();
+	    	if (c.targetType == 0) {// 杀怪
+	    		var targetValues = c.targetKillMonsterValues;
+	    		var targetTexts = c.targetKillMonsterTexts;//alert('cao==conditionId='+conditionId);
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetKillMonster"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 1) {// 收集物品
+				var targetValues = c.targetGoodsValues;
+	    		var targetTexts = c.targetGoodsTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetGoods"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 2) {// 商城购买
+				var targetValues = c.targetShopValues;
+	    		var targetTexts = c.targetShopTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetShop"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 3) {// npc对话
+				var targetValues = c.targetTalkNpcValues;
+	    		var targetTexts = c.targetTalkNpcTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetTalkNpc"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 4) {// 穿戴装备
+				$("#targetNeedEquip"+conditionId+" option[value='"+c.targetNeedEquip+"']").attr("selected", true);
+			} else if (c.targetType == 5) {// 完成某动作
+				var targetActionAttr=c.targetAction.split(":"); //字符分割 
+				if(targetActionAttr && targetActionAttr.length ==2){
+					$("#targetAction"+conditionId+" option[value='"+targetActionAttr[0]+"']").attr("selected", true);
+					$("#targetActionCount"+conditionId).numberspinner('setValue',targetActionAttr[1]);
+				}
+			} else if (c.targetType == 6) {// 升级等级
+				$("#targetMinGrade"+conditionId).numberspinner('setValue',c.targetMinGrade);
+			} else if(c.targetType == 7){//完成副本
+				$("#targetInstanceId"+conditionId).combogrid('setValue', c.targetInstanceId);
+			}
+	    	$("#targetDesc"+conditionId).val(c.targetDesc);
+	    }
+	});
+	}
+	//$('#cao').combobox('setValue',2);
+		//$('#cao').combobox("select",[1,2]);
+		//$('#cao').combobox('setValue',3);
+		//$(".targetJob").combobox('setValues','1,2,3'.split(','));
+		//$(".targetJob").combobox("select", '2');
+		//$(".targetJob").combobox("select", '3);
+	//$('.targetJob').combobox({
+	//	onSelect: function(record){
+	//		var val = record.value;  //得到其value值
+	//		if(val!=0){
+	//			$(this).combobox("unselect", '0');
+	//		}else{
+	//			$(this).combobox("unselect", '1');
+	//			$(this).combobox("unselect", '2');
+	//			$(this).combobox("unselect", '3');
+	//			$(this).val($('.targetJob').val()+val+",");  //拼接按逗号分隔
+	//		}
+	//	},
+	//	onUnselect: function(record){
+	//		var val = record.value;  //得到其value值
+	//		if($(this).combobox('getValues')=='' && val !=0){
+	//			$(this).combobox("select", '0');
+	//		}
+	//	},
+	 //}); 
+	  $("#goodsMoveUp,#goodsMoveDown").click(function() {  
+		  var $opt = $("#srewards option:selected:first");
+		  if (!$opt.length) return;
+		  if (this.id == 'goodsMoveUp')
+			  $opt.prev().before($opt);  
+		  else 
+			  $opt.next().after($opt);   
+	  });
+
+	  var tempDbClickOjb;
+	  $(":input[name='targetKillMonster']").dblclick(function() {
+		  tempDbClickOjb = $(this);
+		  if(tempDbClickOjb.val()!='' && tempDbClickOjb.val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = tempDbClickOjb.find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+value[1]+":"+r);
+			 			tv.text(text[0]+":"+text[1]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+	  $(":input[name='targetGoods']").dblclick(function() {
+		  tempDbClickOjb = $(this);
+		  if(tempDbClickOjb.val()!='' && tempDbClickOjb.val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = tempDbClickOjb.find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+value[1]+":"+r);
+			 			tv.text(text[0]+":"+text[1]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+	  $(":input[name='targetShop']").dblclick(function() {
+		  tempDbClickOjb = $(this);
+		  if(tempDbClickOjb.val()!='' && tempDbClickOjb.val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = tempDbClickOjb.find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+value[1]+":"+r);
+			 			tv.text(text[0]+":"+text[1]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+	  
+	  $(":input[name='targetTalkNpc']").dblclick(function() {
+		  tempDbClickOjb =$(this) ;
+		  if(tempDbClickOjb.val()!='' && tempDbClickOjb.val()!=null){
+			  $.messager.prompt('修改对话内容', '请输入对话内容', function(r){
+	                if (r){
+	            	    if(r == '' || r.length==0){
+	            	        alert("请输入对话内容!");
+	            	        return;
+	            	    }
+			  			var tv = tempDbClickOjb.find("option:selected");
+			 			var value = tv.val().split("#");
+			 			var text = tv.text().split("#");
+			 			tv.val(value[0]+"#"+r);
+			 			tv.text(text[0]+"#"+r);
+	                }
+	            });  
+		  }
+	  });
+	  
+	  var killmonsterinstance = $('.killmonsterinstanceSelect').combogrid({
+          panelWidth: 180,
+          idField: 'id',
+          textField: 'id',
+          valueField:'id',
+          url: '<%=request.getContextPath()%>/instance/getallinstance',
+          columns: [[
+		                {field:'name',title:'名称',width:60},
+		                {field:'id',title:'ID',width:40},
+		                {field:'rewardgrade',title:'关卡星级',width:40}
+		            ]],
+		            fitColumns: true,
+					method:'post',
+					mode:'remote',
+          onChange: function (newValue, oldValue) {
+        	  //alert('newValue='+newValue);
+        	  //alert('<%=request.getContextPath()%>/monster/getallmonster?instanceId='+newValue);
+        	  $.ajax({
+        		    type: 'post',
+        		    url: '<%=request.getContextPath()%>/monster/getallmonster?instanceId='+newValue,
+        		    success:function(data){
+        		    	var t = $.parseJSON(data);
+        		    	killmonster.combogrid("clear").combogrid("grid").datagrid('loadData', t);
+        		    }
+        	  });
+          }
+      });
+
+      var killmonster = $('.killmonsterSelect').combogrid({
+          panelWidth: 180,
+          idField: 'id',
+          textField: 'name',
+          columns: [[
+		                {field:'name',title:'名称',width:60},
+		                {field:'id',title:'ID',width:60},
+		                {field:'count',title:'數量',width:60}
+		            ]],
+		            fitColumns: true
+      });
+});
+</script>

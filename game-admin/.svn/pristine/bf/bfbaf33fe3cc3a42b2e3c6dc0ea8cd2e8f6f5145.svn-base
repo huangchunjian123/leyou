@@ -1,0 +1,15 @@
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript">
+</script>
+
+<form id="bagclean" method="post" class="fm">
+    <span style="color:red">提醒：清空包裹里的所有物品</span>
+	<table class="tableCss">
+	<tr>
+	
+
+	</tr>
+</table>
+</form>

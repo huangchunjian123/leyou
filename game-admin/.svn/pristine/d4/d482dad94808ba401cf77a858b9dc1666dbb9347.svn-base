@@ -1,0 +1,36 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+
+import org.python.google.common.collect.Lists;
+
+import com.game.admin.utils.CdKeyUtils;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+
+import net.paoding.rose.web.annotation.Param;
+
+/**
+ * 生成工具
+ * @author JiaYi
+ * @date  2018年1月3日 下午6:56:40 
+ * @package com.game.admin.controllers
+ */
+public class UtilsController extends BaseController{
+		
+	public String goUtils(){
+		return "util/utils";
+	}
+	
+	public Object createCdKey(@Param("createNum") int createNum){
+		List<String> cdkeyList = Lists.newArrayList();
+		if(createNum > 0){
+			for(int i = 0; i< createNum;i++){
+				cdkeyList.add(CdKeyUtils.generateShortUuid());
+			}
+			recordOperateLog(String.format(OperateLogInfos.UtilsControllerCreateCdKey,createNum,getSessionInfo().getIp()), 1);
+		}
+		return ResultCode.writeJson(cdkeyList);
+	}
+	
+}

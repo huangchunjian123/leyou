@@ -1,0 +1,64 @@
+package com.game.admin.utils;
+
+import java.util.List;
+
+import com.game.admin.dto.videotex.SeriesParameter;
+import com.game.admin.dto.videotex.VideotexData;
+
+/**
+ * 图表控制器
+ * @author JiaYi
+ * @date  2018年4月17日 下午12:29:37 
+ * @package com.game.admin.utils
+ */
+public class VideotexUtils {
+	
+	/**
+	 * 图表配置器
+	 * @param videotexData
+	 * @return
+	 */
+	public static String getVideotexContainer(VideotexData videotexData){
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+		.append("{")
+		.append("'chart': { 'type': ")
+		.append("'")
+		.append(videotexData.getChartType().name())
+		.append("'")
+		.append("},")
+		
+		.append("'title': {  'text': ")
+		.append("'")
+		.append(videotexData.getChartTitle())
+		.append("'")
+		.append("},")
+				
+		.append("'xAxis': { 'categories' : ")
+		.append(videotexData.getChartXAxis())
+		.append("},")
+		
+		.append("'yAxis': { 'title': {  'text': ")
+		.append("'")
+		.append(videotexData.getyAxisTitle())
+		.append("'")
+		.append("} },")
+		
+		.append("'series': [{ ");
+		List<SeriesParameter> seriesLists = videotexData.getList();
+		for (SeriesParameter seriesParameter : seriesLists) {
+			stringBuffer.append("'name':")
+			.append("'")
+			.append(seriesParameter.getSeriesName())
+			.append("'")
+			.append(", 'data': ")
+			.append(seriesParameter.getSeriesData())
+			.append("},{" );//段尾
+		}
+		stringBuffer.delete(stringBuffer.length()-2, stringBuffer.length());
+		stringBuffer.append("] ")
+		.append("}");
+		return stringBuffer.toString();
+	}
+	
+}

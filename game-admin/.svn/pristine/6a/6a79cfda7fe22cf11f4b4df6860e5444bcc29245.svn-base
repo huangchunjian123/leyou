@@ -1,0 +1,30 @@
+package com.game.admin.service.newbie;
+
+import java.util.List;
+import java.util.Map;
+
+import com.game.admin.pojo.NewBieData;
+
+public interface INewBieService {
+	 
+	/**
+	 * 获取所有的新手引导
+	 * @return
+	 */
+	public List<NewBieData> getAllNewData();
+	
+	/**
+	 * 获取所有新手引导
+	 * @return
+	 */
+	public Map<Integer,NewBieData> getNewBieMaps();
+	
+	/**
+	 * 通过大组id获取当前的data
+	 * @param newbieId
+	 * @return
+	 */
+	public NewBieData getNewBieName(int newbieId);
+	
+	
+}

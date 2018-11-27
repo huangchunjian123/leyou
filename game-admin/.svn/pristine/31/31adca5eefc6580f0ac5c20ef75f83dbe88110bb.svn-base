@@ -1,0 +1,24 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1"></font>
+<table class="tableCss">
+
+	<tr>
+		<td>登录名:</td>
+		<td><input id="e_loginName" name="e_loginName" class="easyui-validatebox"/></td>
+		<td>账号ID:</td>
+		<td><input id="e_accountId" name="e_accountId" class="easyui-validatebox" /></td>
+	</tr>
+	<tr>
+		<td>角色名:</td>
+		<td><input id="e_heroName" name="e_heroName"  class="easyui-validatebox"  maxlength="12" /></td>
+		<td>角色ID</td>
+		<td><input id="e_heroId" name="e_heroId"  /></td>
+	</tr>
+	<tr>
+		<td>限制IP:</td>
+		<td><input id="e_limitIp" name="e_limitIp"  /></td>
+	</tr>
+</table>

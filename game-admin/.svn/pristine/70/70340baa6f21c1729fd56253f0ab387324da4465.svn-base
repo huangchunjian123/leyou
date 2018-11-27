@@ -1,0 +1,23 @@
+package com.xg.admin.service.nickname;
+
+import java.util.List;
+
+import com.xg.admin.dto.nickname.NickNameDto;
+
+/**
+ * 称号相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface INickNameService {
+
+	public List<NickNameDto> getNickNameDtoByName(String name, int offset, int pagesize);
+
+	/**
+	 * 刷新内存称号列表
+	 */
+	public void initNickName();
+
+	public String getName(int equipId);
+
+}

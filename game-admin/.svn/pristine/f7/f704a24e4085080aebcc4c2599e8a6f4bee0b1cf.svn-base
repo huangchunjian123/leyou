@@ -1,0 +1,295 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>账号列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+
+
+
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+	/* function getServerId(){
+		var node = $('#tree').tree('getSelected');
+		return node?node.id:0;
+	} */
+	/* function checkServerIds()
+	{
+		var serverIds=getServerId();
+		if(serverIds == '')
+		{
+			alert("请选择服务器。");
+			return false;
+		}
+		if (!confirm("确认要提交？(请确认选择的服务器操作)")) {
+			return false;
+		}
+		return true;
+	} */
+
+	function _search(){
+		/*   if(!checkServerIds())return; */
+		/*  var  serverId=getServerId(); */
+		 $('#serverId').val(choseserverId);
+	    $('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+
+	
+
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function _editcloseaccount(rowIndex) {
+		
+		var row = $('#dg').datagrid('getData').rows[rowIndex];
+		$('#dlgclose').dialog({
+			left:200,
+			top:100,
+	     	onLoad:function(){
+	    		$('#heroId').val(row.heroId);
+	    		 $('#heroId').attr("disabled","true");
+	   		 },
+	    href:"<%=request.getContextPath()%>/views/account/closeaccount.jsp",
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgclose').dialog('open');
+		$('#dlgclose').dialog('setTitle', '编辑信息');
+	}
+	
+	function submitdlgclose(){
+		var serverIds=choseserverId;
+		$.post('<%=request.getContextPath()%>/account/close',{
+			serverid:serverIds,
+			heroId : $('#heroId').val(),
+			operator:$('#isaccountclose').val(),
+		},function(data) {
+			$('#dlgclose').dialog('close');
+			$('#dg').datagrid('reload');
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+	
+function _editclosechat(rowIndex) {
+		
+		var row = $('#dg').datagrid('getData').rows[rowIndex];
+		$('#dlgclosechat').dialog({
+			left:200,
+			top:100,
+	     	onLoad:function(){
+	    		$('#heroId').val(row.heroId);
+	    		 $('#heroId').attr("disabled","true");
+	   		 },
+	    href:"<%=request.getContextPath()%>/views/account/closechat.jsp",
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgclosechat').dialog('open');
+		$('#dlgclosechat').dialog('setTitle', '编辑信息');
+	}
+	
+	function submitdlgclosechat(){
+		var serverIds=choseserverId;
+		$.post('<%=request.getContextPath()%>/account/close',{
+			serverid:serverIds,
+			heroId : $('#heroId').val(),
+			operator:$('#isclosechat').val(),
+		},function(data) {
+			$('#dlgclosechat').dialog('close');
+			$('#dg').datagrid('reload');
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+	
+	function _editemail(accountId,yunyingId){
+		var serverIds=choseserverId;
+		var nodeurl="good/goSendGoods?accountId="+accountId+"&serverId="+serverIds;	
+		var showtabname = yunyingId +" 编辑邮件";
+		parent.centerTabs.tabs('add', {
+			title : showtabname,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(showtabname);
+				}
+			} ]
+		});
+	}
+	
+	function _email(accountId,yunyingId){
+		var serverIds=choseserverId;
+		var nodeurl="account/goAccountEmail?accountId="+accountId+"&serverId="+serverIds;	
+		var showtabname = yunyingId +"的邮件";
+		parent.centerTabs.tabs('add', {
+			title : showtabname,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(showtabname);
+				}
+			} ]
+		});
+	}
+	
+	function _bags(heroId,bagName){
+		var serverIds=choseserverId;
+		var nodeurl="good/goBag2?heroId="+heroId+"&serverId="+serverIds;	
+		parent.centerTabs.tabs('add', {
+			title : bagName,
+			closable : true,
+			content : '<iframe src="' + nodeurl + '" frameborder="0" style="border:0;width:100%;height:99.4%;"></iframe>',
+			tools : [ {
+				iconCls : 'icon-mini-refresh',
+				handler : function() {
+					refreshTab(bagName);
+				}
+			} ]
+		});
+	}
+	
+	
+	function formateroperate(value,row,rowIndex){
+		var accountId = row.accountId+'';
+		var yunyingId = row.heroName+'';
+		var heroId = row.heroId+'';
+		//<a href='#' onclick='_editcloseaccount(\""+rowIndex + "\");'>封号</a>&nbsp;&nbsp;<a href='#' onclick='_editclosechat(\""+rowIndex + "\");'>禁言</a>&nbsp;&nbsp;<a href='#' onclick='_editemail(\""+accountId + "\",\""+yunyingId + "\");'>邮件</a>&nbsp;&nbsp;&nbsp;&nbsp【<a href='#' onclick='_email(\""+accountId + "\",\""+yunyingId + "\");'>邮件</a>】;
+		var html="查看功能:【<a href='#' onclick='_bags(\""+heroId + "\",\""+yunyingId + "的包裹\");'>包裹</a>】";
+		return html;
+	}
+	
+	function  hiddenfield(){
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+    <div region="west" split="true" title="服务器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/servertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/heros/queryHeroList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询账号 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+				    <th data-options="field:'opt',title:'Operation',formatter:formateroperate" width="20">操作</th>
+					<th data-options="field:'serverId'" width="5">区服</th>
+					<th data-options="field:'heroId'" width="5">heroId</th>
+					<th data-options="field:'accountId'" width="5">accountId</th>
+					<th data-options="field:'yunyingId'" width="5">运营帐号</th>
+					<th data-options="field:'loginName'" width="5">登录名</th>
+					<th data-options="field:'loginPsd'" width="5">登录密码</th>
+					<th data-options="field:'heroName'" width="5">角色名</th>
+					<th data-options="field:'teamGrade'" width="5">hero等级</th>
+					<th data-options="field:'teamExp'" width="5">hero经验</th>
+
+					<th data-options="field:'vipGrade'" width="5">vip等级</th>
+					<th data-options="field:'yuanbao'" width="5">钻石</th>
+					<th data-options="field:'gold'" width="5">金币</th>
+				
+					 <th data-options="field:'status'" width="5">是否封号</th>
+					  <th data-options="field:'remarks'" width="5">封号原因</th>
+					   <th data-options="field:'isOnline'" width="5">是否在线</th>
+					      <th data-options="field:'allowChat'" width="5">是否禁止聊天</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="搜索条件" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+					<input id="serverId" name="serverId" hidden="true" />
+						关键字(模糊查询【运营账号】或【角色名称】)<input id="qName" name="qName" style="width: 200px;" />&nbsp;
+					</td>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_search();">搜索</a>
+						<font color="red" size="3" ><strong>提醒:服 务 器 玩 家 数 据 以 区 服 为 准 !</strong></font>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<div id="dlgclose"  style="width: 400px;overflow: auto;" closed="true" buttons="#dlgclose-buttons" align="center">
+		
+	</div>
+	<div id="dlgclose-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgclose()">确定</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclose').dialog('close');">取消</a>
+	</div>
+	<div id="dlgclosechat"  style="width: 400px;overflow: auto;" closed="true" buttons="#dlgclosechat-buttons" align="center">
+		
+	</div>
+	<div id="dlgclosechat-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitdlgclosechat()">确定</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclose').dialog('close');">取消</a>
+	</div>
+</body>
+</html>

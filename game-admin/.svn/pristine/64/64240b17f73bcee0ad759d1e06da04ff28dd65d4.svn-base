@@ -1,0 +1,238 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>装备统计表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function equipdistribution(value,row,rowIndex){
+		var arms = row.arms;
+		var neck = row.neck;
+		var ring  = row.ring;
+		var hat = row.hat;
+		var clothes = row.clothes;
+		var shoes = row.shoes;
+	    var html="<a href='#' onclick='_arms(\""+arms + "\");'>武器信息</a>&nbsp;&nbsp;<a href='#' onclick='_neck(\""+neck + "\");'>项链信息</a>&nbsp;&nbsp;<a href='#' onclick='_ring(\""+ring + "\");'>戒指信息</a>&nbsp;&nbsp;<a href='#' onclick='_hat(\""+hat + "\");'>帽子信息</a>&nbsp;&nbsp;<a href='#' onclick='_clothes(\""+clothes + "\");'>衣服信息</a>&nbsp;&nbsp;<a href='#' onclick='_shoes(\""+shoes + "\");'>鞋子信息</a>";
+		return html;
+	}
+	/* ----------------------武器----------------------------  	*/
+	
+	function _arms(arms) {
+	    $('#arms').dialog({
+	     	onLoad:function(){
+   	    $('#arms_list').val(arms);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/arms.jsp',
+	    modal: true,
+	    closed: true});
+		$('#arms').dialog('open');
+		$('#arms').dialog('setTitle', '武器信息'); 
+	}
+	/* ----------------------项链----------------------------  	*/
+	
+	function _neck(neck) {
+	    $('#neck').dialog({
+	     	onLoad:function(){
+   	    $('#neck_list').val(neck);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/neck.jsp',
+	    modal: true,
+	    closed: true});
+		$('#neck').dialog('open');
+		$('#neck').dialog('setTitle', '项链信息'); 
+	}
+	
+	/* -----------------戒指---------------------------------   */
+	
+	function _ring(ring) {
+	    $('#ring').dialog({
+	     	onLoad:function(){
+   	    $('#ring_list').val(ring);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/ring.jsp',
+	    modal: true,
+	    closed: true});
+		$('#ring').dialog('open');
+		$('#ring').dialog('setTitle', '戒指信息'); 
+	}
+	/* ------------------------------------帽子 --------------------------------   */
+	
+	function _hat(hat) {
+	    $('#hat').dialog({
+	     	onLoad:function(){
+   	    $('#hat_list').val(hat);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/hat.jsp',
+	    modal: true,
+	    closed: true});
+		$('#hat').dialog('open');
+		$('#hat').dialog('setTitle', '帽子信息'); 
+	}
+	
+	/* -------------------------------------衣服 --------------------------------    */
+	
+	function _clothes(clothes) {
+	    $('#clothes').dialog({
+	     	onLoad:function(){
+   	    $('#clothes_list').val(clothes);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/clothes.jsp',
+	    modal: true,
+	    closed: true});
+		$('#clothes').dialog('open');
+		$('#clothes').dialog('setTitle', '衣服信息'); 
+	} 
+	/* -------------------------------------鞋子-------------------------------   */
+	function _shoes(shoes) {
+	    $('#shoes').dialog({
+	     	onLoad:function(){
+   	    $('#shoes_list').val(shoes);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/equip/shoes.jsp',
+	    modal: true,
+	    closed: true});
+		$('#shoes').dialog('open');
+		$('#shoes').dialog('setTitle', '鞋子信息'); 
+	} 
+	
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="3" align="left">注册时间</th>
+					<th data-options="field:'opt',title:'Operation',formatter:equipdistribution" width="9">装备相关分布</th>
+					<th data-options="field:'strongGmGrade'" width="7" align="left">强化共鸣</th>
+					<th data-options="field:'starGmGrade'" width="7" align="left">升星共鸣</th>
+					<th data-options="field:'gemsGmGrade'" width="5" align="left">宝石共鸣</th>
+					<th data-options="field:'strongNum'" width="3" align="left">强化次数</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="4" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="arms"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#arms-buttons" align="center">
+	</div>
+	<div id="arms-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#arms').dialog('close');">取消</a>
+	</div>
+	
+	<div id="neck"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#neck-buttons" align="center">
+	</div>
+	<div id="neck-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#neck').dialog('close');">取消</a>
+	</div>
+	
+	<div id="ring"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#ring-buttons" align="center">
+	</div>
+	<div id="ring-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#ring').dialog('close');">取消</a>
+	</div>
+	
+	<div id="hat"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#hat-buttons" align="center">
+	</div>
+	<div id="hat-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#hat').dialog('close');">取消</a>
+	</div>
+	
+	<div id="clothes"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#clothes-buttons" align="center">
+	</div>
+	<div id="clothes-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#clothes').dialog('close');">取消</a>
+	</div>
+	
+	<div id="shoes"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#shoes-buttons" align="center">
+	</div>
+	<div id="shoes-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#shoes').dialog('close');">取消</a>
+	</div>
+	
+	
+</html>

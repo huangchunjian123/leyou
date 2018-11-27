@@ -1,0 +1,61 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<project name="game-admin" default="dist_xxAdmin" basedir=".">
+	<property name="projectName" value="game-admin" />
+	<property name="contextPath" value="/game-admin" />
+	<property name="srcDir" location="src" />
+	<property name="buildDir" location="WebContent/WEB-INF/classes" />
+	<property name="libDir" location="WebContent/WEB-INF/lib" />
+	<property name="distDir" location="dist" />
+
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${buildDir}" />
+		<mkdir dir="${libDir}" />
+		<mkdir dir="${distDir}" />
+	</target>
+
+	<path id="lib.class.path">
+		<fileset dir="${libDir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile"
+	        description="Compiles source files to build directory.">
+		<javac srcdir="${srcDir}" destdir="${buildDir}">
+			<classpath refid="lib.class.path" />
+		</javac>
+	</target>
+	
+	<target name="dist_jar" depends="init,compile" description="generate the ear distribution">
+		<delete file="${distDir}/${projectName}.jar" />
+		<jar destfile="${distDir}/${projectName}.jar" basedir="${buildDir}" whenempty="fail">
+		</jar>
+	</target>
+	
+	<target name="dist_war" depends="compile" description="generate the distribution">
+		<delete file="${distDir}/${contextPath}.war" />
+		<war destfile="${distDir}/${contextPath}.war" webxml="WebContent/WEB-INF/web.xml">
+			<zipfileset dir="WebContent/jslib" prefix="jslib" />
+			<zipfileset dir="WebContent/WEB-INF/tlds" prefix="WEB-INF/tlds" />
+			<!-- include jsp -->
+			<zipfileset dir="WebContent/views" prefix="views" />
+			<zipfileset dir="WebContent" prefix="">
+				<include name="*.jsp" />
+				<include name="*.html"/>
+			</zipfileset>
+
+			<lib dir="WebContent/WEB-INF/lib" />
+			<classes dir="WebContent/WEB-INF/classes" />
+		</war>
+	</target>
+	
+	<target name="clear_dist" description="delete the distribution file">
+			<echo message="Delete file ${contextPath}.war" />
+			<echo message="Delete file ${contextPath}.ear" />
+			<delete file="${contextPath}.war" />
+			<delete file="${contextPath}.ear" />
+	</target>
+	
+	<target name="dist_xxAdmin" depends="init,clear_dist,dist_war" />
+</project>

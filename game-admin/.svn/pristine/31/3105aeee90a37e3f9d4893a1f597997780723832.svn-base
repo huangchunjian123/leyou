@@ -1,0 +1,89 @@
+package com.game.admin.service.gemstone;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dao.data.GemstoneDao;
+import com.game.admin.dto.gemstone.GemstoneDto;
+
+/**
+ * 宝石相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("gemstoneService")
+public class GemstoneServiceImpl implements IGemstoneService, InitializingBean {
+
+	@Autowired
+	private GemstoneDao gemstoneDao;
+
+	/** 宝石列表 */
+	private static Map<Integer, GemstoneDto> gemstoneMap = new HashMap<Integer, GemstoneDto>();
+
+	@Override
+	public List<GemstoneDto> getGemstoneDtoByname(String name, int offset, int pagesize) {
+		List<GemstoneDto> list = new ArrayList<GemstoneDto>();
+		for (Entry<Integer, GemstoneDto> en : gemstoneMap.entrySet()) {
+			GemstoneDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void initGemstone() {
+//		gemstoneMap.clear();
+//		List<GemstoneData> list = gemstoneDao.getAll();
+//		for (GemstoneData data : list) {
+//			gemstoneMap.put(data.getId(), new GemstoneDto(data.getId(), data.getName()));
+//		}
+		gemstoneMap.clear();
+		List<GemstoneDto> list = gemstoneDao.getAll();
+		for(GemstoneDto data : list){
+			gemstoneMap.put(data.getId(), new GemstoneDto(data.getId(),data.getName()));
+		}
+		
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					initGemstone();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public String getName(int gemstoneId) {
+		return gemstoneMap.get(gemstoneId).getName();
+	}
+
+}

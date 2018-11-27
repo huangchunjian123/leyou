@@ -1,0 +1,213 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>查玩家信息</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+	function submitok(){
+		var loginName = $('#loginName').val();
+	    if(!loginName){
+	        alert("请输入有效登录账号!");
+	        return;
+	    }
+	    if(!checkServerIds())return;
+	    var serverId=getServerId();
+		$.post('<%=request.getContextPath()%>/account/queryAccount',{
+			serverId:serverId,
+			loginName : loginName,
+		},function(data) {
+			var t = $.parseJSON(data);
+			if(t.msg){
+				$.messager.show({
+					title : '提示',
+					msg : t.msg
+				});
+			}else{
+				$("#accountId").text(t.accountId);
+				$("#yunyingId").text(t.yunyingId);
+				$("#heroId").text(t.heroId);
+				$("#heroName").text(t.heroName);
+				
+				$("#originalSid").text(t.originalSid);
+				$("#createTime").text(t.createTime);
+				$("#yuanbao").text(t.yuanbao);
+				$("#gold").text(t.gold);
+				$("#isOnline").text(t.online?"在线":"离线");
+				$("#isAllowChat").text(t.allowChat?"可以聊天":"禁止聊天");
+				$("#status").text(t.status?"正常":"封号");
+				$("#remarks").text(t.remarks);
+				
+				$("#vipGrade").text(t.vipGrade);
+				$("#createTime").text(t.createTime);
+				$("#lastLoginIp").text(t.lastLoginIp);
+				$("#lastLoginTime").text(t.lastLoginTime);
+				
+				$("#loginCount").text(t.loginCount);
+				$("#loginCountInMonth").text(t.loginCountInMonth);
+				$("#continueLoginDays").text(t.continueLoginDays);
+				$("#continueMaxDays").text(t.continueMaxDays);
+				
+				$("#choseJob").text(t.choseJob);
+				$("#totalGrade").text(t.totalGrade);
+				$("#totalFightpower").text(t.totalFightpower);
+				$("#fightJobs").text(t.fightJobs);
+				var operateName = t.status?"封号":"解封";
+				$("#operateDiv").html('<br/><label></label><label></label><label></label><a id="operateAccount" href="javascript:void(0)" onclick="operateAccount(\''+t.loginName+'\','+t.originalSid+','+(t.status?"0":"1")+')">'+operateName+'</a>');
+				$("#operateAccount").linkbutton();
+			}
+		});
+	}
+	
+	function operateAccount(loginName,serverId,operate){
+		if(operate == 0 ){
+			$.messager.prompt('封号原因', '请输入封号原因', function(r){
+	            if (r){
+	        	   alert(r);
+	        	   $.post('<%=request.getContextPath()%>/account/forbidden',{
+		       			serverId:serverId,
+		       			loginName : loginName,
+		       			content:r
+	       			},function(data) {
+		       			var t = $.parseJSON(data);
+		       			if(t.msg){
+		       				$.messager.show({
+	       					title : '提示',
+	       					msg : t.msg
+	       					});
+		       			}
+	       			});
+	            }
+	        });
+		}else{
+			if (!confirm("确认要解封该账号？")) {
+				return false;
+			}
+			 $.post('<%=request.getContextPath()%>/account/enabled',{
+	       			serverId:serverId,
+	       			loginName : loginName
+    			},function(data) {
+	       			var t = $.parseJSON(data);
+	       			if(t.msg){
+	       				$.messager.show({
+    					title : '提示',
+    					msg : t.msg
+    					});
+	       			}
+    			});
+		}
+	}
+	
+	function getServerId(){
+		var node = $('#tree').tree('getSelected');
+		return node?node.id:0;
+	}
+	function checkServerIds()
+	{
+		var serverIds=getServerId();
+		if(serverIds == '')
+		{
+			alert("请选择服务器。");
+			return false;
+		}
+		if (!confirm("确认要提交？(请确认选择的服务器操作)")) {
+			return false;
+		}
+		return true;
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/servertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>查询玩家信息</legend>
+			<form id="fm" method="post" name="apLogin">
+				<div>
+					<label>登录账号:</label> <input type="text" id="loginName"
+						name="loginName" style="width: 310px" /><br />
+				</div>
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitok()">查询</a>
+				</div>
+			</form>
+		</fieldset>
+		<fieldset class="result">
+			<legend>查询玩家信息结果</legend>
+			<div>
+				<table class="tableCss" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border-bottom-width: 0" bordercolor="#111111"  width="100%">
+					<tr>
+						<td>账号</td>
+						<td id="accountId"></td>
+						<td>运营帐号id</td>
+						<td id="yunyingId"></td>
+						<td>角色id</td>
+						<td id="heroId"></td>
+						<td>角色名称</td>
+						<td id="heroName"></td>
+					</tr>
+					<tr>
+						<td>区服</td>
+						<td id="originalSid"></td>
+						<td>创建时间</td>
+						<td id="createTime"></td>
+						<td>元宝</td>
+						<td id="yuanbao"></td>
+						<td>金币</td>
+						<td id="gold"></td>
+					</tr>
+					<tr>
+						<td>是否在线</td>
+						<td id="isOnline"></td>
+						<td>是否禁止聊天</td>
+						<td id="isAllowChat"></td>
+						<td>是否封号</td>
+						<td id="status"></td>
+						<td>封号原因</td>
+						<td id="remarks"></td>
+					</tr>
+					<tr>
+						<td>vip等级</td>
+						<td id="vipGrade"></td>
+						<td>创建时间</td>
+						<td id="createTime"></td>
+						<td>最近一次登入ip</td>
+						<td id="lastLoginIp"></td>
+						<td>最后登入时间</td>
+						<td id="lastLoginTime"></td>
+					</tr>
+					<tr>
+						<td>累计登录次数</td>
+						<td id="loginCount"></td>
+						<td>一月之内登录总次数</td>
+						<td id="loginCountInMonth"></td>
+						<td>连续登录天数</td>
+						<td id="continueLoginDays"></td>
+						<td>最大连续登录天数</td>
+						<td id="continueMaxDays"></td>
+					</tr>
+					<tr>
+						<td>当前选择的猎手</td>
+						<td id="choseJob"></td>
+						<td>总等级</td>
+						<td id="totalGrade"></td>
+						<td>总战力</td>
+						<td id="totalFightpower"></td>
+						<td>出战猎手</td>
+						<td id="fightJobs"></td>
+					</tr>
+				</table>
+			</div>
+			<div id="operateDiv">
+			</div>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

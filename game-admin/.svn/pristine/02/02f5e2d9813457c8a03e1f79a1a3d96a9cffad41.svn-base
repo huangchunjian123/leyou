@@ -1,0 +1,9 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td valign="top" style="text-align: right;">命格等级:</td>
+		<td><textarea readonly="readonly" rows="8" cols="120" id="lifeMaxGrade_list" name="lifeMaxGrade_list" style="resize: none" /></td>
+	</tr>
+</table>

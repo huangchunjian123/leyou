@@ -1,0 +1,246 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib uri="/btn-tags" prefix="btn"%>
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+</style>
+<script type="text/javascript">
+	function newUser() {
+		$('#dlgadd').dialog('open').dialog('setTitle', '添加用户');
+		$('#fmadd').form('clear');
+	}
+	function editUser() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+		
+			$('#fmedit').form('clear');
+			$('#dlgedit').dialog('open').dialog('setTitle', '编辑用户');
+			$('#fmedit').form('load', row);
+		}
+	}
+	function submitAdd() {
+		$('#fmadd').form('submit', {
+			url : '<%=request.getContextPath()%>/server/addServer',
+		
+			onSubmit : function() {
+				return $('#fmadd').form('validate');
+			},
+			success : function(result) {
+			
+				var d = $.parseJSON(result);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				$('#dlgadd').dialog('close');
+				$('#dg').datagrid('reload');
+			}
+		});
+	}
+	function submitEdit() {
+		$.post('<%=request.getContextPath()%>/server/updateServer',{
+			id : $('#updateServer_id').val(),
+			name:$('#updateServer_name').val()
+			, sid:$('#updateServer_sid').val()
+			,dbSid:$('#updateServer_dbSid').val()
+			,isHefu:$('#updateServer_isHefu').val(),
+			hefuSid:$('#updateServer_hefuSid').val(), 
+			isTeshu:$('#updateServer_isTeshu').val(),
+			comment:$('#updateServer_comment').val(),
+			loginId:$('#updateServer_loginId').val()
+			,redisSid:$('#updateServer_redisSid').val()
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			$('#dlgedit').dialog('close');
+			$('#dg').datagrid('reload');
+		});
+	}
+	function destroyUser() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+			$.messager.confirm('确定',
+				'确定删除?', function(r) {
+					if (r) {
+						$.post('<%=request.getContextPath()%>/server/deleteServer',{
+							id : row.id
+						},function(data) {
+							var d = $.parseJSON(data);
+							$.messager.show({
+								title : '提示',
+								msg : d.msg
+							});
+							$('#dg').datagrid('reload'); // reload the user data	
+						});
+					}
+				});
+		}
+	}
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="center" border="false" style="overflow: hidden;">
+       <table id="dg" title="用户" class="easyui-datagrid" title="Basic DataGrid" style="overflow: hidden;"
+            data-options="singleSelect:true,collapsible:true,url:'<%=request.getContextPath()%>/server/queryServerMethods',method:'get'" toolbar="#toolbar"  rownumbers="true" pagination="true">
+			<thead>
+				<tr>
+					<th data-options="field:'id'" width="100">序号</th>
+					<th data-options="field:'name'" width="150">服务器名称</th>
+					<th data-options="field:'sid'" width="100">服务器id</th>
+					<th data-options="field:'loginId'" width="150">登录服务器</th>
+					<th data-options="field:'dbSid'" width="100">mysql服务器</th>
+					<th data-options="field:'redisSid'" width="100">redis服务器</th>
+					<th data-options="field:'isHefu'" width="50">是否合服过（1合服过0未合服）</th>
+					<th data-options="field:'hefuSid'" width="100">合服过得服务器id</th>
+					<th data-options="field:'isTeshu'" width="50">是否是特殊服务器(>0是特殊服务器)</th>
+					<th data-options="field:'openTime'" width="100">开服时间</th>
+					<th data-options="field:'comment'" width="220">描述</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="toolbar">
+		<btn:access privilege="user/add">
+			<a href="javascript:void(0)" class="easyui-linkbutton"
+				iconCls="icon-add" plain="true" onclick="newUser()">添加</a> 
+		</btn:access>
+			<a href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-edit" plain="true" onclick="editUser()">编辑</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-remove" plain="true" onclick="destroyUser()">删除</a>
+	</div>
+
+	<div id="dlgadd" class="easyui-dialog"
+		style="width: 450px; height: 350px; padding: 10px 30px" closed="true"
+		buttons="#dlgadd-buttons">
+		<div class="ftitle">添加服务器</div>
+		<form id="fmadd" method="post" novalidate>
+			<div class="fitem">
+				<label>服务器名称:</label> <input name="name"
+					class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>服务器ID</label> <input name="sid" class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>登录服务器:</label> <input name="loginId"
+					class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>mysql服务器:</label> <input name="dbSid" class="easyui-validatebox" >
+			</div>
+			<div class="fitem">
+				<label>redis服务器:</label> <input name="redisSid" class="easyui-validatebox">
+			</div>
+			<div class="fitem">
+				<label>是否合服过:</label> <select id="cc" class="easyui-combobox" name="isHefu" style="width:200px;" readonly="readonly">   
+    			<option value="0" selected="selected">否</option>   
+    			<option value="1">是</option>  
+				</select>  
+			</div>
+			<div class="fitem">
+				<label>合服ID:</label> <input  class="easyui-validatebox" name="hefuSid" style="width:200px;" >      			
+			</div>
+			<div class="fitem">
+				<label>是否特殊服务器</label> 
+				<select id="c1"name="isTeshu" style="width:200px;" readonly="true">   
+    			<option selected="selected" value="0" >否</option>   
+    			<option value="1">是</option>  
+				</select>  
+			</div>
+			<div class="fitem">
+				<label>描述:</label> <input type="text" name="comment" class="easyui-validatebox" >
+			</div>
+
+			</div>
+		</form>
+	</div>
+	<div id="dlgadd-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-ok" onclick="submitAdd()">添加</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlgadd').dialog('close')">取消</a>
+	</div>
+	
+	<div id="dlgedit" class="easyui-dialog"style="width: 450px; height: 300px; padding: 10px 30px" closed="true"
+		buttons="#dlgedit-buttons">
+		<div class="ftitle">用户</div>
+		<form id="fmedit" method="post" novalidate>
+			
+			<div class="fitem">
+				<label>服务器名称:</label> <input id="updateServer_name" name="name"
+					class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>服务器ID</label> <input id="updateServer_sid"name="sid" class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>登录服务器:</label> <input id="updateServer_loginId" name="loginId"
+					class="easyui-validatebox" required="true">
+			</div>
+			<div class="fitem">
+				<label>mysql服务器:</label> <input id="updateServer_dbSid" name="dbSid" class="easyui-validatebox" >
+			</div>
+			<div class="fitem">
+				<label>redis服务器:</label> <input id="updateServer_redisSid" name="redisSid" class="easyui-validatebox">
+			</div>
+			<div class="fitem">
+				<label>是否合服过:</label> <select id="updateServer_isHefu" class="easyui-combobox" name="isHefu" style="width:200px;" readonly="readonly">   
+    			<option value="0" selected="selected">否</option>   
+    			<option value="1">是</option>  
+				</select>  
+			</div>
+			<div class="fitem">
+				<label>合服ID:</label> <input id="updateServer_hefuSid"  class="easyui-validatebox" name="hefuSid" style="width:200px;" >      			
+			</div>
+			<div class="fitem">
+				<label>是否特殊服务器</label> 
+				<select id="updateServer_isTeshu"name="isTeshu" style="width:200px;" readonly="true">   
+    			<option selected="selected" value="0" >否</option>   
+    			<option value="1">是</option>  
+				</select>  
+			</div>
+			<div class="fitem">
+				<label>描述:</label> <input type="text" id="updateServer_comment" name="comment" class="easyui-validatebox" >
+			</div>
+
+			<div class="fitem">
+				<label></label>
+				<input name="id" id="updateServer_id" type="hidden">
+			</div>
+		</form>
+	</div>
+	<div id="dlgedit-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton"iconCls="icon-ok" onclick="submitEdit()">修改</a> <a
+			href="javascript:void(0)" class="easyui-linkbutton"
+			iconCls="icon-cancel" onclick="javascript:$('#dlgedit').dialog('close')">取消</a>
+	</div>
+	
+</body>
+</html>

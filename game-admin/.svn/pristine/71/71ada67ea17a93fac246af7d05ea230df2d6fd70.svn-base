@@ -1,0 +1,158 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+	<table class="tableCss">
+		<input id="task_hero_id" name="task_hero_id" hidden="true"/>
+		 <tr> 
+			<td valign="top" style="text-align: right;" >主线任务进度:</td>
+			<td><input id='now_zhu_task' name="now_zhu_task" /></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >支线任务进度:</td>
+			<td><input id='now_zhi_task' name="now_zhi_task"/></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >日常任务进度:</td>
+			<td><input id='now_daily_task' name="now_daily_task"/></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >帮环任务进度:</td>
+			<td><input id='now_union_task' name="now_union_task"/></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >隐藏任务进度:</td>
+			<td><input id='now_hide_task' name="now_hide_task" /></td>
+		</tr>
+		<tr> 
+			<td valign="top" style="text-align: right;" >其他任务进度:</td>
+			<td><input id='now_other_task' name="now_other_task" /></td>
+		</tr> 
+		<tr>
+			<td valign="top" style="text-align: right;">请选择需要完成的任务:</td>
+			<td>
+		<select style="width:100px" name="taskType" onchange="javascript:taskTypeChange(this);">
+			<option value="1" selected="selected">主线任务</option>
+			<option value="2" >支线任务</option>
+			<option value="3">日常任务</option>
+			<option value="4">帮派任务</option>
+			<option value="5">隐藏任务</option>
+			<option value="6">其他任务</option>
+		</select>
+		<span id="main_span" class="main_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType1"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath() %>/task/mainTask',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false, 
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="zhixian_span" style="display: none;" class="zhixian_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType2"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath() %>/task/zhixian',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false,
+							mode:'remote'
+				           "></select>
+				          
+		</span>
+		<span id="daily_span" style="display: none;" class="daily_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType3"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/dailyTask',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false,
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="union_span" style="display: none;" class="union_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType4"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/unionTask',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false,
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="hide_span" style="display: none;" class="hide_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType5"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/hideTask',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false,
+							mode:'remote'
+				           "></select>
+		</span>
+		<span id="other_span" style="display: none;" class="other_span">
+			<select name="targetGoodsSelect" class="easyui-combogrid taskType6"
+			style="width: 180px"
+			data-options="
+				            panelWidth: 180,
+				            idField: 'taskId',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/otherTask',
+				            columns: [[
+				                {field:'taskName',title:'名称',width:60},
+				                {field:'taskId',title:'ID',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							editable:false,
+							mode:'remote'
+				           "></select>
+		</span>
+			</td>
+		</tr>
+		<tr>
+			<!-- <td colspan="2">
+				<label></label><a href="javascript:void(0)"
+			class="easyui-linkbutton" onclick="addselectTask()">添加</a>
+			</td> -->
+		</tr> 
+	</table>

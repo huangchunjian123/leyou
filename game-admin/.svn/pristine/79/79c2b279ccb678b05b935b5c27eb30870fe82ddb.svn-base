@@ -1,0 +1,30 @@
+package com.game.admin.dto.hunqi;
+
+import com.game.admin.pojo.Hunqi;
+
+/**
+ * 魂器
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class HunqiDto {
+	private int id;
+
+	public HunqiDto(int id) {
+		this.id = id;
+	}
+	
+	
+	public HunqiDto (Hunqi data){
+		this.id = data.getId();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+}

@@ -1,0 +1,67 @@
+package com.game.admin.dto.task;
+
+import com.game.util.ObjectUtil;
+
+/**
+ * task
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public class TaskDto {
+	private String taskType;
+	private int taskId;
+	private String taskName;
+
+	public TaskDto(int id, int type, String name) {
+		
+		if (type == 1) {
+			this.taskType = "主线任务";
+		} else if (type == 2) {
+			this.taskType = "支线任务";
+		} else if (type == 3) {
+			this.taskType = "日常任务";
+		} else if (type == 4) {
+			this.taskType = "帮派任务";
+		}else if (type == 7) {
+			this.taskType = "隐藏任务";
+		}else {
+			this.taskType = "其他任务";
+		}
+		this.taskId = id;
+		this.taskName = name;
+	}
+	
+	public static TaskDto valueOf(TaskAllData taskData){
+		if(!ObjectUtil.isEmptyObject(taskData)){
+			TaskDto Dto = new TaskDto(taskData.getTaskId(), taskData.getTaskType(), taskData.getTaskName());
+			return Dto;
+		}
+		return  null;
+	}
+	
+
+	public int getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(int taskId) {
+		this.taskId = taskId;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+	public String getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(String taskType) {
+		this.taskType = taskType;
+	}
+
+}

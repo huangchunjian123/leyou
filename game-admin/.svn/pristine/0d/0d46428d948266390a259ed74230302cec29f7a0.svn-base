@@ -1,0 +1,422 @@
+
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>包裹</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+
+$(function() {
+	//$("#bagTabs").tabs("select",0);
+	$('#equip').datagrid({	
+		  url:'<%=request.getContextPath()%>/good/queryEquipList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:2
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'id', title: 'id',width: 20},
+	                   { field: 'heroId', title: '角色id',width:20},
+	                   { field: 'goodName', title: '名称',width: 20},
+	                   { field: 'level', title: '等级', width: 20 },
+	                   { field: 'strengthLevel', title: '强化等级',width: 20 },
+	                   { field: 'startNameAddLevel', title: '星级',width: 20 },
+	                   { field: 'qualityName', title: '品质',width: 20},
+	                   { field: 'gooddesc', title: '描述',width: 20 }
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield1();
+	               }
+	});
+	$('#good').datagrid({
+		  url:'<%=request.getContextPath()%>/good/queryEquipList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:0
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'heroId', title: '角色id',width: 0 },
+	                   { field: 'herogoodId', title: 'herogoodId', width: 0 },
+	                   { field: 'goodName', title: '名称',width: 15 },
+	                   { field: 'goodmodelId', title: '物品id',width: 15 },
+	                   { field: 'count', title: '物品数量', width: 15 },
+	                   { field: 'strengthLevel', title: '强化等级',width: 20 },
+	                   { field: 'startNameAddLevel', title: '星级',width: 20 },
+	                   { field: 'qualityName', title: '品质',width: 20},
+	                   { field: 'gooddesc', title: '描述', width: 15 },
+	                   { field: 'dropSource', title: '掉落来源', width: 15 }
+	                   
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield2();
+	               }
+	});
+	$('#gem').datagrid({
+		  url:'<%=request.getContextPath()%>/good/queryEquipList',
+		queryParams: {
+			serverId: '<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>',
+			goodsType:1
+		},
+		 pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'heroId', title: '角色id',width: 0 },
+	                   { field: 'herogoodId', title: 'herogoodId', width: 0 },
+	                   { field: 'goodName', title: '名称',width: 15 },
+	                   { field: 'goodmodelId', title: '物品id',width: 15 },
+	                   { field: 'count', title: '物品数量', width: 15 },
+	                   { field: 'strengthLevel', title: '强化等级',width: 20 },
+	                   { field: 'startNameAddLevel', title: '星级',width: 20 },
+	                   { field: 'qualityName', title: '品质',width: 20},
+	                   { field: 'gooddesc', title: '描述', width: 15 },
+	                   { field: 'dropSource', title: '掉落来源', width: 15 }
+	               ]],
+	               onBeforeLoad:function(param) {
+	               	hiddenfield3();
+	               }
+	}); 
+	function  hiddenfield1(){
+		$('#equip').datagrid('hideColumn','heroId');
+		$('#equip').datagrid('hideColumn','id');
+	}
+	function  hiddenfield2(){
+		$('#good').datagrid('hideColumn','heroId');
+		$('#good').datagrid('hideColumn','herogoodId');
+	}
+	function  hiddenfield3(){
+		$('#gem').datagrid('hideColumn','heroId');
+		$('#gem').datagrid('hideColumn','herogoodId');
+	}
+	
+});    
+var cleanBagType='';
+function clearBag(){
+     var seltabs = $('#bagTabs').tabs('getSelected');
+    // var seltabObj = seltabs.panel('options').tab; // 相应的标签页（tab）对象
+     if (seltabs[0].id =='equiptab')
+     {
+    	    $('#dlgclear').dialog({
+    	     	onLoad:function(){
+    	    		$('#bagclean').form('clear');
+    	    		 $('#cleanselect').val("0");
+    	   		 },
+    	    href:'<%=request.getContextPath()%>/views/good/cleanbag.jsp',
+    	    modal: true,
+    	    closed: true});
+    		cleanBagType='0';
+    		$('#dlgclear').dialog('open');
+    		$('#dlgclear').dialog('setTitle', '清理包裹'); 
+   	 }else 
+   		 if (seltabs[0].id =='goodtab')
+   	     {
+   	    		$('#simpledlgclear').dialog({
+   	    	     	onLoad:function(){
+   	    	   		 },
+   	    	    modal: true,
+   	    	    closed: true});
+   	    		cleanBagType='0';
+   	    		$('#simpledlgclear').dialog('open');
+   	    		$('#simpledlgclear').dialog('setTitle', '清理包裹');
+   	   	 }
+   		 else 
+   			 if (seltabs[0].id =='gemtab')
+   		     {
+   		    		$('#simpledlgclear').dialog({
+   		    	     	onLoad:function(){
+   		    	   		 },
+   		    	    modal: true,
+   		    	    closed: true});
+   		    		cleanBagType='1';
+   		    		$('#simpledlgclear').dialog('open');
+   		    		$('#simpledlgclear').dialog('setTitle', '清理仓库');
+   		   	 }
+}
+
+function addGoodsToBag(){
+	 var seltabs = $('#bagTabs').tabs('getSelected');
+	    // var seltabObj = seltabs.panel('options').tab; // 相应的标签页（tab）对象
+	     if (seltabs[0].id =='equiptab')
+	     {
+	    		$('#dlgaddGoods').dialog({
+	    	     	onLoad:function(){
+	    	    		$('#fmaddequip').form('clear');
+	    	   		 },
+	    	    href:'<%=request.getContextPath()%>/views/good/addEquip.jsp?heroId=<%=request.getParameter("heroId")%>',
+	    	    modal: true,
+	    	    closed: true});
+	    		$('#dlgaddGoods').dialog('open');
+	    		$('#dlgaddGoods').dialog('setTitle', '添加装备');
+	   	 }else if (seltabs[0].id =='goodtab')
+	     {
+	    		$('#dlgaddGoods').dialog({
+	    	     	onLoad:function(){
+	    	    		$('#fmaddgood').form('clear');
+	    	   		 },
+	    	    href:'<%=request.getContextPath()%>/views/good/addGood.jsp?heroId=<%=request.getParameter("heroId")%>',
+	    	    modal: true,
+	    	    closed: true});
+	    		$('#dlgaddGoods').dialog('open');
+	    		$('#dlgaddGoods').dialog('setTitle', '添加物品');
+	   	 }
+}
+//强化槽位置 
+function strengthenSlot(){
+	$('#dlgaddGoods').dialog({
+     	onLoad:function(){
+    		//$('#fmaddgood').form('clear');
+   		 },
+    href:'<%=request.getContextPath()%>/views/good/strengthenSlot.jsp?heroId=<%=request.getParameter("heroId")%>',
+    modal: true,
+    closed: true});
+	$('#dlgaddGoods').dialog('open');
+	$('#dlgaddGoods').dialog('setTitle', '强化');
+}
+
+function  submitforEquipPos(){
+	
+	var grid = $("#equipPOS_span_sel").combogrid("grid");// 获取表格对象
+	var row = grid.datagrid('getSelected');// 获取行数据
+	if(!row){
+		alert("请选择!"); 
+		return;
+	}
+	var gid = row.id;
+	var gname = row.name;
+	$.post('<%=request.getContextPath()%>/good/posStrengthening',{
+		heroId: '<%=request.getParameter("heroId")%>',
+		serverId:'<%=request.getParameter("serverId")%>',
+		pos:gid,
+		gname:gname,
+		starGrade:$('#pos_starGrade').val(),
+ 		strengthLevel:$('#pos_strength_level').val()
+	},function(data) {
+		$('#dlgaddGoods').dialog('close');
+		$('#good').datagrid('reload');
+		$('#equip').datagrid('reload');
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+	
+}
+
+
+//cw end
+function submitforAddEquip(){
+	var grid = $("#equip_span_sel").combogrid("grid");// 获取表格对象
+	var row = grid.datagrid('getSelected');// 获取行数据
+	if(!row){
+		alert("请选择道具!");
+		return;
+	}
+	var gid = row.id;
+	var gname = row.name;
+
+   /*  var reg = new RegExp("^[0-9]*$");
+    if(num == '' || !reg.test(num)){
+        alert("请输入正整数道具数量!");
+        return;
+    } */
+    
+	$.post('<%=request.getContextPath()%>/good/addEquip',{
+		heroId: '<%=request.getParameter("heroId")%>',
+		serverId: '<%=request.getParameter("serverId")%>',
+		gid:gid,
+		gname:gname,
+		pinzhi:$('#pinzhi').val(),
+		strengthGrade:$('#eq_strengthGrade').val(),
+	},function(data) {
+		$('#dlgaddGoods').dialog('close');
+		$('#good').datagrid('reload');
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+
+function submitforAddGood(){
+	var grid = $("#good_span_sel").combogrid("grid");// 获取表格对象
+	var row = grid.datagrid('getSelected');// 获取行数据
+	if(!row){
+		alert("请选择道具!");
+		return;
+	}
+	var gid = row.id;
+	var gname = row.name;
+
+   /*  var reg = new RegExp("^[0-9]*$");
+    if(num == '' || !reg.test(num)){
+        alert("请输入正整数道具数量!");
+        return;
+    } */
+    
+	$.post('<%=request.getContextPath()%>/good/addGood',{
+		heroId: '<%=request.getParameter("heroId")%>',
+		serverId: '<%=request.getParameter("serverId")%>',
+		gid:gid,
+		gname:gname,
+		gnum:$('#goodsnum').val()
+	},function(data) {
+		$('#dlgaddGoods').dialog('close');
+		$('#good').datagrid('reload');
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+
+function submitforAddGem(){
+	var grid = $("#gem_span_sel").combogrid("grid");// 获取表格对象
+	var row = grid.datagrid('getSelected');// 获取行数据
+	if(!row){
+		alert("请选择道具!");
+		return;
+	}
+	var gid = row.id;
+	var gname = row.name;
+
+   /*  var reg = new RegExp("^[0-9]*$");
+    if(num == '' || !reg.test(num)){
+        alert("请输入正整数道具数量!");
+        return;
+    } */
+    
+	$.post('<%=request.getContextPath()%>/good/addGem',{
+		heroId: '<%=request.getParameter("heroId")%>',
+		serverId: '<%=request.getParameter("serverId")%>',
+		gid:gid,
+		gname:gname,
+		gnum:$('#goodsnum').val()
+	},function(data) {
+		$('#dlgaddGoods').dialog('close');
+		$('#good').datagrid('reload');
+		$('#gem').datagrid('reload');
+		var d = $.parseJSON(data);
+		$.messager.show({
+			title : '提示',
+			msg : d.msg
+		});
+	});
+}
+
+
+function submitforClean(){
+	if($('#bagclean').form('validate')){
+		 url = '<%=request.getContextPath()%>/good/cleanBag';
+		//var cleanselect = $('#cleanselect').val();
+	 	$.post(url,{
+	 		cleanBagType:cleanBagType,
+	 		//cleanselect:cleanselect+'',
+			serverId:'<%=request.getParameter("serverId")%>',
+			heroId: '<%=request.getParameter("heroId")%>'
+		},function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+			if ('2'==cleanBagType) {
+			$('#equip').datagrid('reload'); 
+			$('#dlgclear').dialog('close');
+			} else if ('0'==cleanBagType) {
+			$('#good').datagrid('reload'); 
+			$('#simpledlgclear').dialog('close');
+			} else if ('3'==cleanBagType) {
+			$('#gem').datagrid('reload'); 
+			$('#simpledlgclear').dialog('close');
+			} 
+		}); 
+	}
+}
+</script>
+</head>
+
+<body class="easyui-layout" fit="true">
+	
+	
+	<div region="center" border="false" style="overflow: auto;">
+		<div id="bagTabs" class="easyui-tabs" style="width:1200px;height:800px;">
+			<div id="equiptab" title="穿戴装备" style="padding:10px;">
+					<table id="equip" title="装备列表">
+					</table>
+				</div>
+				<div id="goodtab" title="背包物品" style="padding:10px;">
+					<table id="good" title="物品列表">
+					</table>
+				</div>
+				<div id="gemtab" title="仓库" style="padding:10px;">
+					<table id="gem" title="仓库列表">
+					</table>
+				</div> 
+		</div>
+	</div>
+    <div region="south" border="false" title="功能" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="clearBag()">清理</a>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="addGoodsToBag()">添加</a>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="strengthenSlot()">强化槽位</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	 <div id="simpledlgclear"  style="width: 400px; height:200px;overflow: auto; position: relative; left: 50px; top: 50px;" closed="true"  buttons="#simpledlgclear-buttons" >
+	</div>
+	<div id="simpledlgclear-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitforClean()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#simpledlgclear').dialog('close');">取消</a>
+	</div>
+	
+    <div id="dlgclear"  style="width: 400px; height:200px;overflow: auto; position: relative; left: 50px; top: 50px;" closed="true"  buttons="#dlgclear-buttons" >
+	</div>
+	<div id="dlgclear-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitforClean()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgclear').dialog('close');">取消</a>
+	</div>
+	
+	 <div id="dlgaddGoods"  style="width: 600px; height:400px;overflow: auto; position: relative; left: 50px; top: 50px;" closed="true" >
+	</div>
+</body>
+
+
+</html>

@@ -1,0 +1,55 @@
+package com.game.admin.controllers;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.game.admin.service.server.IServerService;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.UnionService;
+import com.game.api.hessian.union.GmServiceUnionBattleType;
+import com.game.util.StringUtil;
+import net.paoding.rose.web.annotation.Param;
+
+
+/**
+ * 服务器帮派
+ * @author jiayi
+ *
+ */
+public class ServiceUnionInfosController extends BaseController{
+
+	@Autowired
+	private IServerService serverService;
+	
+	/**
+	 * 转到服务器帮派页面
+	 * @return
+	 */
+	public String goServiceUnionInfos(){
+		return "serviceUnion/unionInfo";
+	}
+	
+	public Object queryServerUnion(@Param("page") int page, @Param("rows") int rows){
+		if(page < 0){
+			page = 1;
+		}
+		int pagesize = (rows == 0) ? 10 : rows;
+		return ResultCode.writeJson(serverService.datagrid(page, pagesize));
+	}
+	
+	public Object serverUnionData(@Param("serverId") int serverId,@Param("battleType") int battleType){
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			UnionService unionService = getHessianFactory(UnionService.class, url);
+			if(unionService != null){
+				try {
+					DataGrid result = unionService.getServiceUnionBattle(GmServiceUnionBattleType.getUnionBattleType(battleType));
+					return ResultCode.writeJson(result);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error("api出错，获取帮派失败");
+	}
+}

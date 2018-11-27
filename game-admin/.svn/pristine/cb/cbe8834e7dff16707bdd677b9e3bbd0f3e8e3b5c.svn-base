@@ -1,0 +1,844 @@
+package com.game.admin.controllers;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.joda.time.DateTime;
+import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
+
+import net.paoding.rose.web.annotation.Param;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.caucho.hessian.client.HessianProxyFactory;
+import com.game.admin.dto.videotex.ChartType;
+import com.game.admin.dto.videotex.SeriesParameter;
+import com.game.admin.dto.videotex.VideotexData;
+import com.game.admin.pojo.RealDataGmLog;
+import com.game.admin.pojo.server.ServerData;
+import com.game.admin.utils.ResultCode;
+import com.game.admin.utils.TimerUtils;
+import com.game.admin.utils.VideotexUtils;
+import com.game.api.hessian.AnalysisService;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.slog.CallLogType;
+import com.game.api.hessian.slog.CallPageData;
+import com.game.api.hessian.slog.DailyRateDto;
+import com.game.api.hessian.slog.RealDto;
+import com.game.api.hessian.slog.TotalPaylvAndArpuDto;
+import com.game.util.CollectionUtil;
+import com.game.util.StringUtil;
+
+
+/**
+ * 统计图处理器(折线图 ,条形图 等等...)
+ * @author JiaYi
+ * @date  2018年4月9日 下午4:50:21 
+ * @package com.game.admin.controllers
+ */
+public class VideotexController extends BaseController {
+
+	public String goViewsReal(){
+		return "videotex/vrealList";
+	}
+	
+	public String goViewsTotalPaylv(){
+		return "videotex/vTotalPaylvList";
+	}
+	
+	public String goViewsDailyRateDto(){
+		return "videotex/vDailyRateDtoList";
+	}
+
+	public Object queryGameHeroRateList(@Param("serverId") int serverId,@Param("callLogType") int callLogType,@Param("page") int page,
+			@Param("rows") int rows){
+		String url = buildUrl(serverId, "/game-server/api/service/analysis");
+		if(StringUtil.isEmpty(url)){
+			return ResultCode.writeJson(getDataGrid());
+		}
+		HessianProxyFactory factory =  new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				AnalysisService analyService = (AnalysisService)factory.create(AnalysisService.class,url);
+				if(null == analyService){
+					logger.	error("查找数据，AnalysisService为空"+serverId);
+					return ResultCode.writeJson(getDataGrid());
+				}
+				CallLogType callType = CallLogType.index(callLogType);
+				CallPageData callPageData = new CallPageData(rows, page, callType);
+				DataGrid result = analyService.getSLogAnalysisData(callPageData);
+				if (null == result) {
+					logger.error(String.format("查找%d服数据失败", serverId));
+					return ResultCode.writeJson(getDataGrid());
+				}
+				if(callType == CallLogType.real){
+					passResult(result);
+				}
+				return ResultCode.writeJson(result);
+			} catch (Exception e) {
+				logger.error(String.format("%d 服务器未开启或拒绝连接", serverId));
+			}
+		}
+		return ResultCode.writeJson(getDataGrid());
+	}
+	
+	public static void main(String[] args) {
+//		String a = "20180401";
+//		DateTime dataTime  = Timer.getDateTime(a, Timer.DATE_FORMATTER_yyyMMdd);
+//		System.out.println(dataTime+"周"+dataTime.getDayOfWeek());
+//		DateTime  zuotian = dataTime.minusDays(1);
+//		System.out.println(zuotian+"昨天"+zuotian.getDayOfWeek());
+//		DateTime  zhou = dataTime.minusWeeks(1);
+//		System.out.println(zhou+"昨天"+zhou.getDayOfWeek());
+//	
+//		StringBuffer sb =new StringBuffer();
+//		sb.append("jiayi,1");
+//		System.err.println(sb.length());//5 6
+//		sb.delete(sb.length()-2, 7);
+//		sb.deleteCharAt(1);
+//		System.out.println(sb.toString());
+		
+//		String totalPaylv = "12.58%";
+//		totalPaylv = totalPaylv.replace("%","");
+//		Float f = Float.valueOf(totalPaylv);
+//		int x = Integer.valueOf(totalPaylv.replace(".", ""));
+//		System.out.println(Math.round(f));
+	}
+	/**
+	 * 请求条形图数据
+	 * @param serverIds  服务器ids
+	 * @return
+	 */
+	public Object serverContrasTotalPay(@Param("serverIds") String serverIds){
+		if(StringUtil.isEmpty(serverIds)){
+			return null;
+		}else {
+			List<TotalPaylvAndArpuDto> lists = eachServerData(serverIds);
+			//做成条形图
+			if(!CollectionUtil.isEmptyCollection(lists)){
+			String totalPay= passTotalPay(lists);
+			return  ResultCode.videotex(totalPay);
+			}
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * 请求多服并且所选择日期之间计算后的充值数据折线图
+	 * @param serverIds  多服
+	 * @param startTime  开始时间
+	 * @param endTime	  结束时间
+	 * @return
+	 */
+	public Object serverContrasTimeTotalPay(@Param("serverIds") String serverIds,
+						@Param("startTime")String startTime,@Param("endTime")String endTime){
+		if(StringUtil.isEmpty(serverIds)){
+			return ResultCode.error("请选择服务器");
+		}else {
+			if(StringUtil.isEmpty(startTime) || StringUtil.isEmpty(endTime)){
+				return ResultCode.error("请选择时间段!");
+			}
+			List<String> timeLists = TimerUtils.getAmongTime(startTime, endTime);
+			if(CollectionUtil.isEmptyCollection(timeLists)){
+				return ResultCode.error("请检查选择时间段!");
+			}
+			List<DailyRateDto> dailyRateDtoLists = eachTimeTotalServerData(serverIds,timeLists);
+			//到这在算
+			if(!CollectionUtil.isEmptyCollection(dailyRateDtoLists)){
+			String totalPay= passTimeBetweenTotalPay(dailyRateDtoLists,timeLists);
+			return  ResultCode.videotex(totalPay);
+			}
+			return ResultCode.error("获取数据为空!");
+		}
+	}
+	/**
+	 * 多服每日数据
+	 * @param dailyRateDtoLists
+	 * @return
+	 */
+	private String passTimeBetweenTotalPay(List<DailyRateDto> dailyRateDtoLists,List<String>timeLists){
+		VideotexData videotexData = new VideotexData();
+		videotexData.setChartType(ChartType.line);
+		videotexData.setChartTitle("多服务器每日综合充值图表");
+		videotexData.setChartXAxis(getPassTimeXAxisTotalPay(timeLists));
+		videotexData.setyAxisTitle("总数");
+		List<SeriesParameter> serieslist = Lists.newArrayList();
+		serieslist.add(SeriesParameter.valueOf("新增总数", getTimeBetweenYAxis(dailyRateDtoLists, 1)));
+		serieslist.add(SeriesParameter.valueOf("付费总数", getTimeBetweenYAxis(dailyRateDtoLists, 2)));
+		serieslist.add(SeriesParameter.valueOf("充值总金额/元", getTimeBetweenYAxis(dailyRateDtoLists, 3)));
+		serieslist.add(SeriesParameter.valueOf("总付费率", getTimeBetweenYAxis(dailyRateDtoLists, 4)));
+		serieslist.add(SeriesParameter.valueOf("arpu/元", getTimeBetweenYAxis(dailyRateDtoLists, 5)));
+		serieslist.add(SeriesParameter.valueOf("arppu/元", getTimeBetweenYAxis(dailyRateDtoLists, 6)));
+		videotexData.setList(serieslist);
+		return VideotexUtils.getVideotexContainer(videotexData);
+	}
+	/**
+	 * Y轴多服数据
+	 * @param dailyRateDtoLists
+	 * @param seriesType 1:新增总数 2:付费总数 3:充值总金额/元 4:总付费率 5:arpu/元 6:arppu/元
+	 * @return
+	 */
+	private String getTimeBetweenYAxis(List<DailyRateDto> dailyRateDtoLists,int seriesType){
+		List<Integer> yAxisList = Lists.newArrayList();
+		for (Iterator<DailyRateDto> iterator = dailyRateDtoLists.iterator(); iterator.hasNext();) {
+			DailyRateDto dailyRateDto = (DailyRateDto) iterator.next();
+			if(seriesType == 1){
+				yAxisList.add(dailyRateDto.getNewcount());
+			}else if (seriesType == 2) {
+				yAxisList.add(dailyRateDto.getNewpaycount());
+			}else if (seriesType == 3) {
+				yAxisList.add(dailyRateDto.getPayTotalcount()/100);//元
+			}else if (seriesType == 4) {
+				String totalPaylv = dailyRateDto.getPaylv();
+				totalPaylv = totalPaylv.replace("%","");
+				totalPaylv = totalPaylv.replace(".", "");
+				int vtotalPaylv = Integer.parseInt(totalPaylv);
+				yAxisList.add(vtotalPaylv);
+			}else if (seriesType == 5) {
+				Float totalArpu = Float.valueOf(dailyRateDto.getArpu());
+				yAxisList.add((Math.round(totalArpu))/100);
+			}else if (seriesType == 6) {
+				Float totalArppu = Float.valueOf(dailyRateDto.getArppu());
+				yAxisList.add((Math.round(totalArppu))/100);
+			}
+		}
+		return yAxisList.toString();
+	}
+	
+	
+	
+	private String passTotalPay(List<TotalPaylvAndArpuDto> alists){
+		VideotexData videotexData = new VideotexData();
+		videotexData.setChartType(ChartType.column);
+		videotexData.setChartTitle("服务器充值图表");
+		videotexData.setChartXAxis(getPassXAxisTotalPay());
+		videotexData.setyAxisTitle("总数");
+		List<SeriesParameter> serieslist = Lists.newArrayList();
+		for (TotalPaylvAndArpuDto totalPaylvAndArpuDto : alists) {
+			serieslist.add(SeriesParameter.valueOf(totalPaylvAndArpuDto.getServerName(), getYAxis(totalPaylvAndArpuDto)));
+		}
+		videotexData.setList(serieslist);
+		return VideotexUtils.getVideotexContainer(videotexData);
+	}
+	
+	
+	private String getYAxis(TotalPaylvAndArpuDto totalPaylvAndArpuDto){
+		List<Integer> yAxisList = Lists.newArrayList();
+		int totalLoginCount =totalPaylvAndArpuDto.getTotalLoginCount();
+		int totalPayCount=totalPaylvAndArpuDto.getTotalPayCount();
+		int totalPayNum=totalPaylvAndArpuDto.getTotalPayNum();
+		
+		String  totalPaylv = totalPaylvAndArpuDto.getTotalPaylv();
+		totalPaylv = totalPaylv.replace("%","");
+		totalPaylv = totalPaylv.replace(".", "");
+		totalPaylv.indexOf(totalPaylv);
+		int vtotalPaylv = Integer.parseInt(totalPaylv);
+		Float totalArpu = Float.valueOf(totalPaylvAndArpuDto.getTotalArpu());
+		Float totalArppu = Float.valueOf(totalPaylvAndArpuDto.getTotalArppu());
+		yAxisList.add(totalLoginCount);
+		yAxisList.add(totalPayCount);
+		yAxisList.add(totalPayNum/100);//元
+		yAxisList.add(vtotalPaylv);
+		yAxisList.add(Math.round(totalArpu));
+		yAxisList.add(Math.round(totalArppu));
+		return yAxisList.toString();
+	}
+	/**
+	 * arrp值
+	 * @param alists
+	 * @param isXAxis  是否是X轴
+	 * @return
+	 */
+	private String getPassXAxisTotalPay(){
+		List<String> xAxisLists = Lists.newArrayList();
+		xAxisLists.add("'新增总数'");//totalLoginCount
+		xAxisLists.add("'付费总数'");//totalPayCount
+		xAxisLists.add("'充值总金额/元'");//totalPayNum;
+		xAxisLists.add("'总付费率'");//totalPaylv
+		xAxisLists.add("'arpu/分'");//totalArpu
+		xAxisLists.add("'arppu/分'");//totalArpu
+		return xAxisLists.toString();
+	}
+	
+	/**
+	 * 多服所选日期X轴
+	 * @param alists
+	 * @param isXAxis  是否是X轴
+	 * @return
+	 */
+	private String getPassTimeXAxisTotalPay(List<String>timeList){
+		List<String> xAxisLists = Lists.newArrayList();
+		for (String time : timeList) {
+			xAxisLists.add("'"+time+"'");
+		}
+		return xAxisLists.toString();
+	}
+	
+	/**
+	 * 获取多服之间的总和数据(1个服的话就要一个服务的就行)
+	 * @param serverIds
+	 * @return
+	 */
+	private List<DailyRateDto> eachTimeTotalServerData(String serverIds,List<String> timeLists){
+		List<DailyRateDto> allDtoList = Lists.newArrayList();
+		for (String serverId : serverIds.split(",")) {
+			ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+			if(serverData != null){
+				List<DailyRateDto> dtoLists = getTimeServerDailyRateDtos(serverData, timeLists);
+				if(!CollectionUtil.isEmptyCollection(dtoLists)){
+					allDtoList.addAll(dtoLists);
+				}
+			}
+		}
+		//处理多个服务器数据
+		Map<String,DailyRateDto> dailyRateDtoMaps= calculateTotalPaylv(allDtoList);
+		allDtoList.clear();
+
+		List<String> removeLists =Lists.newArrayList(); 
+		//从新排序并且检测 请求时间段和获取时间段的数据是否有不一致或者null数据
+		for (String time : timeLists) {
+			if(dailyRateDtoMaps.containsKey(time)){
+				allDtoList.add(dailyRateDtoMaps.get(time));
+			}else {
+				removeLists.add(time);
+			}
+		}
+		if(!CollectionUtil.isEmptyCollection(removeLists)){
+			timeLists.removeAll(removeLists);
+		}
+		dailyRateDtoMaps.clear();
+		if(!CollectionUtil.isEmptyCollection(allDtoList)){
+			return allDtoList;
+		}
+		return Collections.emptyList();
+	}
+	
+	/**
+	 * 多服合并数据并且重新计算
+	 * @param allLists
+	 * @return
+	 */
+	private Map<String,DailyRateDto> calculateTotalPaylv(List<DailyRateDto> allLists){
+		Map<String,DailyRateDto> dailyRateDtoMaps =Maps.newHashMap();
+		if(!CollectionUtil.isEmptyCollection(allLists)){
+			for (Iterator<DailyRateDto> iterator = allLists.iterator(); iterator.hasNext();) {
+				DailyRateDto dailyRateDto = (DailyRateDto) iterator.next();
+				if(dailyRateDtoMaps.containsKey(dailyRateDto.getTime())){
+					DailyRateDto dto = dailyRateDtoMaps.get(dailyRateDto.getTime());
+					addTogetherData(dto, dailyRateDto);
+				}else {
+					dailyRateDtoMaps.put(dailyRateDto.getTime(), dailyRateDto);
+				}
+			}
+		}
+		return dailyRateDtoMaps;
+	}
+	
+	/**
+	 * 叠加后重新计算(多服 key time)
+	 * @param mapsDto
+	 * @param addDto
+	 */
+	private void addTogetherData(DailyRateDto mapsDto,DailyRateDto addDto){
+		int totalLoginCount = mapsDto.getNewcount()+addDto.getNewcount();//新增总数
+		int totalPayCount = mapsDto.getNewpaycount()+addDto.getNewpaycount();//付费总数
+		int totalPayNum = mapsDto.getPayTotalcount()+addDto.getPayTotalcount();//充值总金额
+		String totalPaylv=totalLoginCount == 0?"0%":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayCount* 10000f/totalLoginCount) * 0.01d))+"%");//总付费率=付费总数/新增总数
+		String total_arpu=totalLoginCount == 0?"0":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayNum* 100f/totalLoginCount ) * 0.01d)));//arpu=充值总金额/总用户
+		String total_arppu=totalPayCount == 0?"0":String.valueOf(new java.text.DecimalFormat("#.00").format((Math.round(totalPayNum* 100f/totalPayCount ) * 0.01d)));//arppu=充值总金额/付费总数
+		
+		mapsDto.setNewcount(totalLoginCount);
+		mapsDto.setNewpaycount(totalPayCount);
+		mapsDto.setPayTotalcount(totalPayNum);
+		mapsDto.setPaylv(totalPaylv);
+		mapsDto.setArpu(total_arpu);
+		mapsDto.setArppu(total_arppu);
+	}
+	
+	private List<TotalPaylvAndArpuDto>  eachServerData(String serverIds){
+		List<TotalPaylvAndArpuDto> dtoList = Lists.newArrayList();
+		for (String serverId : serverIds.split(",")) {
+			ServerData serverData = serverService.getByServerId(Integer.valueOf(serverId));
+			if(serverData != null){
+				TotalPaylvAndArpuDto dto = getThisServerTotalPaylvArpu(serverData);
+				if(dto != null ){
+					dtoList.add(dto);
+				}
+			}
+		}
+		return dtoList;
+	}
+	
+	/**
+	 * 获取每个服务器所选留存率数值集合
+	 * @param serverData
+	 * @param timeLists
+	 * @return
+	 */
+	public List<DailyRateDto> getTimeServerDailyRateDtos(ServerData serverData,List<String> timeLists){
+		String url = buildUrl(serverData.getServerId(), "/game-server/api/service/analysis");
+		if(StringUtil.isEmpty(url)){
+			return Collections.emptyList();
+		}
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		try {
+			AnalysisService analyService = (AnalysisService)factory.create(AnalysisService.class,url);
+			if(null == analyService){
+				logger.error("查找数据，AnalysisService为空"+serverData.getServerName());
+				return  Collections.emptyList();
+			}
+			DataGrid result = analyService.getContrastData(timeLists, 14);
+			if(null == result){
+				logger.error(String.format("查找%s服数据失败", serverData.getServerName()));
+				return Collections.emptyList();
+			}
+			List<DailyRateDto> lists = (List<DailyRateDto>)result.getRows();
+			if(!CollectionUtil.isEmptyCollection(lists)){
+				return lists;
+			}
+		} catch (Exception e) {
+			logger.error(String.format("%d 服务器未开启或拒绝连接", 0));
+		}
+		return Collections.emptyList();
+	}
+	
+	public TotalPaylvAndArpuDto getThisServerTotalPaylvArpu(ServerData serverData){
+		String url = buildUrl(serverData.getServerId(), "/game-server/api/service/analysis");
+		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		try {
+			AnalysisService analyService = (AnalysisService)factory.create(AnalysisService.class,url);
+			if(null == analyService){
+				logger.	error("查找数据，AnalysisService为空"+serverData.getServerId());
+				return null;
+			}
+			CallPageData calldata = new CallPageData();
+			calldata.setCallLogType(CallLogType.totalPaylvAndArpu);
+			DataGrid result = analyService.getSLogAnalysisData(calldata);
+			if (null == result) {
+				logger.error(String.format("查找%d服数据失败", serverData.getServerId()));
+				return null;
+			}
+			TotalPaylvAndArpuDto dataDto  = (TotalPaylvAndArpuDto)result.getRows().get(0);
+			if(dataDto != null){
+				dataDto.setServerId(serverData.getServerId());
+				dataDto.setServerName(serverData.getServerName());
+			}
+			return dataDto; 
+		} catch (Exception e) {
+			logger.error(String.format("%d 服务器未开启或拒绝连接", 0));
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * 请求实时数据对比数据图表
+	 * @param serverId
+	 * @param time    今天,昨天,上周今天
+	 * @param askType 请求类型(1,在线人数 2,注册人数 3,创建玩家数量)
+	 * @return
+	 */
+	public Object contrastData(@Param("serverId") int serverId,@Param("time") String time,
+							   @Param("askType") int askType){
+		String url = buildUrl(serverId, "/game-server/api/service/analysis");
+		if(StringUtil.isEmpty(url)){
+			return null;
+		}
+		if(StringUtil.isEmpty(time)){
+			return null;
+		}
+		List<String> timeLists = getContrastTime(time);
+		HessianProxyFactory factory =  new HessianProxyFactory();
+		factory.setOverloadEnabled(true);
+		{
+			try {
+				AnalysisService analyService = (AnalysisService)factory.create(AnalysisService.class,url);
+				if(null == analyService){
+					logger.	error("查找数据，AnalysisService为空"+serverId);
+					return  ResultCode.error(String.format("查找%d服统计失败", serverId));
+				}
+				DataGrid result = analyService.getContrastData(timeLists, 22);//22是实时数据
+				if(null == result){
+					logger.error(String.format("查找%d服数据失败", serverId));
+					return  ResultCode.error(String.format("服务器统计数据获取失败", serverId));
+				}
+			    String mapContainer = passResultTime(result, timeLists,askType);
+				return ResultCode.videotex(mapContainer);
+			} catch (Exception e) {
+				logger.error(String.format("%d 服务器未开启或拒绝连接", serverId));
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * 多Y轴同一类型数据 1,在线人数 2,注册人数 3,创建玩家数量
+	 * 根据注册时间 动态生成
+	 * @param result
+	 * @param timeList
+	 * @param askType
+	 * @return
+	 */
+	private String passResultTime(DataGrid result,List<String>timeList,int askType){
+		String nowName ;//今天
+		String yesterdayName ;//昨天
+		String lastWeekName ;//上周
+		if(askType == 1){
+			nowName = "今日在线人数";
+			yesterdayName = "昨日在线人数";
+			lastWeekName ="上周今日在线人数";
+		}else if(askType == 2){
+			nowName = "今日注册人数";
+			yesterdayName = "昨日注册人数";
+			lastWeekName ="上周今日注册人数";
+		}else {
+			nowName = "今日创建玩家数量";
+			yesterdayName = "昨日创建玩家数量";
+			lastWeekName ="上周今日创建玩家数量";
+		}
+		//转化成折线图
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+				.append("{")
+				.append("'chart': { 'type': 'line'  }, ")
+				// 指定图表的类型，默认是折线图（line）
+				.append("'title': {  'text': '实时数据图表'}, ")
+				// 标题
+				.append("'xAxis': { 'categories' : ")
+				// 288个x轴
+				.append(getPassgetXYAxis(result,timeList.get(0),askType, true))
+				.append("},")
+				.append("'yAxis': { 'title': {  'text': '人数' } },")
+				// Y轴标题
+				.append("'series': [{ 'name':")
+				.append("'")
+				.append(nowName)
+				.append("'")
+				.append(", 'data': ")
+				
+				.append(getPassgetXYAxis(result, timeList.get(0), askType, false))
+				// Y轴1 数据
+				.append("},{ 'name':")
+				.append("'")
+				.append(yesterdayName)
+				.append("'")
+				.append(", 'data': ")
+				.append(getPassgetXYAxis(result, timeList.get(1), askType, false))
+				// Y轴 2数据
+				.append("},{ 'name': ")
+				.append("'")
+				.append(lastWeekName)
+				.append("'")
+				.append(", 'data': ")
+				.append(getPassgetXYAxis(result, timeList.get(2), askType, false))// Y轴 3数据
+				.append("}] ")
+				.append("}");
+		return stringBuffer.toString();
+	}
+	
+	private String getPassgetXYAxis(DataGrid result,String time,int askType,boolean isHasXaxis){
+		String replacexyAxis = Lists.newArrayList().toString();
+		String xyAxis = getXYAxisData(result, time, askType, isHasXaxis);
+		if(StringUtil.isEmpty(xyAxis)){
+			return replacexyAxis;
+		}else {
+			return xyAxis;
+		}
+	}
+	
+	
+	
+	/**
+	 * 获取XY轴数据
+	 * @param result
+	 * @param time
+	 * @param askType
+	 * @param isHasXaxis
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private String  getXYAxisData(DataGrid result,String time,int askType,boolean isHasXaxis){
+		for (Iterator<RealDto>iterator = result.getRows().iterator(); iterator.hasNext();) {
+			RealDto realDto = iterator.next();
+			if(time.equals(realDto.getTime())){
+				Map<Integer, Map<String, RealDataGmLog>> realsMaps = JSON.parseObject(
+						realDto.getRealLogData(), new TypeReference<TreeMap<Integer, Map<String, RealDataGmLog>>>() {});
+				boolean isHasMap  = CollectionUtil.isEmptyMap(realsMaps);
+				if(isHasXaxis && !isHasMap){
+					return  passXAxis(realsMaps);//X轴
+				}
+				if(!isHasMap){
+					return  passYAxis(realsMaps, askType);
+				}
+			}
+		}
+		return StringUtil.EMPTY_STRING;
+	}
+	
+	/**
+	 * 根据当前时间算出昨天和上周
+	 * @param time
+	 * @return
+	 */
+	private List<String> getContrastTime(String time){
+		List<String> timeList = Lists.newArrayList();
+		//今天
+		DateTime dataTime = TimerUtils.getDateTime(time, TimerUtils.DATE_FORMATTER_yyyMMdd);
+		//昨天
+		DateTime yesterday = dataTime.minusDays(1);
+		String yesterdayTime = yesterday.toString(TimerUtils.DATE_FORMATTER_yyyMMdd);
+		//上周
+		DateTime  lastDateTimeWeeks = dataTime.minusWeeks(1);
+		String lastWeekTime = lastDateTimeWeeks.toString(TimerUtils.DATE_FORMATTER_yyyMMdd);
+		timeList.add(time);
+		timeList.add(yesterdayTime);
+		timeList.add(lastWeekTime);
+		return timeList;
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	private void passResult(DataGrid result){
+		//转化成折线图
+		for (Iterator<RealDto>iterator = result.getRows().iterator(); iterator.hasNext();) {
+			RealDto realDto = iterator.next();
+			Map<Integer, Map<String, RealDataGmLog>> maps = JSON.parseObject(
+					realDto.getRealLogData(), new TypeReference<TreeMap<Integer, Map<String, RealDataGmLog>>>() {});
+			//-----------------------------------------------------------------------
+			passVideotexConfiguration(realDto, maps);
+		}
+	}
+	
+	private DataGrid getDataGrid(){
+		DataGrid data = new DataGrid();
+		data.setTotal(0);
+		data.setRows(Collections.EMPTY_LIST);
+		return data;
+	}
+	
+	/**
+	 * 
+	 */
+//	private void passVideotexConfigurationAskType(List<String>timeList,Map<Integer, Map<String, RealDataGmLog>> maps,int askType){
+//		
+//		
+//		
+//	}
+	
+	/**
+	 * 图表配置(X轴,Y轴 全部动态生成)
+	 * @param realDto  
+	 * @param realsMaps 小时,5分钟字符串时间,对象数据
+	 */
+	private void passVideotexConfiguration(RealDto realDto,Map<Integer, Map<String, RealDataGmLog>> realsMaps){
+		if(CollectionUtil.isEmptyMap(realsMaps)){
+			return ;
+		}
+//		StringBuffer stringBuffer = new StringBuffer();
+//		stringBuffer.append("{")
+//		.append("chart: { type: 'line'  }, ")//指定图表的类型，默认是折线图（line）
+//		.append("title: {  text: '我的第一个图表'}, ")// 标题
+//		.append("xAxis: { categories : ")//X轴
+//		.append(passXAxis(realsMaps))//288个x轴
+//		.append("},")
+//		.append("yAxis: { title: {  text: '人数' } },")//Y轴标题
+//		.append("series: [{ name:'在线人数', data: ")
+//		.append(passYAxis(realsMaps, 1))//Y轴1 数据
+//		.append("},{ name: '注册人数' , data: ")
+//		.append(passYAxis(realsMaps, 2))//Y轴 2数据
+//		.append("},{ name: '创建玩家数量' , data: ")
+//		.append(passYAxis(realsMaps, 3))//Y轴 3数据
+//		.append("}]    }; ");
+//		System.out.println(stringBuffer.toString());
+//		realDto.setRealLogData(stringBuffer.toString());
+		//-----------------------------------------------------------
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+				.append("{")
+				.append("'chart': { 'type': 'line'  }, ")
+				// 指定图表的类型，默认是折线图（line）
+				.append("'title': {  'text': '每日实时数据统计图'}, ")
+				// 标题
+				.append("'xAxis': { 'categories' : ")
+				// X轴
+				.append(passXAxis(realsMaps))
+				// 288个x轴
+				.append("},")
+				.append("'yAxis': { 'title': {  'text': '人数' } },")
+				// Y轴标题
+				.append("'series': [{ 'name':'在线人数', 'data': ")
+				.append(passYAxis(realsMaps, 1))
+				// Y轴1 数据
+				.append("},{ 'name': '注册人数' , 'data': ")
+				.append(passYAxis(realsMaps, 2))
+				// Y轴 2数据
+				.append("},{ 'name': '创建玩家数量' , 'data': ")
+				.append(passYAxis(realsMaps, 3))// Y轴 3数据
+				.append("}] ")
+				.append("}");
+		realDto.setRealLogData(stringBuffer.toString());
+	}
+	
+	
+	/**
+	 * Y轴数据
+	 * @param realsMaps
+	 * @return
+	 */
+	private String passYAxis(Map<Integer, Map<String, RealDataGmLog>> realsMaps,int callType){
+		List<Integer> yLists = Lists.newArrayList();
+		for (Map.Entry<Integer,Map<String,RealDataGmLog>> entry : realsMaps.entrySet()) {
+			passYString(yLists, entry.getValue(), callType);
+		}
+		return yLists.toString();
+	}
+	
+	/**
+	 * X轴数据
+	 * @param realsMaps
+	 * @return
+	 */
+	private String passXAxis(Map<Integer, Map<String, RealDataGmLog>> realsMaps){
+		List<String> xAxisLists = Lists.newArrayList();
+		for (Map.Entry<Integer,Map<String,RealDataGmLog>> entry : realsMaps.entrySet()) {
+			passXString(xAxisLists,entry.getKey(), entry.getValue());
+		}
+		return xAxisLists.toString();
+	}
+	
+	private void passXString(List<String> xAxisLists,int hours,Map<String, RealDataGmLog> maps){
+		Map<String, RealDataGmLog> sortMap = Maps.newTreeMap(new Comparator<String>() {  
+            public int compare(String str1, String str2) {  
+                // 升序排序  
+            	String sub1 = str1.substring(0, 2);
+            	String sub2 = str2.substring(0, 2);
+            	String s1;String s2; 
+            	if(sub1.contains("-")){
+            		s1 = sub1.replace("-", "");
+            	}else {
+            		s1 = sub1;
+				}
+            	if(sub2.contains("-")){
+            		s2 = sub2.replace("-", "");
+            	}else {
+            		s2 = sub2;
+				}
+            	return Integer.parseInt(s1) > Integer.parseInt(s2) ? 1:-1;
+            }  
+        });
+		
+		for (Map.Entry<String,RealDataGmLog> entry : maps.entrySet()) {
+			sortMap.put(entry.getKey(), entry.getValue());
+		}
+		for (Map.Entry<String,RealDataGmLog> entry : sortMap.entrySet()) {
+			xAxisLists.add("'"+hours+"时"+entry.getKey()+"'");
+		}
+	}
+	
+	/**
+	 * Y轴数据解析
+	 * @param ylists   数组集合
+	 * @param maps     解析排序原数据
+	 * @param callType 请求类型(1,在线人数 2,注册人数 3,创建玩家数量)
+	 * @return
+	 */
+	private void passYString(List<Integer> ylists,Map<String, RealDataGmLog> maps,int callType){
+		Map<String, RealDataGmLog> sortMap = Maps.newTreeMap(new Comparator<String>() {  
+            public int compare(String str1, String str2) {  
+                // 升序排序  
+            	String sub1 = str1.substring(0, 2);
+            	String sub2 = str2.substring(0, 2);
+            	String s1;String s2; 
+            	if(sub1.contains("-")){
+            		s1 = sub1.replace("-", "");
+            	}else {
+            		s1 = sub1;
+				}
+            	if(sub2.contains("-")){
+            		s2 = sub2.replace("-", "");
+            	}else {
+            		s2 = sub2;
+				}
+            	return Integer.parseInt(s1) > Integer.parseInt(s2) ? 1:-1;
+            }  
+        });
+		
+		for (Map.Entry<String,RealDataGmLog> entry : maps.entrySet()) {
+			sortMap.put(entry.getKey(), entry.getValue());
+		}
+		for (Map.Entry<String,RealDataGmLog> entry : sortMap.entrySet()) {
+			if(callType == 1){
+				ylists.add(entry.getValue().getRealOnLinePeople());
+			}else if (callType == 2) {
+				ylists.add(entry.getValue().getRealRegisteredPeoplenum());
+			}else {
+				ylists.add(entry.getValue().getRealCreateHeronum());
+			}
+		}
+	}
+	
+	/**
+	 *  多Y轴同一类型数据
+	 * @param realsMaps
+	 * @param callType  1 2 3
+	 * @return
+	 */
+//	private String unifyPassYAxis(Map<Integer, Map<String, RealDataGmLog>> realsMaps,int callType){
+//		List<Integer> yLists = Lists.newArrayList();
+//		for (Map.Entry<Integer,Map<String,RealDataGmLog>> entry : realsMaps.entrySet()) {
+//			passYString(yLists, entry.getValue(), callType);
+//		}
+//		return yLists.toString();
+//	}
+	
+	/**
+	 * Y轴数据解析
+	 * @param ylists   数组集合
+	 * @param maps     解析排序原数据
+	 * @param callType 请求类型(1,在线人数 2,注册人数 3,创建玩家数量)
+	 * @return
+	 */
+//	private void unifyPassYString(List<Integer> ylists,Map<String, RealDataGmLog> maps,int callType){
+//		Map<String, RealDataGmLog> sortMap = Maps.newTreeMap(new Comparator<String>() {  
+//            public int compare(String str1, String str2) {  
+//                // 升序排序  
+//            	String sub1 = str1.substring(0, 2);
+//            	String sub2 = str2.substring(0, 2);
+//            	String s1;String s2; 
+//            	if(sub1.contains("-")){
+//            		s1 = sub1.replace("-", "");
+//            	}else {
+//            		s1 = sub1;
+//				}
+//            	if(sub2.contains("-")){
+//            		s2 = sub2.replace("-", "");
+//            	}else {
+//            		s2 = sub2;
+//				}
+//            	return Integer.parseInt(s1) > Integer.parseInt(s2) ? 1:-1;
+//            }  
+//        });
+//		
+//		for (Map.Entry<String,RealDataGmLog> entry : maps.entrySet()) {
+//			sortMap.put(entry.getKey(), entry.getValue());
+//		}
+//		if(callType == 1){
+//			ylists.add(entry.getValue().getRealOnLinePeople());
+//		}else if (callType == 2) {
+//			ylists.add(entry.getValue().getRealRegisteredPeoplenum());
+//		}else {
+//			ylists.add(entry.getValue().getRealCreateHeronum());
+//		}
+//		for (Map.Entry<String,RealDataGmLog> entry : sortMap.entrySet()) {
+//		}
+//	}
+}

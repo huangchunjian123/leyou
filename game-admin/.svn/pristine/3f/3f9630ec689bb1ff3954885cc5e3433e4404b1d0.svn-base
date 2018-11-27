@@ -1,0 +1,32 @@
+package com.game.admin.dto.currency;
+/**
+ * 货币相关
+ * @author JiaYi
+ * @date  2018年2月5日 下午7:55:18 
+ * @package com.game.admin.dto.currency
+ */
+public class CurrencyDto {
+	
+	private int id;
+	private String name;
+	
+	public CurrencyDto() {
+	}
+	
+	public CurrencyDto(int id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}

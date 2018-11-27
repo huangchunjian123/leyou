@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: system_provide
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: Administrator
+Implementation-Vendor-Id: com.provide
+Build-Jdk: 1.8.0_161
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/system_provide
+Created-By: Maven Integration for Eclipse
+

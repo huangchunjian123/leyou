@@ -1,0 +1,11 @@
+package com.game.admin.service.life;
+
+import java.util.List;
+
+import com.game.admin.pojo.Life;
+
+public interface ILifeService {
+	
+	public List<Life> getAllLife();
+	
+}

@@ -1,0 +1,88 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>服务器充值数据统计图</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+	
+	<!-- 引入 highcharts.js -->
+    <script type="text/javascript"
+    src="<%=request.getContextPath()%>/jslib/videotex/real/highcharts.js"></script>
+<script type="text/javascript">
+function getServerIds(){
+	var nodes = $('#tree').tree('getChecked');
+	var s = '';
+	for(var i=0; i<nodes.length; i++){
+		if(!$('#tree').tree('isLeaf',nodes[i].target)){
+			continue;
+		}
+		if (s != '') s += ',';
+			s += nodes[i].id;
+	}
+	return s;
+}
+
+//jiayi
+function submitok(){
+	var serverIds=getServerIds();
+	$.post('<%=request.getContextPath() %>/videotex/serverContrasTotalPay',{
+		serverIds:serverIds,	
+	},function(data) {
+		var d = $.parseJSON(data);
+		if(d.videotexConfig==3){
+		var msg = d.msg
+		document.getElementById("container").style.display = "block";
+		var chart = Highcharts.chart('container', msg);
+		}
+	});	
+}
+	
+function _closeContainer(){
+	document.getElementById("container").style.display = "none";
+}
+
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务 器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:true"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset" style="margin-top: 20px">
+		<fieldset>
+			<legend>请选择服务器</legend>
+			<form>
+				<table >
+					<tr>
+						<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok();">发送</a></td>
+					</tr>
+				</table>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+	
+	<div region="north" border="false" title="数据折线图" style="height: 60px; overflow: hidden;" align="left">
+		<form>
+		<table>
+			<tr>
+				<td>
+					<input id="serverId" name="serverId" hidden="true" />
+					<input name="callLogType"  value="22" hidden="true" />&nbsp;
+				</td>
+				<td>
+					<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_closeContainer();"><font color="red" >关闭柱形图</font></a>
+					<font color="red" size="2" ><strong>提醒:为了服务器数据对比鲜明,充值总金额单位/元,总付费率去掉百分号小数点后移2位数, arpu和arppu值四舍五入后单位分!具体数值请点击 游戏内部下(总充值和Arpu值)</strong></font>
+				</td>
+			</tr>
+		</table>
+		</form>
+	</div>	
+	
+	
+	<!-- 图表容器 DOM  -->
+    <div id="container" region="center" border="false" style="min-width:400px;height:850px"></div>
+</body>
+</html>

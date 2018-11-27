@@ -1,0 +1,24 @@
+package com.game.admin.service.hunqi;
+
+import java.util.List;
+
+import com.game.admin.dto.hunqi.HunqiDto;
+
+/**
+ * 魂器相关操作接口
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+public interface IHunqiService {
+
+	/**
+	 * 获得职业魂器
+	 * @param job 技能使用者(0.通用1.拳师2.魔剑士3.机甲)
+	 * @return
+	 */
+	public List<HunqiDto> getHunqisByTypeJob(int job);
+	/**	
+	 * 初始化
+	 */
+	public void initData();
+}

@@ -1,0 +1,86 @@
+package com.game.admin.controllers;
+
+
+import net.paoding.rose.web.annotation.Param;
+import com.game.admin.utils.OperateLogInfos;
+import com.game.admin.utils.ResultCode;
+import com.game.api.hessian.DataGrid;
+import com.game.api.hessian.HeroService;
+import com.game.util.StringUtil;
+/**
+ * 模块供营运管理
+ * @author JiaYi
+ * @date  2018年3月29日 下午5:53:29 
+ * @package com.game.admin.controllers
+ */
+public class RunController extends BaseController{
+	
+	/**
+	 * 跳转至列表页面
+	 * goList
+	 * @return   
+	 * String  
+	 * @exception
+	 */
+	public String goRunHeros() {
+		return "runheros/runList";
+	}
+	
+	/**
+	 * 查找玩家
+	 * @param loginName
+	 * @param serverId
+	 * @return
+	 */
+	public Object queryHeroList(@Param("serverId") int serverId, @Param("page") int page, @Param("rows") int rows, @Param("qName") String qName) {
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService != null){
+				try {
+					DataGrid result = heroService.getHeroListDto(serverId, rows, page, qName);
+					if (null == result) {
+						logger.error(String.format("查找%d服玩家账号失败", serverId));
+						return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+					}
+					return ResultCode.writeJson(result);
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error(String.format("查找%d服玩家账号失败", serverId));
+	}
+	
+	/**
+	 * 踢玩家下线
+	 * @param serverId
+	 * @param heroId
+	 * @return
+	 */
+	public Object downLine(@Param("serverId") int serverId, @Param("heroId") String heroId) {
+		if (null == heroId || "".equals(heroId)) {
+			return ResultCode.error("参数错误heroId");
+		}
+		String url = buildUrl(serverId);
+		if(!StringUtil.isEmpty(url)) {
+			HeroService heroService = getHessianFactory(HeroService.class, url);
+			if(heroService!= null){
+				try {
+					int res = heroService.downLine(heroId);
+					if (res == 0) {
+						recordOperateLog(String.format(OperateLogInfos.RunControllerDownLine,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 1);
+					}
+					if (res == 1) {
+						recordOperateLog(String.format(OperateLogInfos.RunControllerDownLine,heroId,getSessionInfo().getIp(),getByIdServerName(serverId)), 2);
+						return ResultCode.error(String.format("玩家已经下线，提玩家下线失败%s", heroId));
+					}
+					return ResultCode.succ(String.format("操作成功，踢玩家下线成功%s", heroId));
+				} catch (Exception e) {
+					logger.info(String.format("此服务器拒绝连接/或者没有启动 ,serverId: {%d}",serverId));
+				}
+			}
+		}
+		return ResultCode.error(String.format("踢出%s玩家账号失败", heroId));
+	}
+}

@@ -1,0 +1,293 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>用户登录记录表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+<script type="text/javascript">
+   
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});	
+	var choseserverId=-1;
+	/**节点单击事件**/
+	$(document).ready(function(){
+		$("#tree").tree({
+			onClick:function(node){
+			 choseserverId = node.id;
+			 _search();
+			}			
+		});
+	});
+
+	function _search(){		
+		$('#serverId').val(choseserverId);
+		$('#dg').datagrid('load',sy.serializeObject(searchForm));    
+	}
+	
+	function refreshTab(title) {
+		var partabs = parent.centerTabs;
+		var cruuTab = partabs.tabs('getTab', title);
+		partabs.tabs('update', {
+			tab : cruuTab,
+			options : {
+				title : title,
+				content : cruuTab.panel('options').content
+			}
+		});
+	}
+	
+	function  hiddenfield(){
+	}
+	/* ----------------------主板----------------------------   	*/
+	function gradedistribution(value,row,rowIndex){
+		var gradeData = row.gradeData;
+		var moduleData = row.moduleOpenData;
+		var instanceData  = row.instanceOpenData;
+		var mapData = row.mapData;
+		var vipLevelData = row.vipLevelData;
+		var gradeBeginPayData = row.gradeBeginPayData;
+		
+		var monthGradeCard = row.monthGradeCard;
+		var lifelongGradeCard = row.lifelongGradeCard;
+		var groupFoundGradeCard = row.groupFoundGradeCard;
+	    var html="<a href='#' onclick='_gradeData(\""+gradeData + "\");'>等级分布</a>&nbsp;&nbsp;<a href='#' onclick='_moduleData(\""+moduleData + "\");'>模块分布</a>&nbsp;&nbsp;<a href='#' onclick='_instanceData(\""+instanceData + "\");'>副本分布</a>&nbsp;&nbsp;<a href='#' onclick='_mapData(\""+mapData + "\");'>地图分布</a>&nbsp;&nbsp;<a href='#' onclick='_vipData(\""+vipLevelData + "\");'>VIP分布</a>&nbsp;&nbsp;<a href='#' onclick='_gradePayData(\""+gradeBeginPayData + "\");'>等级付费分布</a>&nbsp;&nbsp;<a href='#' onclick='_monthGradeCard(\""+monthGradeCard + "\");'>月卡等级付费</a>&nbsp;&nbsp;<a href='#' onclick='_lifelongGradeCard(\""+lifelongGradeCard + "\");'>终身卡付费等级 </a>&nbsp;&nbsp;<a href='#' onclick='_groupFoundGradeCard(\""+groupFoundGradeCard + "\");'>成长基金等级付费 </a>";
+		return html;
+	}
+	/* ----------------------等级----------------------------  	*/
+	
+	function _gradeData(gradeData) {
+	    $('#grade').dialog({
+	     	onLoad:function(){
+   	    $('#grade_list').val(gradeData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/gradeList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#grade').dialog('open');
+		$('#grade').dialog('setTitle', '等级分布');
+	}
+	/* ----------------------模块---------------------------- 	*/
+	
+	function _moduleData(moduleData) {
+	    $('#module').dialog({
+	     	onLoad:function(){
+   	    $('#module_list').val(moduleData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/moduleList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#module').dialog('open');
+		$('#module').dialog('setTitle', '模块分布'); 
+	}
+	
+	/* -----------------副本---------------------------------  */
+	
+	function _instanceData(instanceData) {
+	    $('#instance').dialog({
+	     	onLoad:function(){
+   	    $('#instance_list').val(instanceData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/instanceList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#instance').dialog('open');
+		$('#instance').dialog('setTitle', '副本分布'); 
+	}
+	/* -------------------------------------地图--------------------------------   */
+	
+	function _mapData(mapData) {
+	    $('#map').dialog({
+	     	onLoad:function(){
+   	    $('#map_list').val(mapData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/mapList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#map').dialog('open');
+		$('#map').dialog('setTitle', '地图分布'); 
+	}
+	
+	/* -------------------------------------vip--------------------------------    */
+	
+	function _vipData(vipLevelData) {
+	    $('#vip').dialog({
+	     	onLoad:function(){
+   	    $('#vip_list').val(vipLevelData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/vipList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#vip').dialog('open');
+		$('#vip').dialog('setTitle', 'VIP分布'); 
+	} 
+	/* -------------------------------------等级付费-------------------------------   */
+	function _gradePayData(gradeBeginPayData) {
+	    $('#gradePay').dialog({
+	     	onLoad:function(){
+   	    $('#gradePay_list').val(gradeBeginPayData);
+	    },
+	    href:'<%=request.getContextPath()%>/views/slog/grade/gradePayList.jsp',
+	    modal: true,
+	    closed: true});
+		$('#gradePay').dialog('open');
+		$('#gradePay').dialog('setTitle', '等级付费分布'); 
+	} 
+	/* -------------------------------------月卡等级付费-------------------------------   */
+	function  _monthGradeCard(monthGradeCard){
+		 $('#monthGradeCardPay').dialog({
+		     	onLoad:function(){
+	   	    $('#monthGradeCardPay_list').val(monthGradeCard);
+		    },
+		    href:'<%=request.getContextPath()%>/views/slog/grade/monthGradeCardList.jsp',
+		    modal: true,
+		    closed: true});
+			$('#monthGradeCardPay').dialog('open');
+			$('#monthGradeCardPay').dialog('setTitle', '月卡等级付费'); 
+	}
+	/* -------------------------------------终身卡付费等级-------------------------------   */
+	function _lifelongGradeCard(lifelongGradeCard){
+		 $('#lifelongGradeCardPay').dialog({
+		     	onLoad:function(){
+	   	    $('#lifelongGradeCardPay_list').val(lifelongGradeCard);
+		    },
+		    href:'<%=request.getContextPath()%>/views/slog/grade/lifelongGradeCardList.jsp',
+		    modal: true,
+		    closed: true});
+			$('#lifelongGradeCardPay').dialog('open');
+			$('#lifelongGradeCardPay').dialog('setTitle', '终身卡付费等级'); 
+	}
+	
+	
+	/* ------------------------------------- 成长基金等级付费-------------------------------   */
+	function _groupFoundGradeCard(groupFoundGradeCard) {
+		 $('#groupFoundGradeCardPay').dialog({
+		     	onLoad:function(){
+	   	    $('#groupFoundGradeCardPay_list').val(groupFoundGradeCard);
+		    },
+		    href:'<%=request.getContextPath()%>/views/slog/grade/groupFoundGradeCardList.jsp',
+		    modal: true,
+		    closed: true});
+			$('#groupFoundGradeCardPay').dialog('open');
+			$('#groupFoundGradeCardPay').dialog('setTitle', '成长基金等级付费'); 
+	}
+	
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	<div region="west" split="true" title="	" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/allServertree',method:'get',animate:true,checkbox:false"></ul>
+    </div>
+	<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="账号列表(此数据是每天从所有玩家计算出后数据)" class="easyui-datagrid"
+			data-options="
+            url:'<%=request.getContextPath()%>/slog/queryGameHeroRateList',
+            queryParams:'serverId=-1',
+            method:'post',
+            pageSize:20,
+            pageList: [ 20, 40, 60],
+            singleSelect:true,
+            collapsible:true,
+            rownumbers:true,
+            fitColumns:true,
+            fit:true,
+            view:groupview,
+            groupField:'type',
+            groupFormatter:function(value,rows){
+                return '查询数据 '  + ' - ' + rows.length + '条';
+            },
+            onBeforeLoad:function(param) {
+            	hiddenfield();
+            }
+            "
+			toolbar="#toolbar" pagination="true">
+			<thead>
+				<tr>	
+					<th data-options="field:'time'" width="5" align="left">注册时间</th>
+					<th data-options="field:'firstPayData'" width="5" align="left">首充</th>
+					<th data-options="field:'monthCardData'" width="5" align="left">月卡</th>
+					<th data-options="field:'lifeLongCardData'" width="5" align="left">终身卡</th>
+					<th data-options="field:'opt',title:'Operation',formatter:gradedistribution" width="15">等级相关分布</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div region="north" border="false" title="" style="height: 1px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<input id="serverId" name="serverId" hidden="true" />
+						<input name="callLogType"  value="13" hidden="true" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>	
+</body>
+
+	<div id="grade"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#grade-buttons" align="center">
+	</div>
+	<div id="grade-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#grade').dialog('close');">取消</a>
+	</div>
+	
+	<div id="module"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#module-buttons" align="center">
+	</div>
+	<div id="module-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#module').dialog('close');">取消</a>
+	</div>
+	
+	<div id="instance"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#instance-buttons" align="center">
+	</div>
+	<div id="instance-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#instance').dialog('close');">取消</a>
+	</div>
+	
+	<div id="map"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#map-buttons" align="center">
+	</div>
+	<div id="map-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#map').dialog('close');">取消</a>
+	</div>
+	
+	<div id="vip"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#vip-buttons" align="center">
+	</div>
+	<div id="vip-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#vip').dialog('close');">取消</a>
+	</div>
+	
+	<div id="gradePay"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#gradePay-buttons" align="center">
+	</div>
+	<div id="gradePay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#gradePay').dialog('close');">取消</a>
+	</div>
+	
+	<div id="monthGradeCardPay"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#monthGradeCardPay-buttons" align="center">
+	</div>
+	<div id="monthGradeCardPay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#monthGradeCardPay').dialog('close');">取消</a>
+	</div>
+	<div id="lifelongGradeCardPay"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#lifelongGradeCardPay-buttons" align="center">
+	</div>
+	<div id="lifelongGradeCardPay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#lifelongGradeCardPay').dialog('close');">取消</a>
+	</div>
+	<div id="groupFoundGradeCardPay"  style="display: block; top: 150px; width: 1000px; left: 409px; overflow: auto;" closed="true" buttons="#groupFoundGradeCardPay-buttons" align="center">
+	</div>
+	<div id="groupFoundGradeCardPay-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#groupFoundGradeCardPay').dialog('close');">取消</a>
+	</div>
+	
+</html>

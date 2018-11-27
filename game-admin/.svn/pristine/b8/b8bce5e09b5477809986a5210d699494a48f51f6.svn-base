@@ -1,0 +1,27 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<input id="heroId" name="heroId" hidden="true"/>
+	<tr>
+		<td>选择充值项目:</td>
+		<td>
+			<select id="recharge" name="recharge" class="easyui-combogrid recharge1"
+			style="width: 180px"
+			data-options="
+	            panelWidth: 180,
+	            idField: 'id',
+	            textField: 'name',
+	            url: '<%=request.getContextPath() %>/currency/getAllRechargeData',
+	            columns: [[
+	                {field:'name',title:'名称',width:60},
+	                {field:'id',title:'ID',width:40}
+	            ]],
+	            fitColumns: true,
+				method:'post',
+				editable:false,
+				mode:'remote'">
+			</select>
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,61 @@
+package com.game.admin.pojo.system;
+
+import java.util.Date;
+
+/**
+ * 操作日志数据
+ * @author huangchunjian
+ *
+ */
+public class OperateLogData implements java.io.Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4452089412699356758L;
+	
+	private int id;
+	private String operator;
+	private String event;
+	private String status;
+	private Date  logTime;
+	
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getOperator() {
+		return operator;
+	}
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+	public String getEvent() {
+		return event;
+	}
+	public void setEvent(String event) {
+		this.event = event;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Date getLogTime() {
+		return logTime;
+	}
+	public void setLogTime(Date logTime) {
+		this.logTime = logTime;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	@Override
+	public String toString() {
+		return "Log [operator" + operator + "event =" + event + "status =" +status
+				+ "logTime =" + logTime + "]";
+	}
+}

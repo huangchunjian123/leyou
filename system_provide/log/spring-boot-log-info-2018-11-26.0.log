@@ -1,0 +1,166 @@
+2018-11-26 18:19:27.429 INFO  org.springframework.context.annotation.AnnotationConfigApplicationContext Line:590 - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@1f59a598: startup date [Mon Nov 26 18:19:27 CST 2018]; root of context hierarchy
+2018-11-26 18:19:27.746 INFO  org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor Line:153 - JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+2018-11-26 18:19:27.785 INFO  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Line:326 - Bean 'configurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$c2db5b89] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2018-11-26 18:19:28.299 INFO  com.provide.SystemProvideApplication Line:662 - No active profile set, falling back to default profiles: default
+2018-11-26 18:19:28.314 INFO  org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext Line:590 - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@71529963: startup date [Mon Nov 26 18:19:28 CST 2018]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@1f59a598
+2018-11-26 18:19:29.346 INFO  org.springframework.cloud.context.scope.GenericScope Line:294 - BeanFactory id=d8af0954-1459-3517-a8b8-c743de66882b
+2018-11-26 18:19:29.362 INFO  org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor Line:153 - JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+2018-11-26 18:19:29.443 INFO  org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker Line:326 - Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$c2db5b89] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2018-11-26 18:19:29.916 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:91  - Tomcat initialized with port(s): 9011 (http)
+2018-11-26 18:19:29.938 INFO  org.apache.catalina.core.StandardService Line:180 - Starting service [Tomcat]
+2018-11-26 18:19:29.939 INFO  org.apache.catalina.core.StandardEngine Line:180 - Starting Servlet Engine: Apache Tomcat/8.5.32
+2018-11-26 18:19:29.948 INFO  org.apache.catalina.core.AprLifecycleListener Line:180 - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jre1.8.0_161\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;D:/Program Files/Java/jre1.8.0_161/bin/server;D:/Program Files/Java/jre1.8.0_161/bin;D:/Program Files/Java/jre1.8.0_161/lib/amd64;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;D:\Program Files\TortoiseGit\bin;D:\Program Files\Git\cmd;D:\Program Files\Java\jdk1.8.0_161\bin;D:\Program\mysql-5.7.23-winx64\bin;C:\Program Files\nodejs\;C:\Users\Administrator\AppData\Roaming\npm;C:\Users\Administrator\Desktop;;.]
+2018-11-26 18:19:30.060 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] Line:180 - Initializing Spring embedded WebApplicationContext
+2018-11-26 18:19:30.061 INFO  org.springframework.web.context.ContextLoader Line:285 - Root WebApplicationContext: initialization completed in 1747 ms
+2018-11-26 18:19:30.212 INFO  com.netflix.config.sources.URLConfigurationSource Line:122 - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2018-11-26 18:19:30.226 INFO  com.netflix.config.DynamicPropertyFactory Line:281 - DynamicPropertyFactory is initialized with configuration sources: com.netflix.config.ConcurrentCompositeConfiguration@69d992f3
+2018-11-26 18:19:31.051 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-11-26 18:19:31.053 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'webMvcMetricsFilter' to: [/*]
+2018-11-26 18:19:31.053 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-11-26 18:19:31.053 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-11-26 18:19:31.053 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'requestContextFilter' to: [/*]
+2018-11-26 18:19:31.053 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:245 - Mapping filter: 'httpTraceFilter' to: [/*]
+2018-11-26 18:19:31.054 INFO  org.springframework.boot.web.servlet.FilterRegistrationBean Line:258 - Mapping filter: 'servletContainer' to urls: [/eureka/*]
+2018-11-26 18:19:31.054 INFO  org.springframework.boot.web.servlet.ServletRegistrationBean Line:187 - Servlet dispatcherServlet mapped to [/]
+2018-11-26 18:19:31.124 INFO  com.sun.jersey.server.impl.application.WebApplicationImpl Line:815 - Initiating Jersey application, version 'Jersey: 1.19.1 03/11/2016 02:08 PM'
+2018-11-26 18:19:31.179 INFO  com.netflix.discovery.provider.DiscoveryJerseyProvider Line:70  - Using JSON encoding codec LegacyJacksonJson
+2018-11-26 18:19:31.181 INFO  com.netflix.discovery.provider.DiscoveryJerseyProvider Line:71  - Using JSON decoding codec LegacyJacksonJson
+2018-11-26 18:19:31.507 INFO  com.netflix.discovery.provider.DiscoveryJerseyProvider Line:80  - Using XML encoding codec XStreamXml
+2018-11-26 18:19:31.507 INFO  com.netflix.discovery.provider.DiscoveryJerseyProvider Line:81  - Using XML decoding codec XStreamXml
+2018-11-26 18:19:31.828 INFO  com.netflix.config.sources.URLConfigurationSource Line:122 - To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2018-11-26 18:19:31.894 INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping Line:373 - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-11-26 18:19:32.052 INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter Line:574 - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@71529963: startup date [Mon Nov 26 18:19:28 CST 2018]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@1f59a598
+2018-11-26 18:19:32.110 INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping Line:547 - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-11-26 18:19:32.111 INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping Line:547 - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-11-26 18:19:32.115 INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping Line:547 - Mapped "{[/],methods=[GET]}" onto public java.lang.String org.springframework.cloud.netflix.eureka.server.EurekaController.status(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.Object>)
+2018-11-26 18:19:32.116 INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping Line:547 - Mapped "{[/lastn],methods=[GET]}" onto public java.lang.String org.springframework.cloud.netflix.eureka.server.EurekaController.lastn(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.Object>)
+2018-11-26 18:19:32.136 INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping Line:373 - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-11-26 18:19:32.137 INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping Line:373 - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-11-26 18:19:32.472 INFO  org.springframework.ui.freemarker.SpringTemplateLoader Line:62  - SpringTemplateLoader for FreeMarker: using resource loader [org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@71529963: startup date [Mon Nov 26 18:19:28 CST 2018]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@1f59a598] and template loader path [classpath:/templates/]
+2018-11-26 18:19:32.473 INFO  org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer Line:131 - ClassTemplateLoader for Spring macros added to FreeMarker configuration
+2018-11-26 18:19:32.633 INFO  org.springframework.cloud.netflix.eureka.InstanceInfoFactory Line:71  - Setting initial instance status as: STARTING
+2018-11-26 18:19:32.665 INFO  com.netflix.discovery.DiscoveryClient Line:349 - Initializing Eureka in region us-east-1
+2018-11-26 18:19:32.665 INFO  com.netflix.discovery.DiscoveryClient Line:352 - Client configured to neither register nor query for data.
+2018-11-26 18:19:32.676 INFO  com.netflix.discovery.DiscoveryClient Line:365 - Discovery Client initialized at timestamp 1543227572674 with initial instances count: 0
+2018-11-26 18:19:32.723 INFO  com.netflix.eureka.DefaultEurekaServerContext Line:63  - Initializing ...
+2018-11-26 18:19:32.757 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:151 - Finished initializing remote region registries. All known remote regions: []
+2018-11-26 18:19:32.758 INFO  com.netflix.eureka.DefaultEurekaServerContext Line:70  - Initialized
+2018-11-26 18:19:32.776 INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver Line:59  - Exposing 2 endpoint(s) beneath base path '/actuator'
+2018-11-26 18:19:32.785 INFO  org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping Line:547 - Mapped "{[/actuator/health],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2018-11-26 18:19:32.786 INFO  org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping Line:547 - Mapped "{[/actuator/info],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2018-11-26 18:19:32.786 INFO  org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping Line:547 - Mapped "{[/actuator],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto protected java.util.Map<java.lang.String, java.util.Map<java.lang.String, org.springframework.boot.actuate.endpoint.web.Link>> org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping.links(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-11-26 18:19:32.840 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:433 - Registering beans for JMX exposure on startup
+2018-11-26 18:19:32.850 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:895 - Bean with name 'environmentManager' has been autodetected for JMX exposure
+2018-11-26 18:19:32.852 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:895 - Bean with name 'configurationPropertiesRebinder' has been autodetected for JMX exposure
+2018-11-26 18:19:32.853 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:895 - Bean with name 'refreshScope' has been autodetected for JMX exposure
+2018-11-26 18:19:32.856 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:675 - Located managed bean 'environmentManager': registering with JMX server as MBean [org.springframework.cloud.context.environment:name=environmentManager,type=EnvironmentManager]
+2018-11-26 18:19:32.865 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:675 - Located managed bean 'refreshScope': registering with JMX server as MBean [org.springframework.cloud.context.scope.refresh:name=refreshScope,type=RefreshScope]
+2018-11-26 18:19:32.876 INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter Line:675 - Located managed bean 'configurationPropertiesRebinder': registering with JMX server as MBean [org.springframework.cloud.context.properties:name=configurationPropertiesRebinder,context=71529963,type=ConfigurationPropertiesRebinder]
+2018-11-26 18:19:32.886 INFO  org.springframework.context.support.DefaultLifecycleProcessor Line:351 - Starting beans in phase 0
+2018-11-26 18:19:32.894 INFO  org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry Line:42  - Registering application systemProvide with eureka with status UP
+2018-11-26 18:19:32.928 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerBootstrap Line:109 - Setting the eureka configuration..
+2018-11-26 18:19:32.929 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerBootstrap Line:114 - Eureka data center value eureka.datacenter is not set, defaulting to default
+2018-11-26 18:19:32.930 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerBootstrap Line:128 - Eureka environment value eureka.environment is not set, defaulting to test
+2018-11-26 18:19:32.952 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:206 - Tomcat started on port(s): 9011 (http) with context path ''
+2018-11-26 18:19:32.960 INFO  org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration Line:124 - Updating port to 9011
+2018-11-26 18:19:32.963 INFO  com.provide.SystemProvideApplication Line:59  - Started SystemProvideApplication in 6.775 seconds (JVM running for 7.379)
+2018-11-26 18:19:32.978 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerBootstrap Line:184 - isAws returned false
+2018-11-26 18:19:32.979 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerBootstrap Line:152 - Initialized server context
+2018-11-26 18:19:32.979 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:242 - Got 1 instances from neighboring DS node
+2018-11-26 18:19:32.979 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:243 - Renew threshold is: 1
+2018-11-26 18:19:32.979 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:254 - Changing status to UP
+2018-11-26 18:19:32.997 INFO  org.springframework.cloud.netflix.eureka.server.EurekaServerInitializerConfiguration Line:72  - Started Eureka Server
+2018-11-26 18:20:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:20:56.426 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] Line:180 - Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-11-26 18:20:56.426 INFO  org.springframework.web.servlet.DispatcherServlet Line:494 - FrameworkServlet 'dispatcherServlet': initialization started
+2018-11-26 18:20:56.575 INFO  org.springframework.web.servlet.DispatcherServlet Line:509 - FrameworkServlet 'dispatcherServlet': initialization completed in 148 ms
+2018-11-26 18:20:57.618 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:269 - Registered instance SYSTEMGAME/PC-201CINU:systemGame:8013 with status UP (replication=false)
+2018-11-26 18:21:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:22:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:23:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:24:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:25:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:25:57.514 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:269 - Registered instance SYSTEMADMIN/PC-201CINU:systemAdmin:9012 with status UP (replication=false)
+2018-11-26 18:26:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:27:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:28:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:29:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:30:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:31:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:32:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:33:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:34:32.757 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:541 - Current renewal threshold is : 5
+2018-11-26 18:34:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:35:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:36:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:37:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:38:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:39:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:40:32.980 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:41:11.484 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:269 - Registered instance SYSTEMGAME/PC-201CINU:systemGame:8013 with status UP (replication=false)
+2018-11-26 18:41:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:42:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:43:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:44:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:45:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:46:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:47:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:48:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:49:32.757 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:541 - Current renewal threshold is : 5
+2018-11-26 18:49:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:50:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:51:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:52:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:53:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:54:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:55:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:56:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:57:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:58:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 18:59:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:00:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:01:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:02:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:03:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:04:32.757 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:541 - Current renewal threshold is : 5
+2018-11-26 19:04:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:05:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:06:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:07:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:08:32.981 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:09:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 2ms
+2018-11-26 19:10:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:11:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:12:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:13:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:14:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:15:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:16:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:17:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:18:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:19:32.757 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:541 - Current renewal threshold is : 5
+2018-11-26 19:19:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:20:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:21:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:22:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:23:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:24:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:25:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:26:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:27:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:28:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:29:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:30:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:31:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:32:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:33:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:34:32.757 INFO  com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl Line:541 - Current renewal threshold is : 5
+2018-11-26 19:34:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:35:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:36:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:37:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:38:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:39:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:40:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:41:32.989 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 0ms
+2018-11-26 19:42:38.508 INFO  com.netflix.eureka.registry.AbstractInstanceRegistry Line:1247 - Running the evict task with compensationTime 5513ms

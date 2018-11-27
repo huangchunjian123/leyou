@@ -1,0 +1,35 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">提示:妥善管理</font>
+<table class="tableCss">
+	<tr>
+		<td>登录名:</td>
+		<td><input id="skill_loginName" name="horse_loginName" class="easyui-validatebox"/></td>
+		<td>登录密码:</td>
+		<td><input id="skill_loginPsd" name="horse_loginName" class="easyui-validatebox" /></td>
+		<td>角色名:</td>
+		<td><input id="skill_heroName" name="horse_heroName" class="easyui-validatebox" /></td>
+		<td><input id="skill_heroId" name="horse_heroId" hidden="false" class="easyui-validatebox"  /></td>
+	</tr>
+	<tr>
+		<td>技能 :</td>
+		<td>
+		<input id='skill_SkillID' hidden="true" required="true"  class="easyui-combobox"></input>
+		</td>
+		
+	</tr>
+	<tr>
+		<td>等级:</td>
+		<td><input id="skill_level" name="skill_level" value="1" min="1" max="150" class="easyui-numberspinner" required="true" required="true"/>
+		</td>
+
+	</tr>
+
+ 	<tr >
+		<td colspan="8">&nbsp;&nbsp;</td>
+		
+	</tr> 
+ 	
+</table>

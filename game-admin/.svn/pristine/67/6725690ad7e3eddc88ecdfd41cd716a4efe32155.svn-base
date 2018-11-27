@@ -1,0 +1,19 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+
+<font color="red" size="1">友情提示:编辑玩家闯关关卡，之前关卡全部完美通关</font>
+<table class="tableCss">
+
+
+    <tr>
+		<td>当前闯关id:</td>
+		<td>  <input id='cur_blood_id'></input></td>
+	</tr>
+	<tr>
+		<td>选择关卡:</td>
+		<td>  <input id='blood_id'></input></td>
+		<td>  <input id='bl_hero_id' hidden="true"></input></td>
+	</tr>
+	
+</table>

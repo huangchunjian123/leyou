@@ -1,0 +1,324 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>发全服邮箱</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript">
+function getServerIds(){
+	var nodes = $('#tree').tree('getChecked');
+	var s = '';
+	for(var i=0; i<nodes.length; i++){
+		if(!$('#tree').tree('isLeaf',nodes[i].target)){
+			continue;
+		}
+		if (s != '') s += ',';
+			s += nodes[i].id;
+	}
+	return s;
+}
+
+function submitok(){
+	var title =$('#title').val();
+	var content = $('#content').val();
+
+	if(title==''){
+		alert("邮件标题不能为空!");
+		return;
+	}
+	if(content==''){
+		alert("邮件内容不能为空!");
+		return;
+	}
+
+	var emailType = $('#emailType1').val();
+	var xzsendTime = $('#xzsendTime').datetimebox("getValue");
+	if(emailType == 2 && xzsendTime== ''){
+		alert("请设定发送时间!");
+		return ;
+	}
+	
+	var grew = '';
+	$('#goods option').each(function(){
+		grew += $(this).val()+",";
+	});
+	 var serverIds=getServerIds();
+	$.post('<%=request.getContextPath()%>/server/sendServerMails', {
+			title : title,
+			content : content,
+			serverIds:serverIds,
+			sendGoods:grew,
+			sendType:emailType,
+			xzsendTime :xzsendTime
+		}, function(data) {
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+function bagTypeChange(obj) {
+	var type = $(obj).children('option:selected').val();
+	var praentObj = $(obj).parent().parent();
+	if (type == 1) {
+		praentObj.find(".equip_span").show();
+		praentObj.find(".good_span").hide();
+		praentObj.find(".gemstone_span").hide();
+		praentObj.find(".currency_span").hide();
+		$('#equip_quality_hidden').show();
+		$('#is_bind').show();
+	} else if (type == 2) {
+		praentObj.find(".equip_span").hide();
+		praentObj.find(".good_span").show();
+		praentObj.find(".gemstone_span").hide();
+		praentObj.find(".currency_span").hide();
+		$('#equip_quality_hidden').hide();
+		$('#is_bind').show();
+	} else if(type == 3){
+		praentObj.find(".equip_span").hide();
+		praentObj.find(".good_span").hide();
+		praentObj.find(".gemstone_span").show();
+		praentObj.find(".currency_span").hide();
+		$('#equip_quality_hidden').hide();
+		$('#is_bind').show();
+	} else{
+		praentObj.find(".equip_span").hide();
+		praentObj.find(".good_span").hide();
+		praentObj.find(".gemstone_span").hide();
+		praentObj.find(".currency_span").show();
+		$('#equip_quality_hidden').hide();
+		$('#is_bind').hide();
+	}
+}
+function addselect(){
+	var bagTypeSel = $(":input[name='bagType']").children('option:selected');
+	var bagType = bagTypeSel.val();
+	var bagTypeName = bagTypeSel.text();
+	var grid = $(".bagtype" + bagType).combogrid("grid");// 获取表格对象
+	var row = grid.datagrid('getSelected');// 获取行数据
+	if(!row){
+		alert("请选择道具!");
+		return;
+	}
+	var gid = row.id;
+	var gname = row.name;
+	var options = $('#equip_quality option:selected');
+	var quality = options.val();
+	var qualityName = options.text();
+	
+	var isBind = $('#good_is_bind option:selected');
+	var bind = isBind.val();
+	var bindName = isBind.text();
+	
+	var num = $('#goodsnum').val();
+    var reg = new RegExp("^[0-9]*$");
+    if(num == '' || !reg.test(num)){
+        alert("请输入正整数道具数量!");
+        return;
+    }
+    if(bagType == 1){
+    	var tv = bagType + ":" + gid + ":" + num +":" +bind+ ":" + quality;
+		var tt = bagTypeName + ":" + gname + ":" + num +":"+bindName+":" + qualityName;
+    }else{
+		var tv = bagType + ":" + gid + ":" + num+":"+bind;
+		var tt = bagTypeName + ":" + gname + ":" + num +":"+bindName;
+    }
+	$("#goods").append("<option value='"+ tv +"'>"+tt+"</option>");
+}
+function delselect(){
+	var obj = document.getElementById("goods"); 
+	var index = obj.selectedIndex; 
+	obj.options.remove(index); 
+}
+function clearselect(){
+	$("#goods").empty(); 
+}
+
+
+function emailType(obj) {
+	var type = $(obj).children('option:selected').val();
+	if (type == 0) {
+		$('#sendTime').hide();
+	} else if (type == 1) {
+		$('#sendTime').hide();
+	} else if(type == 2){
+		$('#sendTime').show();
+	} 
+}
+
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+	<div region="west" split="true" title="服务 器" style="width: 200px;" id="west">
+        <ul id="tree" class="easyui-tree" data-options="url:'<%=request.getContextPath()%>/server/officialServer',method:'get',animate:true,checkbox:true"></ul>
+    </div>
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset" style="margin-top: 20px">
+		<fieldset>
+			<legend>批量发邮件</legend>
+			<span style="color:red">提醒：邮件标题与内容自行定义</span>
+			<form id="fm">
+				<table border="0">
+					<tr>
+						<td style="text-align: right;">邮件标题:</td>
+						<td><input type="text" id="title" name="title" maxlength="6"
+							style="width: 400px" value="GM通知" /></td>
+					</tr>
+					<tr>
+						<td valign="top" style="text-align: right;">邮件内容:</td>
+						<td><textarea rows="4" cols="80" id="content" name="content"
+								style="resize: none">亲爱的玩家:邮件内容</textarea></td>
+					</tr>
+					<tr>
+						<td valign="top" style="text-align: right;">道具:</td>
+						<td>
+					<select style="width:100px" name="bagType" onchange="javascript:bagTypeChange(this);">
+						<option value="1" selected="selected">装备</option>
+						<option value="2">道具</option>
+						<option value="3">宝石</option>
+						<option value="4">货币</option>
+					</select>
+					<span id="equip_span" class="equip_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype1"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath() %>/equip/getallequip',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+					<span id="good_span" style="display: none;" class="good_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/good/getallgoods',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+							          
+					</span>
+					<span id="gemstone_span" style="display: none;" class="gemstone_span">
+						<select name="targetGoodsSelect" class="easyui-combogrid bagtype3"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/gemstone/getallgemstone',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+					</span>
+					<span id="currency_span" style="display: none;" class="currency_span">
+					<select name="targetGoodsSelect" class="easyui-combogrid bagtype4"
+					style="width: 180px"
+					data-options="
+						            panelWidth: 180,
+						            idField: 'id',
+						            textField: 'name',
+						            url: '<%=request.getContextPath()%>/currency/getAllCurrency',
+						            columns: [[
+						                {field:'name',title:'名称',width:60},
+						                {field:'id',title:'ID',width:40}
+						            ]],
+						            fitColumns: true,
+									method:'post',
+									mode:'remote'
+						           "></select>
+					</span>
+					</td>
+					</tr>
+					<tr id="equip_quality_hidden"> 
+					<td valign="top" style="text-align: right;" >品质:</td>
+					<td>
+					<select id="equip_quality" name="quality">
+						<option value="0">白色</option>
+						<option value="1">绿色</option>
+						<option value="2">蓝色</option>
+						<option value="3">紫色</option>
+						<option value="4">金色</option>
+						<option value="5">红色</option>
+					</select>
+					</td>
+					</tr>
+					<tr id="is_bind"> 
+					<td valign="top" style="text-align: right;" >是否绑定:</td>
+					<td>
+					<select id="good_is_bind" name="bind">
+						<option value="1">绑定</option>
+						<option value="0">不绑定</option>
+					</select>
+					</td>
+					</tr>
+					<tr>
+						<td valign="top" style="text-align: right;">数量:</td>
+						<td>
+							<input id="goodsnum" name="num" value="1" min="1" max="2000000000" class="easyui-numberspinner" data-options="increment:1,required:true" required="true" style="width: 400px"/>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top" style="text-align: right;"></td>
+						<td>
+							<select id="goods" name="goods" size="8" style="width: 400px"></select><br />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<label></label><a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="addselect()">添加</a> <a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="delselect()">删除</a> <a href="javascript:void(0)"
+						class="easyui-linkbutton" onclick="clearselect()">清空</a>
+						</td>
+					</tr>
+					
+					<tr>
+						<td valign="top" style="text-align: right;">邮箱类型:</td>
+						<td>
+							<select id="emailType1" name="emailType1" style="width:100px" onchange="javascript:emailType(this);">
+							<option value="0">正常邮箱</option>
+							<option value="1">永久邮箱</option>
+							<option value="2">定时邮箱</option>
+							</select>
+						</td>
+					</tr>
+					<tr id="sendTime" style="display:none" >
+					<td valign="top" style="text-align: right;">发送时间:</td>
+					<td><input id="xzsendTime" name="xzsendTime" class="easyui-datetimebox"   style="width: 150px;" /> 
+					</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td align="center"><a href="javascript:void(0);" class="easyui-linkbutton" onclick="submitok();">发送</a></td>
+					</tr>
+				</table>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

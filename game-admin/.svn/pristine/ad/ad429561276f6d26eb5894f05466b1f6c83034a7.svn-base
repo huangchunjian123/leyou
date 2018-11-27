@@ -1,0 +1,59 @@
+package com.xg.admin.service.bloodypalace;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.python.google.common.collect.Lists;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.BloodyDao;
+import com.xg.admin.pojo.Bloodyplace;
+
+/**
+ * 闯关
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("bloodyService")
+public class BloodyServiceImpl implements IBloodyService, InitializingBean {
+	@Autowired
+	private BloodyDao bloodyDao;
+
+	private static Map<Integer, Bloodyplace> datadtomap = new HashMap<Integer, Bloodyplace>();
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initData();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initData() {
+		datadtomap.clear();
+		List<Bloodyplace> list = bloodyDao.getAll();
+		for (Bloodyplace data : list) {
+			datadtomap.put(data.getId(), data);
+		}
+	}
+
+
+
+	@Override
+	public List<Bloodyplace> getBloodyplaces() {
+		return Lists.newArrayList(datadtomap.values());
+	}
+
+}

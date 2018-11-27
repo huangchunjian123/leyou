@@ -1,0 +1,22 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<script type="text/javascript" charset="utf-8">
+</script>
+<table class="tableCss">
+	<tr>
+		<td>登录名:</td>
+		<td><input id="c_loginName" name="c_loginName" class="easyui-validatebox" required="true"
+			missingMessage="登录名称必须填写" validType="length[0,30]"
+			invalidMessage="登录名称不能超过30个字符！" /></td>
+		<td>登录密码:</td>
+		<td><input id="c_loginPsd" name="c_loginPsd" class="easyui-validatebox" required="true"
+			missingMessage="登录密码必须填写" validType="length[0,30]"
+			invalidMessage="登录密码不能超过30个字符！" /></td>
+	</tr>
+	<tr>
+		<td>角色名:</td>
+		<td><input id="c_heroName" name="c_heroName" class="easyui-validatebox" required="true"
+			missingMessage="角色名称必须填写" validType="length[0,6]"
+			invalidMessage="角色名称不能超过6个字符！" /></td>
+			<td><input id="c_cloneHeroId" name="c_cloneHeroId" hidden="true" /></td>
+	</tr>
+</table>

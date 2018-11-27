@@ -1,0 +1,52 @@
+
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<script type="text/javascript">
+
+   function changeGradeStatus(){
+	   if ($('#isequipstrength').val()=='1') {
+		   $('#equipstrengthgrade').show();
+	   }else {
+		   $('#equipstrengthgrade').hide();
+	   }
+   }
+</script>
+
+<form id="fmadd" method="post" class="fm">
+    <span style="color:red">提醒：当你提交了之后，原来猎手身上的装备将被删除，更换成新的装备方案。</span>
+	<table class="tableCss">
+	<tr>
+	<td>选择猎手(可多选):</td>
+	    <td>
+	    <input id='rolechose'></input>
+		</td>
+	</tr>
+	<tr>
+	
+		<td>选择适合的装备方案:</td>
+	    <td>
+	    <select id="roleselect">  
+        <option value="0">默认1级初始装备一套</option>  
+        <option value="1">猎手当前等级对应的金色装备一套</option>  
+		</select> 
+		</td>
+	</tr>
+	
+	<tr>
+		<td>是否强化:</td>
+	    <td>
+	    <select id="isequipstrength" onchange="changeGradeStatus()">  
+        <option value="0">不强化</option>  
+        <option value="1">强化</option>  
+		</select> 
+		</td>	
+	</tr>
+	<tr>
+	    <td>强化等级:</td>
+	    <td>
+	    <input id="equipstrengthgrade" name="equipstrengthgrade" value="1" min="1" max="15"
+			class="easyui-numberspinner" style="width: 80px;" />
+		</td>
+	</tr>
+</table>
+</form>

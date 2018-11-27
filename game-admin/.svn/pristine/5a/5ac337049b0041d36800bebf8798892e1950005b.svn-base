@@ -1,0 +1,35 @@
+package com.game.admin.controllers;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import net.paoding.rose.web.annotation.Param;
+
+import com.game.admin.dto.currency.CurrencyDto;
+import com.game.admin.dto.currency.RechargeGradeDto;
+import com.game.admin.service.currency.ICurrencyService;
+import com.game.admin.utils.ResultCode;
+
+/**
+ * 货币|| 模拟充值
+ * @author JiaYi
+ * @date  2018年2月5日 下午7:50:00 
+ * @package com.game.admin.controllers
+ */
+public class CurrencyController extends BaseController{
+
+	@Resource
+	private ICurrencyService currencyService;
+	
+	public Object getAllCurrency(@Param("q") String q){
+		List<CurrencyDto> currencyList = currencyService.getCurrencyDto();
+		return ResultCode.writeJson(currencyList);
+	}
+	
+	public Object getAllRechargeData(@Param("q") String q){
+		List<RechargeGradeDto> rechargeList = currencyService.getRechargeGradeDto();
+		return ResultCode.writeJson(rechargeList);
+	}
+	
+}

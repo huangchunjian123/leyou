@@ -1,0 +1,51 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>添加物品</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript">
+</script>
+</head>
+<body class="easyui-layout" style="overflow-y: hidden" scroll="no">
+    <div region="center" border="false" style="overflow:auto;">
+	<div class="fmset">
+		<fieldset>
+			<legend>添加物品</legend>
+			<form id="fmaddgood" method="post">
+				<div>
+					<label>物品:</label> 
+					<span id="good_span" class="good_span">
+						<select id="good_span_sel" name="targetGoodsSelect" class="easyui-combogrid bagtype2"
+						style="width: 180px"
+						data-options="
+							            panelWidth: 180,
+							            idField: 'id',
+							            textField: 'name',
+							            url: '<%=request.getContextPath()%>/good/getallgoods',
+							            columns: [[
+							                {field:'name',title:'名称',width:60},
+							                {field:'id',title:'ID',width:40}
+							            ]],
+							            fitColumns: true,
+										method:'post',
+										mode:'remote'
+							           "></select>
+							          
+					</span>
+				</div>
+					<div>
+						<label>数量:</label><input id="goodsnum" name="goodsnum" value="1" min="1" max="9999" 
+					class="easyui-numberspinner" required="true" style="width: 80px;" /><br/>
+					</div>
+				<div>
+					<br/><label></label><label></label><label></label><a
+						href="javascript:void(0)" class="easyui-linkbutton"
+						onclick="submitforAddGood()">添加</a>
+				</div>
+			</form>
+		</fieldset>
+	</div>
+	</div>
+</body>
+</html>

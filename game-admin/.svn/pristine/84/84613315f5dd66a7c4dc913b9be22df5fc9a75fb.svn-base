@@ -1,0 +1,199 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="../../inc.jsp"></jsp:include>
+
+<script type="text/javascript">
+
+
+	function battle_sign(serverId){
+		 <%--   $('#sign').datagrid({
+			url:'<%=request.getContextPath()%>/serviceUnionInfos/serverUnionData',
+			queryParams: {
+				serverId: serverId,
+				battleType:1
+			},
+			pageSize:80,
+	        singleSelect:true,
+	        collapsible:true,
+	        rownumbers:true,
+	        fitColumns:true,
+	        fit:true,
+	        columns: [[
+	                   { field: 'unionId', title: '帮派ID',width: 20},
+	                   { field: 'unionName', title: '帮派名称',width:20},
+	                   { field: 'unionIntegral', title: '帮派积分',width: 20},
+		             ]],
+			});  --%>
+			<%-- $.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+				serverId: serverId,
+				battleType:1
+			},function(data) {
+				alert(data);
+				var d = $.parseJSON(data);
+				alert(d.rows.length +'    '+d.rows[0]);
+				var html = "<table><tr><td>帮派Id</td><td>帮派名称</td><td>帮派积分</td></tr>";
+				/* $.each(d.rows, function (i, item) {    
+                 /*  http://www.jb51.net/article/108282.htm 
+                  html = html+"<tr>"+"<td>"+item.unionId+"</td>"+"<td>"+item.unionName+"</td>"+"<td>"+item.unionIntegral+"</td>"+"</tr>";
+                });   */
+                for(var i=0;i<d.rows.length;i++){
+                	 html += "<tr>"+"<td>"+d.rows[i].unionId+"</td>"+"<td>"+d.rows[i].unionName+"</td>"+"<td>"+d.rows[i].unionIntegral+"</td>"+"</tr>";
+                }
+                
+             	html = html+"</table>";
+				/* $("#sign").append(html); 
+				$("#sign").innerHTML=html;*/
+				/* var div = document.getElementById("sign");
+				div.innerHTML=html; */
+             	/* $("#sign").html(html); */
+             	$("#sign").css('border','3px solid red').html(html);
+			});	 --%>
+			$('#sign').dialog({	
+				top:200,
+				onLoad:function(){
+		    		$.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+		    			serverId: serverId,
+						battleType:1
+		    		},function(data) {
+		    			var d = $.parseJSON(data)
+		    			 $.each(d.rows, function (i, item) {
+		               	   $("#sign_List").append("<option value='" +"'>"+"帮派ID:"+item.unionId+
+		               			 "--帮派名称:"+item.unionName+"--帮派积分:"+item.unionIntegral+"</option>");
+		    			});
+		    		}); 
+		   		 },
+		   	href:'<%=request.getContextPath()%>/views/serviceUnion/signList.jsp',
+		    modal: true,
+		    closed: false});
+			$('#sign').dialog('open');
+			$('#sign').dialog('setTitle', '帮派报名信息')	
+						
+	}
+	
+	function battle_list(serverId){
+		$('#battle').dialog({	
+			top:200,
+			onLoad:function(){
+	    		$.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+	    			serverId: serverId,
+					battleType:2
+	    		},function(data) {
+	    			var d = $.parseJSON(data)
+	    			 $.each(d.rows, function (i, item) {
+	               	   $("#battle_List").append("<option value='" +"'>"+"帮派对战Pk:"+item.unionBattleInfo+"</option>");
+	    			});
+	    		}); 
+	   		 },
+	   	href:'<%=request.getContextPath()%>/views/serviceUnion/battleList.jsp',
+	    modal: true,
+	    closed: false});
+		$('#battle').dialog('open');
+		$('#battle').dialog('setTitle', '帮派对战列表')	
+	}
+	function battle_result(serverId){
+		$('#result').dialog({	
+			top:200,
+			onLoad:function(){
+	    		$.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+	    			serverId: serverId,
+					battleType:3
+	    		},function(data) {
+	    			var d = $.parseJSON(data)
+	    			 $.each(d.rows, function (i, item) {
+	               	   $("#result_List").append("<option value='" +"'>"+"ID:"+item.id+
+	               			 "--战斗结果数据:"+item.battileResult+"</option>");
+	    			});
+	    		}); 
+	   		 },
+	   	href:'<%=request.getContextPath()%>/views/serviceUnion/resultList.jsp',
+	    modal: true,
+	    closed: false});
+		$('#result').dialog('open');
+		$('#result').dialog('setTitle', '帮派对战结果')	
+	}
+	function battle_instance(serverId){
+		$('#instance').dialog({	
+			top:200,
+			onLoad:function(){
+	    		$.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+	    			serverId: serverId,
+					battleType:4
+	    		},function(data) {
+	    			var d = $.parseJSON(data)
+	    			 $.each(d.rows, function (i, item) {
+	               	   $("#instance_List").append("<option value='" +"'>"+"帮派ID:"+item.unionId+
+	               			 "--帮派名称:"+item.unionName+"--副本ID:"+item.unionInstancekey+"--副本名称:"+item.unionInstanceName+"</option>");
+	    			});
+	    		}); 
+	   		 },
+	   	href:'<%=request.getContextPath()%>/views/serviceUnion/instanceList.jsp',
+	    modal: true,
+	    closed: false});
+		$('#instance').dialog('open');
+		$('#instance').dialog('setTitle', '帮派战斗副本')	
+	}
+	function battle_rank(serverId){
+		$('#rank').dialog({	
+			top:200,
+			onLoad:function(){
+	    		$.post('<%=request.getContextPath() %>/serviceUnionInfos/serverUnionData',{
+	    			serverId: serverId,
+					battleType:5
+	    		},function(data) {
+	    			var d = $.parseJSON(data)
+	    			 $.each(d.rows, function (i, item) {
+	               	   $("#rank_List").append("<option value='" +"'>"+"帮派ID:"+item.unionId+"--帮派名称:"+item.unionName
+	               							+"--成员数量:"+item.memberNum+"--帮主名称:"+item.leaderName	
+	               							+"--帮会等级:"+item.level+"--帮主排名:"+item.rank+"--帮战排名:"+item.unionBattleRank	
+	               							+"--帮主ID:"+item.leaderServerId+"--帮会全员功力:"+item.unionFighting	
+	               							+"--帮会活跃度:"+item.active+"--帮会资金:"+item.unionMoney	
+	               							+"--帮会积分:"+item.integral+"--战斗次数:"+item.battleNum+"--胜利次数:"+item.winNum	
+	               							+"--排名变化:"+item.upAndDownFalg+"</option>");
+	    			});
+	    		}); 
+	   		 },
+	   	href:'<%=request.getContextPath()%>/views/serviceUnion/rankList.jsp',
+	    modal: true,
+	    closed: false});
+		$('#rank').dialog('open');
+		$('#rank').dialog('setTitle', '帮派战斗排行')	
+	}
+	
+function formateroperate(value,row,rowIndex)
+{
+	
+	return "<a href='#' onclick='battle_sign("+  row.serverId +");'>帮战报名数据</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='battle_list("+  row.serverId +");'>帮战对战列表</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='battle_result("+  row.serverId +");'>帮派对战结果</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='battle_instance("+  row.serverId +");'>帮派战斗副本</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='battle_rank("+  row.serverId +");'>帮战排行</a>";
+}
+
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+	
+	<div region="center" border="false" style="overflow: auto;">
+       <table id="dg" title="全部服务器" class="easyui-datagrid" title="Basic DataGrid" style="overflow: hidden;"
+            data-options="singleSelect:true,collapsible:true,url:'<%=request.getContextPath()%>/serviceUnionInfos/queryServerUnion',method:'get'" toolbar="#toolbar"  rownumbers="true" pagination="true">
+			<thead>
+				<tr>
+					<th data-options="field:'serverId'" width="180" align="center">服务器SID</th>
+					<th data-options="field:'serverIp'" width="200" align="center">服务器IP</th>
+					<th data-options="field:'serverName'" width="200" align="center">服务器名称</th>
+					<th data-options="field:'opt',title:'Operation',formatter:formateroperate" width="500" align="left">查询帮派数据</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="sign"  style="width: 550px; overflow: auto;" closed="true"  align="center">
+	</div>
+	<div id="battle"  style="width: 550px; overflow: auto;" closed="true"  align="center">
+	</div>
+	<div id="result"  style="width: 550px; overflow: auto;"  closed="true"  align="center">
+	</div>
+	<div id="rank"  style="width: 1000px; overflow: auto;"  align="center">
+	</div>
+	<div id="instance"  style="width: 550px; overflow: auto;" closed="true"  align="center">
+	</div>
+	
+</body>
+</html>

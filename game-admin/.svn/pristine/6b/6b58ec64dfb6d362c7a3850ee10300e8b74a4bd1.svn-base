@@ -1,0 +1,99 @@
+package com.xg.admin.service.instance;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xg.admin.dao.data.InstanceDao;
+import com.xg.admin.dto.instance.InstanceDto;
+import com.xg.admin.pojo.InstanceData;
+
+/**
+ * 副本相关操作实现
+ * @author zhangyaping email:yapingzhang_beta@163.com
+ *
+ */
+@Service("instanceService")
+public class InstanceServiceImpl implements IInstanceService, InitializingBean {
+	@Autowired
+	private InstanceDao instanceDao;
+
+	/** 副本列表 */
+	private static Map<Integer, InstanceDto> instanceMap = new HashMap<Integer, InstanceDto>();
+	/** 剧情副本列表 */
+	private final List<InstanceDto> list_juqing_instance = new ArrayList<InstanceDto>();
+	@Override
+	public List<InstanceDto> getByName(String name, int offset, int pagesize) {
+		List<InstanceDto> list = new ArrayList<InstanceDto>();
+		for (Entry<Integer, InstanceDto> en : instanceMap.entrySet()) {
+			InstanceDto g = en.getValue();
+			if (StringUtils.isEmpty(name)) {
+				list.add(g);
+			} else {
+				if (g.getName().indexOf(name) != -1 || name.indexOf(g.getName()) != -1 || name.equals(g.getName())
+						|| String.valueOf(g.getId()).startsWith(name)) {
+					list.add(g);
+				}
+			}
+		}
+		int total = list.size();
+		int start = offset;
+		int end = pagesize;
+		end = end > total ? total : end;
+		return list.subList(start, end);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				public void run() {
+					initInstance();
+				}
+			}, 0L, 3900 * 1000L);//大概1个多小时去取一次数据库的数据
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	@Override
+	public void initInstance() {
+		list_juqing_instance.clear();
+		instanceMap.clear();
+		List<InstanceData> list = instanceDao.getAll();
+		for (InstanceData data : list) {
+			instanceMap.put(data.getId(), new InstanceDto(data.getId(), data.getName(), data.getRewardgrade()));
+		}
+		
+		List<InstanceData> list_juqing =instanceDao.getAllJuQing();
+		for (InstanceData data : list_juqing) {
+			list_juqing_instance.add(new InstanceDto(data.getId(), data.getName(), data.getRewardgrade()));
+		}
+	}
+
+	@Override
+	public InstanceDto get(int instanceId) {
+		return instanceMap.get(instanceId);
+	}
+
+	@Override
+	public String getName(int instanceId) {
+		return get(instanceId).getName();
+	}
+	public List<InstanceDto> getList_juqing_instance() {
+		return list_juqing_instance;
+	}
+	
+	
+
+}

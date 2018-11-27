@@ -1,0 +1,22 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<jsp:include page="../../inc.jsp"></jsp:include>
+
+</head>
+<body class="easyui-layout" fit ="true">
+	<div region="center" border="false" style="overflow: hidden;">
+	<table id="dg" title="操作日志" class="easyui-datagrid" title="Basic DataGrid" 
+		data-options="singleSelect:true,collapsible:true,url:'<%=request.getContextPath()%>/log/datagrid',method:'get'" toolbar="#toolbar"  rownumbers="true" pagination="true">
+		<thead>
+		<tr>
+			<th data-options="field:'operator'" width="200">操作者</th>
+			<th data-options="field:'event'" width="400">操作记录</th>
+			<th data-potions="field:'status'" width="150">操作状态</th>
+			<th data-potions="field:'logTime'" width="200">操作时间</th>
+		</tr>
+		</thead>
+	</table>
+	</div>
+</body>

@@ -1,0 +1,51 @@
+package com.game.admin.service.equip;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Service;
+
+import com.game.admin.dto.equip.PosEquipDTO;
+
+/**
+ *槽位下拉
+ * @author liuchengjiang
+ *
+ */
+@Service
+public class PosEquioServiceImpl implements InitializingBean{
+
+	/** 位置列表 */
+	private static Map<Integer, PosEquipDTO> equipMap = new HashMap<Integer, PosEquipDTO>();
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		initEquip();
+	}
+
+	public void initEquip() {
+		equipMap.clear();
+		equipMap.put(1, new PosEquipDTO(-1, "全部"));
+		equipMap.put(2, new PosEquipDTO(1, "武器"));
+		equipMap.put(3, new PosEquipDTO(2, "项链"));
+		equipMap.put(4, new PosEquipDTO(3, "戒指"));
+		equipMap.put(5, new PosEquipDTO(4, "帽子"));
+		equipMap.put(6, new PosEquipDTO(5, "衣服"));
+		equipMap.put(7, new PosEquipDTO(6, "鞋子"));		
+	}
+	public List<PosEquipDTO> getEquipDtoByname() {
+		List<PosEquipDTO> list = new ArrayList<PosEquipDTO>();
+		for (Entry<Integer, PosEquipDTO> en : equipMap.entrySet()) {
+			PosEquipDTO g = en.getValue();
+	
+				list.add(g);
+		
+		}
+	
+		return list;
+	}
+	
+}

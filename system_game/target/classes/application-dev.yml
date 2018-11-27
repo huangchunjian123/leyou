@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: systemGame
+  #resources:
+    #static-locations: classpath:/static/,classpath:/META-INF/resources,file:/Users/yangzhenze/Downloads/
+  #mvc:
+    #static-path-pattern: /static/**
+  boot:
+    admin:
+      client:
+        url: "http://localhost:9019"
+web:
+  upload-path: file:/Users/yangzhenze/Downloads/images/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9011/eureka/
+server:
+  port: 8013
+ribbon:
+  #请求处理的超时时间
+  ReadTimeout: 10000
+  #请求连接的超时时间
+  ConnectTimeout: 10000
+#hystrix 配置
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          #如果enabled设置为false，则请求超时交给ribbon控制
+          enabled: false
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+feign:
+  hystrix:
+    enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+#feign日志输出
+logging:
+  level:
+    com.system.service.AdminService: debug
+    com.system.service.DictionaryService: debug
+    com.system.service.PermissionService: debug
+    com.system.service.RoleService: debug
+    com.system.service.LogService: debug
+aliyun:
+  accessKeyId: LTAIrxm1EQVIMKye
+  accessKeySecret: za0R6kIUbvQGytSCM6upmeqnE0yv6S
+  maxproject: huanjianxunxian
+

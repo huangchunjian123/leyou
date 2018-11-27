@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Row Border in DataGrid - jQuery EasyUI Demo</title>
+	<link rel="stylesheet" type="text/css" href="jslib/jquery-easyui-1.4.5/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="jslib/jquery-easyui-1.4.5/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="jslib/jquery-easyui-1.4.5/demo/demo.css">
+	<script type="text/javascript" src="jslib/jquery-easyui-1.4.5/jquery.min.js"></script>
+	<script type="text/javascript" src="jslib/jquery-easyui-1.4.5/jquery.easyui.min.js"></script>
+	<script type="text/javascript">
+//var editIndex = undefined;
+//var fieldnames = '';
+//var fieldkeys='';
+//var url= '';
+$(document).ready(function () {
+	var columns = [];
+    $.ajax({
+    url: 'getmapcols.json',
+       type: 'GET',
+       async: false,
+        dataType: 'json',
+        success: function (data) {
+            if (data != null && data.length > 0) {
+                $.each(data, function (i, item) {
+                	var itemarr = item.toString().split("$");
+                	if (item.toString()== 'key'){
+                		alert("1");
+                		 columns.push({ "field":   item.toString(), "title":item.toString() ,"width":"15%" ,"align":"right","resizable":"false" ,"editor":"text","hidden":"true"});
+                	} else {
+                		alert("2");
+                		if (item.toString().substring(item.toString().length-3,item.toString().length)== 'key'){
+                			columns.push({ "field":   item.toString(), "title":itemarr[itemarr.length-1] ,"width":"15%" ,"align":"right","resizable":"false" ,"editor":"numberbox"});
+                		}else {
+                			columns.push({ "field":   item.toString(), "title":itemarr[itemarr.length-1] ,"width":"15%" ,"align":"right","resizable":"false"  ,"editor":"text"});
+                		}
+                	}
+                	// columns.push({ "field":   item.toString(), "title":itemarr[itemarr.length-1] ,"width":"50" ,"align":"center" ,"editor":"text"});
+                   
+                });
+            }
+        }
+    });
+    $('#dgmap').datagrid({
+		url:'mapdatagrid.json',
+		//onHeaderContextMenu:function(){},
+	pageSize:10,
+	singleSelect:false,
+	rownumbers:true,
+	fitColumns:true,
+	fit:true,
+	 loadMsg: "数据加载中，请稍后...",
+	pagination:true,
+	columns: [columns],
+	 onClickCell: onClickCell, //单击单元格触发事件，方法在下面
+	});    
+
+});   	
+function onClickCell(index, field,value){
+		alert("index="+index);
+		showMapMapDailog(index,field);
+	}
+function showMapMapDailog(index,field){
+		var row = $('#dgmap').datagrid('getData').rows[index];
+		//var row=   $('#dg').datagrid('selectRow', index);
+		var fieldkey = row.key;
+		$("#dd").dialog({
+	        title : '--------',
+	        width : 1660,
+	        height: 400,
+	        closed : true,  //是否可以关闭窗口
+	        cache : false,  
+	        modal : true,   //模式化窗口
+	      buttons :[{
+            text : '取消',
+            handler : function(){
+                $("#dd").window('close');
+                //$('#dlgadd').window('close');
+            } 
+        },{
+            text : '添加',
+            handler : function(){
+                //TODO submit data and close this window
+            	showAddMap();         
+            } 
+        },{
+            text : '删除',
+            handler : function(){
+                //TODO submit data and close this window
+            	showdelMap();         
+            } 
+        }],
+        onBeforeOpen : function(){  //dialog展示前,使其绝对居中
+            $("#dd").dialog("center");
+        },
+        onLoadSuccess:function(data){    
+        	   $('#dgmap').datagrid('fixRowHeight'); //格式化后行号对齐
+        	},
+     	href:'test2.html',
+     
+	      });
+		fieldnames = field ;
+
+		fieldkeys = fieldkey;
+		console.log(fieldkeys);
+		//alert(fieldkeys);
+	  		$('#dd').dialog('open').dialog('setTitle', '编辑map数据2');
+	}
+</script>
+</head>
+<body>
+<table id="dgmap"></table>
+<div id="dd">Dialog Content.</div>
+	<h2>Row Border in DataGrid</h2>
+	<p>This sample shows how to change the row border style of datagrid.</p>
+	<div style="margin:20px 0;">
+		<span>Border:</span>
+		<select onchange="changeBorder(this.value)">
+			<option value="lines-both">Both</option>
+			<option value="lines-no">No Border</option>
+			<option value="lines-right">Right Border</option>
+			<option value="lines-bottom">Bottom Border</option>
+		</select>
+		<span>Striped:</span>
+		<input type="checkbox" onclick="$('#dg').datagrid({striped:$(this).is(':checked')})">
+	</div>
+	<table id="dg" class="easyui-datagrid" title="Row Border in DataGrid" style="width:700px;height:250px"
+			data-options="singleSelect:true,fitColumns:true,url:'datagrid_data1.json',method:'get'">
+		<thead>
+			<tr>
+				<th data-options="field:'itemid',width:80">Item ID</th>
+				<th data-options="field:'productid',width:100">Product</th>
+				<th data-options="field:'listprice',width:80,align:'right'">List Price</th>
+				<th data-options="field:'unitcost',width:80,align:'right'">Unit Cost</th>
+				<th data-options="field:'attr1',width:250">Attribute</th>
+				<th data-options="field:'status',width:60,align:'center'">Status</th>
+			</tr>
+		</thead>
+	</table>
+	<script type="text/javascript">
+		function changeBorder(cls){
+			$('#dg').datagrid('getPanel').removeClass('lines-both lines-no lines-right lines-bottom').addClass(cls);
+		}
+	</script>
+	<style type="text/css">
+		.lines-both .datagrid-body td{
+		}
+		.lines-no .datagrid-body td{
+			border-right:1px dotted transparent;
+			border-bottom:1px dotted transparent;
+		}
+		.lines-right .datagrid-body td{
+			border-bottom:1px dotted transparent;
+		}
+		.lines-bottom .datagrid-body td{
+			border-right:1px dotted transparent;
+		}
+	</style>
+	
+</body>
+</html>

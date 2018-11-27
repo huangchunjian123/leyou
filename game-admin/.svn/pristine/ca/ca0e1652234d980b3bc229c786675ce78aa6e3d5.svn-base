@@ -1,0 +1,510 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>猎手列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+	
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+	
+	<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/hero/heroUtil.js"></script>
+	
+<script type="text/javascript">
+	var url;
+	var searchForm;
+	$(function() {
+		searchForm = $('#searchForm').form();
+	});
+
+
+   	$(function() {
+			$('#dg').datagrid({
+			url:'<%=request.getContextPath()%>/rolesJob/queryRoleList',
+			queryParams: {
+			serverId: '0',
+			heroId: '<%=request.getParameter("heroId")%>'
+			},
+				pageSize:20,
+			singleSelect:true,
+			rownumbers:true,
+			fitColumns:true,
+			fit:true,
+			columns: [[
+			           { field: 'opt2', title: '操作',width: 10 ,formatter:formateroperate},
+			           { field: 'heroId', title: '角色id',width: 5 },
+			           { field: 'roleId', title: '猎手id', width: 5 },
+			           { field: 'jobDesc', title: '职业描述',width: 5 },
+			           { field: 'roleGrade', title: '猎手等级',width: 5 },
+			           { field: 'teamGrade', title: '战队等级',width: 5 },
+			           { field: 'job', title: '职业', width: 5 },
+			           { field: 'nowExp', title: '当前经验', width: 5 },
+			           { field: 'maxExp', title: '下一等级经验',width: 5 },
+			           { field: 'hunqiId1', title: '魂器1id', width: 5 },
+			           { field: 'hunqiGrade1', title: '魂器1等级',width: 5 },
+			           { field: 'hunqiId2', title: '魂器2id', width: 5 },
+			           { field: 'hunqiGrade2', title: '魂器2等级',width: 5 },
+			           { field: 'hunqiId3', title: '魂器3id', width: 5 },
+			           { field: 'hunqiGrade3', title: '魂器3等级',width: 5 },
+			           { field: 'zhanhunGrade', title: '战魂星级', width: 5 },
+			           { field: 'zhanhunQuality', title: '战魂品阶等级(颜色)', width: 10 },
+			           { field: 'zhanhunSubQuality', title: '战魂品阶等级(+)', width: 10 },
+			           { field: 'skills', title: '技能列表', width: 20 },
+			           { field: 'equipSkills', title: '装备技能列表', width: 20 }
+			        
+			       ]],
+			       onBeforeLoad:function(param) {
+			       	hiddenfield();
+			       }
+			});
+	});    
+	function _editskill(index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		var job = row.job;
+		$('#dlgeditskill').dialog({
+			left:50,
+			top:20,
+	     	onLoad:function(){
+	     		$('#fmskill').form('clear');
+	    		$('#heroId').val(row.heroId);
+	    		$('#job').val(job);
+	    		$('#jobDesc').val(row.jobDesc);
+	    		 $('#heroId').attr("disabled","true");
+	    		 $('#jobDesc').attr("disabled","true");
+	    		 $('#skillgrade').numberspinner({
+		    		    max: row.roleGrade//最大等级为猎手等级
+		    	});
+	    		 var skills = row.skills;
+	    		 if (skills) {
+		    		 var strs= new Array(); //定义一数组
+		    		 strs=skills.split(","); //字符分割
+		    		 for (i=0;i<strs.length ;i++ )
+		    		 {
+		    			 var $tmp2 =strs[i];
+			    		 var strs2= new Array(); //定义一数组
+			    		 strs2=$tmp2.split(":"); //字符分割
+			    		 var gid = strs2[0];
+			    		 var gname = strs2[1];
+			    		 var skillgrade = strs2[2];
+			    		 var tv =  gid + ":" + skillgrade;
+		    			 var tt =  gname + ":" + skillgrade;
+		    			 $("#srewards").append("<option value='"+ tv +"'>"+tt+"</option>");
+		    		 } 
+	    		 }
+	    		 
+	    		 var equipskills = row.equipSkills;
+	    		 if (equipskills) {
+		    		 var estrs= new Array(); //定义一数组
+		    		 estrs=equipskills.split(","); 
+		    		 for (i=0;i<estrs.length ;i++ )
+		    		 {
+		    			 var $tmp2 =estrs[i];
+			    		 var strs2= new Array(); //定义一数组
+			    		 strs2=$tmp2.split(":"); //字符分割
+			    		 var gid = strs2[0];
+			    		 var gname = strs2[1];
+			    		 var tv =  gid;
+		    			 var tt =  gname;
+		    			 $("#srewards_equip").append("<option value='"+ tv +"'>"+tt+"</option>");
+		    		 } 
+	    		 }
+	   		 },
+	    href:"<%=request.getContextPath()%>/views/roles/editskill.jsp?job="+job,
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgeditskill').dialog('open');
+		$('#dlgeditskill').dialog('setTitle', '技能信息');
+	}
+	
+	function submitEditSkill(){
+		var grew = '';
+		$('#srewards option').each(function(){
+			grew += $(this).val()+",";
+		});
+		if(grew==''){
+			alert("至少设置一个主动技能!");
+			return;
+		}
+		
+		var equip_grew = '';
+		$('#srewards_equip option').each(function(){
+			equip_grew += $(this).val()+",";
+		});
+		$.post('<%=request.getContextPath()%>/rolesJob/editskill',{
+			serverid:0,
+			heroId : $('#heroId').val(),
+			job:$('#job').val(),
+			srewards : grew,
+			equip_srewards : equip_grew
+		},function(data) {
+			clearselect();
+			clearselectEquip();
+			$('#dlgeditskill').dialog('close');
+			$('#dg').datagrid('reload');
+			var d = $.parseJSON(data);
+			$.messager.show({
+				title : '提示',
+				msg : d.msg
+			});
+		});
+	}
+	
+	function _editrole(index){
+		var row = $('#dg').datagrid('getData').rows[index];
+		$('#dlgedit').dialog({
+			top:200,
+	     	onLoad:function(){
+	    		$('#fmroleedit').form('clear');
+	    		$('#jobDesc').val(row.jobDesc);
+	    		$('#job').val(row.job);
+	    		 $('#jobDesc').attr("disabled","true");
+	    		
+	    		$('#teamGrade').val(row.teamGrade);
+	    		 $('#teamGrade').attr("disabled","true");
+	    		
+	    		$('#maxExp').val(row.maxExp);
+	    		 $('#maxExp').attr("disabled","true");
+	    		$('#hunqiId1').val(row.hunqiId1);
+	    		$('#hunqiId2').val(row.hunqiId2);
+	    		$('#hunqiId3').val(row.hunqiId3);
+	    		$('#hunqiGrade1').val(row.hunqiGrade1);
+	    		$('#hunqiGrade2').val(row.hunqiGrade2);
+	    		$('#hunqiGrade3').val(row.hunqiGrade3);
+	    		 $('#hunqiId1').attr("disabled","true");
+	    		 $('#hunqiId2').attr("disabled","true");
+	    		 $('#hunqiId3').attr("disabled","true");
+	    		if ('0'== row.hunqiId1){
+	    			 $('#hunqiId1').val('');
+	    			 $('#hunqiGrade1').val('');
+	    			// $('#hunqiGrade1').attr("disabled","true");
+	    		}
+	    		if ('0'== row.hunqiId2){
+	    			 $('#hunqiId2').val('');
+	    			 $('#hunqiGrade2').val('');
+	    			// $('#hunqiGrade2').attr("disabled","true");
+	    		}
+	    		if ('0'== row.hunqiId3){
+	    			 $('#hunqiId3').val('');
+	    			 $('#hunqiGrade3').val('');
+	    			// $('#hunqiGrade3').attr("disabled","true");
+	    		}
+	    		
+	    		$('#roleGrade').numberspinner({
+	    		    max: row.teamGrade
+	    		});
+	    		$('#nowExp').numberspinner({
+	    		    max: row.maxExp
+	    		});
+	    		$('#roleGrade').val(row.roleGrade);
+	    		$('#nowExp').val(row.nowExp);
+	    		$('#zhanhunGrade').val(row.zhanhunGrade);
+	    		$('#zhanhunQuality').val(row.zhanhunQuality);
+	    		$('#zhanhunSubQuality').val(row.zhanhunSubQuality);
+	    		 
+	    		$.post('<%=request.getContextPath() %>/hunqi/getHunqibyJob',{
+	    	 		job:row.job
+	    		},function(d) {
+	    			$('#hunqitype1').combobox({ 
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'id',
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        			 onSelect:function(){
+	        				 var hunqitype1value =  $('#hunqitype1').combobox('getValues');
+	        				 $('#hunqiId1').val(hunqitype1value);
+	        			 }
+	        		}); 
+	    			if ('0'!= row.hunqiId1){
+	    			 $('#hunqitype1').combobox('select', row.hunqiId1);
+	    			}
+	    			$('#hunqitype2').combobox({ 
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'id',
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        			 onSelect:function(){
+	        				 var hunqitype2value =  $('#hunqitype2').combobox('getValues');
+	        				 $('#hunqiId2').val(hunqitype2value);
+	        			 }
+	        		}); 
+	    			if ('0'!= row.hunqiId2){
+	    			 $('#hunqitype2').combobox('select', row.hunqiId2);
+	    			}
+	    			$('#hunqitype3').combobox({ 
+	        			data:$.parseJSON(d),
+	        			valueField:'id', 
+	        			textField:'id',
+	        			multiple:false,
+	        			 required:false,
+	        			 editable:false,
+	        			 onSelect:function(){
+	        				 var hunqitype3value =  $('#hunqitype3').combobox('getValues');
+	        				 $('#hunqiId3').val(hunqitype3value);
+	        			 }
+	        		}); 
+	    			if ('0'!= row.hunqiId3){
+	    			 $('#hunqitype3').combobox('select', row.hunqiId3);
+	    			}
+	    		}); 
+	    	
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/roles/editrole.jsp?job='+row.job,
+	    modal: true,
+	    closed: true});
+		
+		
+		
+		
+		$('#dlgedit').dialog('open');
+		$('#dlgedit').dialog('setTitle', '猎手详细信息');
+	}
+	
+	function submitforEditRole(){
+		if($("#fmroleedit").form('validate')){
+			 url = '<%=request.getContextPath()%>/rolesJob/editRole';
+		 	$.post(url,{
+		 		job:$('#job').val(),
+		 		roleGrade:$('#roleGrade').val(),
+		 		nowExp:$('#nowExp').val(),
+		 		hunqiId1:$('#hunqiId1').val(),
+		 		hunqiGrade1:$('#hunqiGrade1').val(),
+		 		hunqiId2:$('#hunqiId2').val(),
+		 		hunqiGrade2:$('#hunqiGrade2').val(),
+		 		hunqiId3:$('#hunqiId3').val(),
+		 		hunqiGrade3:$('#hunqiGrade3').val(),
+		 		zhanhunGrade:$('#zhanhunGrade').val(),
+		 		zhanhunQuality:$('#zhanhunQuality').val(),
+		 		zhanhunSubQuality:$('#zhanhunSubQuality').val(),
+				serverId: '0',
+				heroId: '<%=request.getParameter("heroId")%>'
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				$('#dlgedit').dialog('close');
+				$('#dg').datagrid('reload');
+			}); 
+		}
+	}
+	
+	function  hiddenfield(){
+		$('#dg').datagrid('hideColumn','heroId');
+		$('#dg').datagrid('hideColumn','roleId');
+		$('#dg').datagrid('hideColumn','job');
+	}
+	
+	function Job(job,jobDesc){ //use constructor 
+		this.job=job;
+		this.jobDesc=jobDesc;
+		return this;
+	} 
+	
+	
+	function _roleEquipOnBody() {	
+		var arr=$('#dg').datagrid('getData');
+		var mydata = new Array();
+		var defaultchose;
+		for(var i=0;i<arr.rows.length;i++){
+			var job = new Job(arr.rows[i].job,arr.rows[i].jobDesc);
+			defaultchose = job.job;
+			mydata.push(job);
+		};
+		var rolechoseStr= jQuery.toJSON(mydata);
+		
+		$('#dlgroleequip').dialog({
+	     	onLoad:function(){
+	    		$('#fmadd').form('clear');
+	    		$('#rolechose').combobox({ 
+	    			data:$.parseJSON(rolechoseStr),
+	    			valueField:'job', 
+	    			textField:'jobDesc',
+	    			multiple:true,
+	    			 required:true,
+	    			 editable:false
+	    		}); 
+	    		 $('#rolechose').combobox('select', defaultchose);
+	    		
+	    		 $('#isequipstrength').val("0");
+	    		 $('#roleselect').val("0");
+	    		 $('#equipstrengthgrade').hide();
+	   		 },
+	    href:'<%=request.getContextPath()%>/views/roles/roleequip.jsp',
+	    modal: true,
+	    closed: true});
+		
+		$('#dlgroleequip').dialog('open');
+		$('#dlgroleequip').dialog('setTitle', '猎手装备');
+		
+	}
+	
+	function submitforEquip(){
+		if($("#fmadd").form('validate')){
+			var rolechose='';
+			var rolechoseArr =  $('#rolechose').combobox('getValues');
+			for(var i=0;i<rolechoseArr.length;i++){
+				rolechose = rolechose+rolechoseArr[i];
+				if (i != rolechoseArr.length -1) {
+					rolechose = rolechose+',';
+				}
+			};
+			 url = '<%=request.getContextPath()%>/rolesJob/takeOnAllJustEquips';
+			var roleselect = $('#roleselect').val();
+			var isequipstrength = $('#isequipstrength').val();
+			var equipstrengthgrade = $('#equipstrengthgrade').val();
+			
+		 	$.post(url,{
+		 		rolechose:rolechose+'',
+				roleselect:roleselect+'',
+				isequipstrength:isequipstrength+'',
+				equipstrengthgrade:equipstrengthgrade+'',
+				serverId: '0',
+				heroId: '<%=request.getParameter("heroId")%>'
+			},function(data) {
+				var d = $.parseJSON(data);
+				$.messager.show({
+					title : '提示',
+					msg : d.msg
+				});
+				$('#dlgroleequip').dialog('close');
+			}); 
+		}
+	}
+	function formateroperate(value,row,rowIndex){
+		//var heroId = row.heroId+'';
+		//var job = row.job+'';
+		//var html="<a href='#' onclick='_editskill(\""+row.id + "\",\""+rowIndex + "\");'>技能</a>&nbsp;&nbsp;<a href='#' onclick='_editrole(\""+row.id + "\",\""+rowIndex + "\");'>编辑</a>&nbsp;&nbsp;";
+		//var html =  '<a href="#" onclick="_editskill(\'' + rowIndex+ '\')">技能</a>&nbsp;&nbsp;';
+		return '<a href="#" onclick="_editskill(\'' + rowIndex+ '\')">技能</a>&nbsp;&nbsp;' +'<a href="#" onclick="_editrole(\'' + rowIndex+ '\')">编辑</a>&nbsp;&nbsp;';
+	}
+	
+	function addselect(){
+		var grid = $(".bagtype1").combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert("请选择技能!");
+			return;
+		}
+		var gid = row.id;
+		var gname = row.name;
+
+		var skillgrade = $('#skillgrade').val();
+	    var reg = new RegExp("^[0-9]*$");
+	    if(skillgrade == '' || !reg.test(skillgrade)){
+	        alert("请输入技能等级!");
+	        return;
+	    }
+	    var tv =  gid + ":" + skillgrade;
+		var tt =  gname + ":" + skillgrade;
+		var check='0';
+	    $("#srewards option").each(function () {
+            var txt = $(this).text(); //获取单个text
+            var val = $(this).val(); //获取单个value
+            var index=val.indexOf(':');
+            var vid = val.substring(0,index);
+             if (vid == gid) {
+            	 alert('重复的技能');
+            	 check = '1';
+            	 return;
+             }
+        });
+	    if (check=='0') {
+			$("#srewards").append("<option value='"+ tv +"'>"+tt+"</option>");
+	    }
+	}
+	function delselect(){
+		var obj = document.getElementById("srewards"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	function clearselect(){
+		$("#srewards").empty(); 
+	}
+	
+	function addselectEquip(){
+		var grid = $(".bagtype2").combogrid("grid");// 获取表格对象
+		var row = grid.datagrid('getSelected');// 获取行数据
+		if(!row){
+			alert("请选择技能!");
+			return;
+		}
+		var gid = row.id;
+		var gname = row.name;
+
+	    var tv =  gid ;
+		var tt =  gname;
+		var check='0';
+	    $("#srewards option").each(function () {
+            var txt = $(this).text(); //获取单个text
+            var val = $(this).val(); //获取单个value
+             if (val == gid) {
+            	 alert('重复的技能');
+            	 check = '1';
+            	 return;
+             }
+        });
+	    if (check=='0') {
+			$("#srewards_equip").append("<option value='"+ tv +"'>"+tt+"</option>");
+	    }
+	}
+	function delselectEquip(){
+		var obj = document.getElementById("srewards_equip"); 
+		var index = obj.selectedIndex; 
+		obj.options.remove(index); 
+	}
+	function clearselectEquip(){
+		$("#srewards_equip").empty(); 
+	}
+</script>
+</head>
+<body class="easyui-layout" fit="true">
+
+	<div region="north" border="false" title="猎手装备" style="height: 60px; overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>
+						<a href="javascript:void(0);" class="easyui-linkbutton" onclick="_roleEquipOnBody();">猎手装备(身上)</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+		<div region="center" border="false" style="overflow: auto;">
+		<table id="dg" title="猎手列表">
+		</table>
+	</div>
+	<div id="dlgeditskill"  style="width: 1400px; overflow: auto;" closed="true" >
+	</div>
+	<div id="dlgroleequip"  style="width: 600px; overflow: auto; " closed="true"  buttons="#dlgroleequip-buttons" >
+	</div>
+	<div id="dlgroleequip-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitforEquip()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgroleequip').dialog('close');">取消</a>
+	</div>
+	
+	<div id="dlgedit"  style="width: 1400px; overflow: auto; " closed="true"  buttons="#dlgedit-buttons" >
+	</div>
+	<div id="dlgedit-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitforEditRole()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgedit').dialog('close');">取消</a>
+	</div>
+	
+</body>
+</html>

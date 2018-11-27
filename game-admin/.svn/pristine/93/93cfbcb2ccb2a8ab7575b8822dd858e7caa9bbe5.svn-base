@@ -1,0 +1,282 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path ;
+%>
+<link id="easyuiTheme" rel="stylesheet" href="<%=basePath %>/jslib/jquery-easyui/themes/gray/easyui.css" type="text/css"></link>
+<link rel="stylesheet" href="<%=basePath %>/jslib/jquery-easyui/themes/icon.css" type="text/css"></link>
+<link rel="stylesheet" href="<%=basePath %>/jslib/main/syCss.css" type="text/css"></link>
+<script type="text/javascript" src="<%=basePath %>/jslib/jquery-easyui/jquery-1.8.0.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="<%=basePath %>/jslib/jquery-easyui/jquery.easyui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="<%=basePath %>/jslib/jquery-easyui/locale/easyui-lang-zh_CN.js" charset="utf-8"></script>
+<script type="text/javascript" src="<%=basePath %>/jslib/jquery.cookie.js" charset="utf-8"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/datagrid-groupview.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/jquery-easyui/jquery.easyui.validatebox.js"></script>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/task/taskUtil.js"></script>
+<table class="tableCss">
+	<%
+	String condition = request.getParameter("conditionId");
+	if(condition!=null&&condition.length()>0){
+		%>
+	<input name="conditionId" value='<%=request.getParameter("conditionId") %>' type="hidden"/>
+	<%
+	}
+	%>
+	<tr>
+		<td>难度级别:</td>
+		<td><input name="difficultyLevel" id='difficultyLevel<%= request.getParameter("conditionId")%>' value="1" min="1" max="10"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>职业限制:</td>
+		<td>
+			<select id="targetJob<%= request.getParameter("conditionId")%>" class="easyui-combobox targetJob" name="job" style="width:200px;" data-options="multiple:true,panelHeight:'auto'" required="true">
+			<option value="0">无职业限制</option>
+			<option value="1">拳师</option>
+			<option value="2">魔剑士</option>
+			<option value="3">机械师</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>玩家等级min:</td>
+		<td><input id="minGrade<%= request.getParameter("conditionId")%>" name="minGrade" value="1" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" />
+		</td>
+		<td>玩家等级max:</td>
+		<td><input id="maxGrade<%= request.getParameter("conditionId")%>" name="maxGrade" value="100" min="1" max="200"
+			class="easyui-numberspinner" required="true" style="width: 80px;" validType="maxGradeValidete" />
+		</td>
+	</tr>
+	<tr>
+		<td>消耗铜钱:</td>
+		<td><input id="takeCopper<%= request.getParameter("conditionId")%>" name="takeCopper" value="0" min="0"
+			class="easyui-numberspinner" data-options="increment:1000,required:true" style="width: 80px;" />
+		</td>
+		<td>获得BUFF:</td>
+		<td><select id="giveBuffId<%= request.getParameter("conditionId")%>" name="giveBuffId" class="easyui-combogrid giveBuffId"
+			style="width: 100px"
+			data-options="
+				            panelWidth: 100,
+				            idField: 'taskType',
+				            textField: 'taskName',
+				            url: '<%=request.getContextPath()%>/task/getalltasks',
+				            columns: [[
+				           		{field:'taskType',title:'类型',width:60},
+				                {field:'taskName',title:'名称',width:40}
+				            ]],
+				            fitColumns: true,
+							method:'post',
+							mode:'remote'
+				           "></select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+		<input id="cc" name="dept" value="01"/>  
+		<input id="x000" name="giveBuffId1000" value="01" class="bagtype1"/>
+		</td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function () {
+	$.ajax({
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/good/getallgoods",
+	    success:function(data){
+	    	var goodJson = $.parseJSON(data);
+	    	 $(".bagtype1").combogrid({
+	             panelWidth: 180,
+	             value: 'ID',
+	             idField: 'id',
+	             textField: 'name',
+	             columns: [[
+			                {field:'name',title:'名称',width:100},
+			                {field:'id',title:'ID',width:80}
+			            ]]
+	         }).combogrid("grid").datagrid("loadData", goodJson);
+	    }
+	});	
+	 $('#cc').combogrid({
+         panelWidth: 450,
+         value: 'name',
+         idField: 'code',
+         textField: 'name',
+         columns: [[{ field: 'code', title: 'Code', width: 60 },
+            { field: 'name', title: 'Name', width: 100 },
+            { field: 'addr', title: 'Address', width: 120 },
+            { field: 'col4', title: 'Col41', width: 100}]]
+     });
+     var a = [{ code: 1, name: 'aaa', addr: 'aasdf', col4: 'asdfasdfasdf' },
+     { code: 1, name: 'aaa', addr: 'aasdf', col4: 'asdfasdfasdf' },
+     { code: 1, name: 'aaa', addr: 'aasdf', col4: 'asdfasdfasdf'}];
+     //  var b = $.parseJSON(a);
+     $("#userreg_middle_zcrj_tb").datagrid("loadData", a);
+     $("#cc").combogrid("grid").datagrid("loadData", a);
+    
+     
+	var conditionId=<%= request.getParameter("conditionId")%>;
+	var taskId=<%= request.getParameter("taskId")%>;
+	//alert("<%=request.getContextPath()%>/task/getTaskCondition?taskId="+taskId+"&conditionId="+conditionId)
+	if(taskId&&conditionId){
+	$.ajax({
+		cache: false,
+	    type: 'post',
+	    url: "<%=request.getContextPath()%>/task/getTaskCondition?taskId="+taskId+"&conditionId="+conditionId,
+	    success:function(data){
+	    	//alert('conditionId='+conditionId+"--data="+data);
+	    	var c = $.parseJSON(data);
+	    	$("#difficultyLevel"+conditionId).val(c.difficultyLevel);
+	    	if(c.targetJob){
+	    		$("#targetJob"+conditionId).combobox('setValues',c.targetJob.split(','));
+	    	}
+	    	$("#minGrade"+conditionId).val(c.minGrade);
+	    	$("#maxGrade"+conditionId).val(c.maxGrade);
+	    	$("#entranceId"+conditionId).val(c.entranceId);
+	    	$("#instance"+conditionId).val(c.instance);
+	    	$("#takeCopper"+conditionId).val(c.takeCopper);
+	    	if(c.giveBuffId){
+	    		$("#giveBuffId"+conditionId).combogrid('setValue', c.giveBuffId);
+	    	}
+	    	if(c.giveGoods){
+	    		$("#giveGoods"+conditionId).combogrid('setValue', c.giveGoods);
+	    	}
+	    	$("#trans"+conditionId).val(c.trans);
+	    	$("#targetType"+conditionId+" option[value='"+c.targetType+"']").attr("selected", true);
+	    	$("#targetType"+conditionId).change();
+	    	if (c.targetType == 0) {// 杀怪
+	    		var targetValues = c.targetKillMonsterValues;
+	    		var targetTexts = c.targetKillMonsterTexts;//alert('cao==conditionId='+conditionId);
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetKillMonster"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 1) {// 收集物品
+				var targetValues = c.targetGoodsValues;
+	    		var targetTexts = c.targetGoodsTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetGoods"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 2) {// 商城购买
+				var targetValues = c.targetShopValues;
+	    		var targetTexts = c.targetShopTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetShop"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 3) {// npc对话
+				var targetValues = c.targetTalkNpcValues;
+	    		var targetTexts = c.targetTalkNpcTexts;
+	    		 $.each(targetValues,function(i) {
+	    			$("#targetTalkNpc"+conditionId).append("<option value='" + targetValues[i] + "'>" + targetTexts[i] + "</option>");
+	    		});
+			} else if (c.targetType == 4) {// 穿戴装备
+				$("#targetNeedEquip"+conditionId+" option[value='"+c.targetNeedEquip+"']").attr("selected", true);
+			} else if (c.targetType == 5) {// 完成某动作
+				$("#targetAction"+conditionId+" option[value='"+c.targetAction+"']").attr("selected", true);
+			} else if (c.targetType == 6) {// 升级等级
+				$("#targetMinGrade"+conditionId).val(c.targetMinGrade);
+			} else if(c.targetType == 7){//完成副本
+				$("#targetInstanceId"+conditionId).combogrid('setValue', c.targetInstanceId);
+			}
+	    	$("#targetDesc"+conditionId).val(c.targetDesc);
+	    }
+	});
+	}
+	//$('#cao').combobox('setValue',2);
+		//$('#cao').combobox("select",[1,2]);
+		//$('#cao').combobox('setValue',3);
+		//$(".targetJob").combobox('setValues','1,2,3'.split(','));
+		//$(".targetJob").combobox("select", '2');
+		//$(".targetJob").combobox("select", '3);
+	$('.targetJob').combobox({
+		onSelect: function(record){
+			var val = record.value;  //得到其value值
+			if(val!=0){
+				$(this).combobox("unselect", '0');
+			}else{
+				$(this).combobox("unselect", '1');
+				$(this).combobox("unselect", '2');
+				$(this).combobox("unselect", '3');
+				$(this).val($('.targetJob').val()+val+",");  //拼接按逗号分隔
+			}
+		},
+		onUnselect: function(record){
+			var val = record.value;  //得到其value值
+			if($(this).combobox('getValues')=='' && val !=0){
+				$(this).combobox("select", '0');
+			}
+		},
+	 }); 
+	  $("#goodsMoveUp,#goodsMoveDown").click(function() {  
+		  var $opt = $("#srewards option:selected:first");
+		  if (!$opt.length) return;
+		  if (this.id == 'goodsMoveUp')
+			  $opt.prev().before($opt);  
+		  else 
+			  $opt.next().after($opt);   
+	  });
+	  $(":input[name='targetKillMonster']").dblclick(function() {
+		  if($(this).val()!='' && $(this).val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = $(":input[name='targetKillMonster']").find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+r);
+			 			tv.text(text[0]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+	  $(":input[name='targetGoods']").dblclick(function() {
+		  if($(this).val()!='' && $(this).val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = $(":input[name='targetGoods']").find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+value[1]+":"+r);
+			 			tv.text(text[0]+":"+text[1]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+	  $(":input[name='targetShop']").dblclick(function() {
+		  if($(this).val()!='' && $(this).val()!=null){
+			  $.messager.prompt('修改数量', '请输入数量', function(r){
+	                if (r){
+	            	    var reg = new RegExp("^[0-9]*$");
+	            	    if(r == '' || !reg.test(r)){
+	            	        alert("请输入正整数!");
+	            	        return;
+	            	    }
+			  			var tv = $(":input[name='targetShop']").find("option:selected");
+			 			var value = tv.val().split(":");
+			 			var text = tv.text().split(":");
+			 			tv.val(value[0]+":"+value[1]+":"+r);
+			 			tv.text(text[0]+":"+text[1]+":"+r);
+	                }
+	            });  
+		  }
+	  }); 
+});
+</script>

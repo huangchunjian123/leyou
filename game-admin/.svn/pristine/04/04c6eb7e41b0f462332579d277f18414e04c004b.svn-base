@@ -1,0 +1,44 @@
+package com.game.admin.dto.videotex;
+
+
+/**
+ * 数据列参数分装
+ * @author JiaYi
+ * @date  2018年4月17日 下午12:47:05 
+ * @package com.game.admin.dto.videotex
+ */
+public class SeriesParameter {
+	/**
+	 * 数据列名
+	 */
+	private String seriesName;
+	/**
+	 * 数据列数据
+	 */
+	private String seriesData;
+	
+	public SeriesParameter() {
+	}
+	
+	public static SeriesParameter valueOf(String seriesName,String seriesData){
+		SeriesParameter instance = new SeriesParameter();
+		instance.seriesName = seriesName;
+		instance.seriesData = seriesData;
+		return instance;
+	}
+	
+	public String getSeriesName() {
+		return seriesName;
+	}
+	public void setSeriesName(String seriesName) {
+		this.seriesName = seriesName;
+	}
+	public String getSeriesData() {
+		return seriesData;
+	}
+	public void setSeriesData(String seriesData) {
+		this.seriesData = seriesData;
+	}
+	
+	
+}

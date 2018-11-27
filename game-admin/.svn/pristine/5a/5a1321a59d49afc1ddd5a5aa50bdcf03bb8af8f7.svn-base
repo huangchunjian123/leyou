@@ -1,0 +1,205 @@
+<%@page import="org.springframework.util.CollectionUtils"%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page isELIgnored="false"%> 
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://jsptags.com/tags/navigation/pager" prefix="pg"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+<!-- 利用jsp的九大内置对象 在登录的时候存入数据 (日志名称)-->
+<%
+ 	List<String> users = (List)request.getSession().getAttribute("czlist");
+	if(CollectionUtils.isEmpty(users) ){
+		return ;
+	}
+	pageContext.setAttribute("users", users);       
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>操作日志列表</title>
+<jsp:include page="../../inc.jsp"></jsp:include>
+<script type="text/javascript"
+	src="<%=request.getContextPath()%>/jslib/main/syUtil.js"></script>
+<script type="text/javascript" charset="utf-8">
+	var searchForm;
+	var editRow = undefined;
+	var datagrid;	
+	$(function() {
+		searchForm = $('#searchForm').form();  
+		
+		datagrid = $('#datagrid').datagrid({
+			url : '<%=request.getContextPath()%>/log/datagrid',
+			title : '操作日志列表',
+			iconCls : 'icon-save',
+			loadMsg: '数据正在加载中,请稍后.....',
+			singleSelect: true, 
+			striped: true, 
+			pagination : true,  /*显示分页工具 */
+			pagePosition : 'bottom',
+			pageNumber : 1,
+			pageSize : 10,
+			pageList : [ 10, 20, 30, 40, 50, 100 ], 
+			fit : true,
+			fitColumns : false,
+			rownumbers : true,
+			nowrap : false,
+			border : false, 
+			idField : 'id',
+			sortName : 'logTime',
+			sortOrder : 'desc', /* 自动排序 */
+			frozenColumns : [ [ 
+			{
+				title : '操作者',
+				field : 'operator',
+				width : 100,
+				sortable : true
+			}
+			] ],
+			columns : [ [ 				
+			{
+				title : '操作记录',
+			    field : 'event', 
+				width : 600
+			},
+			{
+				title : '操作状态',
+				field : 'status',
+				width : 80
+			}, 
+			{
+				title : '操作时间',
+				field : 'logTime',
+				sortable : true,
+				width : 150,
+			},
+			{
+				title : '',
+				field : 'opt',
+				formatter:formateroperate,
+				width : 100,
+			}
+			
+			] ]
+		});
+	});
+
+	function _search() {
+		datagrid.datagrid('load', sy.serializeObject(searchForm));
+	}
+	
+	function cleanSearch() {
+		datagrid.datagrid('load', {});
+		searchForm.find('input').val('');
+	} 
+	//预留   删除行
+    function detailDel() {
+        if (detailEditIndex == undefined) { return }
+        $('#datagrid').datagrid('cancelEdit', detailEditIndex)
+                        .datagrid('deleteRow', detailEditIndex);
+        detailEditIndex = undefined;
+    }
+	 
+    function detailOK() {
+        if (detailEndEdit()) {
+            $('#datagrid').datagrid('acceptChanges');
+        }
+    }
+    function formateroperate(value,row,rowIndex){
+		return "<a href='#' onclick='detailDel("+  row.taskId +");'></a>";//a标签中加删除
+	} 
+   
+    <%--  $(document).ready(function(){
+    	  $("#operatorsName").click(function(){
+    		  $.post('<%=request.getContextPath() %>/log/getOperatorsName',{
+    			  caozuoName:1
+    			},function(data) {
+    				
+    			});	 
+    		  
+    	  });
+    	}); --%>
+    	
+   <%--  $(document).ready(function(){
+		 $.ajax({
+			async:false,
+			type:"POST",
+			url:"<%=request.getContextPath()%>/log/getOperatorsName",
+			dataType: "json",
+			data:{
+				warehouse: $("#o_Name").val(),
+			},
+			success : function (data) {
+				alert(data);
+				
+				
+			}
+			
+			 
+			 
+			 
+		 })
+    	
+    	
+    });	 
+    	
+   function getOperatorsName() {
+	  	alert(window.location.href);
+    	$.ajax({
+	      url : '<%=request.getContextPath()%>/log/getOperatorsName',
+	      type: "get",
+  	      dataType: "json",
+  	  	  async: true,
+  	  	  
+  	      data :{
+  	    	 nameindex : "1"
+  	      },
+    	  success: function (data) {
+ 		    		alert(data);
+	            for (var i = 0; i < data.length; i++) {
+	                $("#o_Name").append("<option>" + data[i].Name + "</option>");
+	           }
+  	      },error :function(){
+  	        	 alert("异常！");
+  	        	 return ;
+  	      }
+  	   }); 
+	}
+	
+--%>
+	
+	
+	
+</script>
+</head>
+<body class="easyui-layout">
+	<div region="north" border="false" title="搜索条件" style="height: 60px;overflow: hidden;" align="left">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<td>操作者
+						 <select style="width:100px" name="operatorsName" id="operatorsName"> 
+							<option value="1"  checked="checked">所有人</option>
+							<c:forEach var="m" items="${users}">
+								<option value="${m }">${m }</option>										
+							</c:forEach>
+						</select>
+					</td>
+					<td>操作时间<input name="startTime" class="easyui-datetimebox" editable="false" style="width: 100px;" />至<input name="endTime" class="easyui-datetimebox" editable="false" style="width: 100px;" /></td>
+					<td>关键字<input name="keyword" style="width:200px;" />&nbsp;</td>
+					<td><a href="javascript:void(0);" class="easyui-linkbutton" onclick="_search();">搜索</a><a href="javascript:void(0);" class="easyui-linkbutton" onclick="cleanSearch();">取消</a></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div region="center" border="false">
+		<table id="datagrid"></table> 
+		<!--<a class="del" onclick="detailDel()" href="javascript:void(0)">删除</a> -->
+	</div>
+</body>
+</html>
