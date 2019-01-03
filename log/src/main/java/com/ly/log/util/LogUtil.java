@@ -30,10 +30,11 @@ public class LogUtil {
 
     private String logStore; // 上面步骤创建的日志库名称
     private String logStoreFlag;
+    private String topic;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd");
 
-   public LogUtil(String logStore, String logStoreFlag){
+   public LogUtil(String logStore, String logStoreFlag,String topic){
        Properties properties = FileUtil.loadPropertiesFile("config.properties");
        this.endpoint = (String) properties.get("endpoint");
        this.accessKeyId = (String) properties.get("accessKeyId");
@@ -41,6 +42,7 @@ public class LogUtil {
        this.project = (String) properties.get("project");
        this.logStore = logStore;
        this.logStoreFlag = logStoreFlag;
+       this.topic = topic;
    }
 
     int logLine = 100;//log_line 最大值为100，每次获取100行数据。若需要读取更多数据，请使用offset翻页。offset和lines只对关键字查询有效，若使用SQL查询，则无效。在SQL查询中返回更多数据，请使用limit语法。
@@ -104,7 +106,7 @@ public class LogUtil {
         while (logOffset <= totalLogLines) {
             ALiYun aLiYun = new ALiYun(endpoint,accessKeyId,accessKeySecret,project,logStore,beginSecond,endSecond,logOffset,logLine);
             //threadPoolExecutor.execute(new ThreadGetLogs(aLiYun,queriedLogs,countDownLatch,tableName));
-            threadPoolExecutor.execute(new ThreadLogs(aLiYun,queriedLogs,countDownLatch,tableName));
+            threadPoolExecutor.execute(new ThreadLogs(aLiYun,queriedLogs,countDownLatch,tableName,topic));
             logOffset += logLine;
         }
         countDownLatch.await();
@@ -153,7 +155,7 @@ public class LogUtil {
 
                 for(Object store:keys){
                     long beginTime = System.currentTimeMillis();
-                    LogUtil logUtil = new LogUtil((String)store,(String) storeConfig.get(store));
+                    LogUtil logUtil = new LogUtil((String)store,(String) storeConfig.get(store),"");
                     logger.info("准备读写{}日志服务",store);
                     try {
                         logUtil.getLogsPage(lastTime,curTime);

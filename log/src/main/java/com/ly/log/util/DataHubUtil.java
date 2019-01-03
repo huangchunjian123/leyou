@@ -122,8 +122,9 @@ public class DataHubUtil {
     // 插入数据
     public void insert(String topicName, List<String[]> record){
         List<RecordEntry> recordEntries = new ArrayList<RecordEntry>();
+        RecordSchema recordSchema = this.getSchema();
         record.forEach(r ->{
-            RecordEntry recordEntry = new RecordEntry(this.getSchema());
+            RecordEntry recordEntry = new RecordEntry(recordSchema);
             recordEntry.setString("program_type", r[0]);
             recordEntry.setString("log_type", r[1]);
             recordEntry.setString("event_type",r[2]);
@@ -134,6 +135,8 @@ public class DataHubUtil {
             recordEntry.setString("account", r[7]);
             recordEntry.setString("serverid", r[8]);
             recordEntry.setTimeStampInDate("logtime", DateUtil.stringToDate(r[9],"yyyy-MM-dd hh:mm:ss"));
+            
+//            recordEntry.setPartitionKey(r[1] +"_"+ r[2]);
             int fieldIndex = 10;
             for(int i =1; i < 20; i++) {
                 recordEntry.setString("params"+i, r[fieldIndex]);

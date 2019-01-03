@@ -19,15 +19,17 @@ public class ThreadLogs implements Runnable{
     private List<QueriedLog> queriedLogs;
     private CountDownLatch countDownLatch;
     private String tableName;
+    private String topic;
 
     public ALiYun getaLiYun() {
         return aLiYun;
     }
-    public ThreadLogs(ALiYun aLiYun, List<QueriedLog> queriedLogs, CountDownLatch countDownLatch, String tableName){
+    public ThreadLogs(ALiYun aLiYun, List<QueriedLog> queriedLogs, CountDownLatch countDownLatch, String tableName,String topic){
         this.aLiYun = aLiYun;
         this.queriedLogs = queriedLogs;
         this.countDownLatch = countDownLatch;
         this.tableName = tableName;
+        this.topic = topic;
     }
 
     public void setaLiYun(ALiYun aLiYun) {
@@ -56,7 +58,7 @@ public class ThreadLogs implements Runnable{
         GetLogsResponse res4 = null;
         for (int retry_time = 0; retry_time < 3; retry_time++) {
 
-            GetLogsRequest req4 = new GetLogsRequest(aLiYun.getProject(), aLiYun.getLogstore(), aLiYun.getBeginSecond(), aLiYun.getEndSecond(), "", "", aLiYun.getLogOffset(),
+            GetLogsRequest req4 = new GetLogsRequest(aLiYun.getProject(), aLiYun.getLogstore(), aLiYun.getBeginSecond(), aLiYun.getEndSecond(), topic, "", aLiYun.getLogOffset(),
                     aLiYun.getLogLine(), false);
             try {
                 res4 = aLiYun.getClient().GetLogs(req4);
@@ -136,6 +138,6 @@ public class ThreadLogs implements Runnable{
             break;
             //Thread.sleep(200);
         }
-        System.out.println(countDownLatch+" | Read log count:" + String.valueOf(res4.GetCount()));
+        System.out.println(countDownLatch+" | Read log count:" + (res4 == null?0:String.valueOf(res4.GetCount())));
     }
 }

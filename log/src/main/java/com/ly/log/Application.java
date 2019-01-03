@@ -36,12 +36,15 @@ public class Application {
 
                 //库表配置
                 Properties storeConfig = FileUtil.loadPropertiesFileByPath(filePath+"/"+logStoreConfig);
+                String servername = storeConfig.get("server_name").toString();
 
-                Object [] keys = storeConfig.keySet().toArray();
+				String servers = storeConfig.get("servers").toString();
+				String[] serverArr = servers.split(",");
+//                Object [] keys = storeConfig.keySet().toArray();
 
-                for(Object store:keys){
+                for(String store:serverArr){
                     long beginTime = System.currentTimeMillis();
-                    LogUtil logUtil = new LogUtil((String)store,(String) storeConfig.get(store));
+                	LogUtil logUtil = new LogUtil(servername, store.toString(),storeConfig.getProperty("topicprfix")+store);
                     logger.info("准备读写{}日志服务",store);
                     try {
                         logUtil.getLogsPage(lastTime,curTime);
@@ -52,7 +55,7 @@ public class Application {
                         System.out.print("失败");
                     }
 
-                    System.out.println("============================================afterSize============================================"+logUtil.queriedLogs.size());
+//                    System.out.println("============================================afterSize============================================"+logUtil.queriedLogs==null?0:logUtil.queriedLogs.size());
                     long endTime = System.currentTimeMillis();
                     logger.info("日志服务:{} 时间段:{} 读写完成用时:{}秒",store,LogUtil.timeStamp2Date(System.currentTimeMillis(),null),((endTime-beginTime)/1000));
                 }
