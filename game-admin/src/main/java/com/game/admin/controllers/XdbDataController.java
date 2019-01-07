@@ -226,6 +226,7 @@ public class XdbDataController extends BaseController {
 			page = 1;
 		}
 		qConditions = com.game.admin.utils.Escape.unescape(qConditions);
+		qConditions=Strings.isNullOrEmpty(qConditions)?"0":qConditions.replace("=", "$");
 		int pagesize = (rows == 0) ? 20 : rows;
 //		surl = com.game.admin.utils.Escape.unescape(surl);
 		List<Object> listAll = new ArrayList<Object>();
@@ -234,6 +235,7 @@ public class XdbDataController extends BaseController {
 				+ "?tablename=" + tablename
 				+ "&fromindex=" + fromindex
 				+ "&count=" + pagesize
+				+ "&qConditions=" + qConditions
 				);
 		Gson gson = new Gson();
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
@@ -259,8 +261,8 @@ public class XdbDataController extends BaseController {
 			totalsize = Integer.parseInt(key);
 		}
 		
-		List<Object> returnlistAll = new ArrayList<Object>();
-		if (!Strings.isNullOrEmpty(qConditions)) {
+		List<Object> returnlistAll = listAll;
+		/*if (!Strings.isNullOrEmpty(qConditions)&& !"0".equals(qConditions)) {
 			String[] conditions = qConditions.split("#");
 			Map<String,String> condMap= com.google.common.collect.Maps.newHashMap();
 			for (int i = 0; i < conditions.length; i++) {
@@ -295,7 +297,7 @@ public class XdbDataController extends BaseController {
 			totalsize = returnlistAll.size();
 		}else {
 			returnlistAll = listAll;
-		}
+		}*/
 		System.err.println(ResultCode.writeJson(PagingUtils.getDataGrid(totalsize,page+1, pagesize, returnlistAll)));
 //		System.err.println("data:"+listAll.size());
 		return ResultCode.writeJson(PagingUtils.getDataGrid(totalsize,page+1, pagesize, returnlistAll));

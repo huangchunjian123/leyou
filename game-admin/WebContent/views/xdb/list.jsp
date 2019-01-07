@@ -27,8 +27,8 @@
 		                 if (data != null && data.length > 0) {
 		                	// alert(100/data.length);
 		                	 var wid = 100/data.length;
-		                	 if (wid<2.5){
-		                		 wid=2.5;
+		                	 if (wid<3){
+		                		 wid=3;
 		                	 }
 		                	 if (wid>30){
 		                		 wid=30;
