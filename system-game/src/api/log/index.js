@@ -96,6 +96,14 @@ export function getCharDataList(page, params) {
     params
   })
 }
+// 新任务日志
+export function getNewTaskList(page, params) {
+  return request({
+    url: '/api/log/newtask/' + page,
+    method: 'get',
+    params
+  })
+}
 // 领取任务日志
 export function getStartTaskList(page, params) {
   return request({
@@ -186,6 +194,14 @@ export function getPersonList(page, params) {
   })
 }
 
+// 新副本
+export function getNewInstanceList(page, params) {
+  return request({
+    url: '/api/log/newinstance/' + page,
+    method: 'get',
+    params
+  })
+}
 // 开启副本
 export function getStartInstanceList(page, params) {
   return request({
@@ -203,4 +219,11 @@ export function getEndInstanceList(page, params) {
     params
   })
 }
-
+// 伙伴物品
+export function getPetItemList(page, params) {
+  return request({
+    url: '/api/log/petitem/' + page,
+    method: 'get',
+    params
+  })
+}

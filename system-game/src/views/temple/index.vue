@@ -1,14 +1,20 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-circle-plus">添加</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="delConfirm" type="danger" icon="el-icon-delete">删除</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary"
+                 icon="el-icon-circle-plus">添加
+      </el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" @click="delConfirm" type="danger" icon="el-icon-delete">
+        删除
+      </el-button>
     </div>
-    <table-model ref="tableModel" :pageFun="getPage" :controlColumn="true" :editFun="getData" :delFun="deleteData" :columns="columns"></table-model>
+    <table-model ref="tableModel" :pageFun="getPage" :controlColumn="true" :editFun="getData" :delFun="deleteData"
+                 :columns="columns"></table-model>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
 
-      <el-form :model="dataForm" :rules="rules" ref="dataForm" label-position="left" label-width="100px" style='width: 400px; margin-left:50px;'>
+      <el-form :model="dataForm" :rules="rules" ref="dataForm" label-position="left" label-width="100px"
+               style='width: 400px; margin-left:50px;'>
         <el-form-item label="角色名" prop="roleName">
           <el-input v-model="dataForm.roleName"></el-input>
         </el-form-item>
@@ -19,7 +25,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='create'"  type="primary" @click="createData('dataForm')">创建</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData('dataForm')">创建</el-button>
         <el-button v-else type="primary" @click="updateData('dataForm')">更新</el-button>
       </div>
 
@@ -29,10 +35,11 @@
 
 <script>
   import tableModel from '@/components/Table'
-  import { getList, addRole, updateRole, getRoleById, delRole } from '@/api/role'
-  import { objectToFormData } from '@/utils'
+  import {getList, addRole, updateRole, getRoleById, delRole} from '@/api/role'
+  import {objectToFormData} from '@/utils'
+
   export default {
-    components: { tableModel },
+    components: {tableModel},
     data() {
       return {
         dialogStatus: '',
@@ -59,7 +66,7 @@
         },
         rules: {
           roleName: [
-            { required: true, message: '请输入角色名', trigger: 'blur' }
+            {required: true, message: '请输入角色名', trigger: 'blur'}
           ]
         }
       }
@@ -140,14 +147,19 @@
           return this.$message.warning('请选择要删除的数据')
         }
 
-        this.$confirm('确认删除选中的' + ids.length + '条数据', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' })
+        this.$confirm('确认删除选中的' + ids.length + '条数据', {
+          type: 'warning',
+          confirmButtonText: '删除',
+          cancelButtonText: '取消'
+        })
           .then(_ => {
             this.deleteData(ids).then(response => {
               other.$message.success(response.msg)
               other.$refs.tableModel.getPage()
             })
           })
-          .catch(_ => {})
+          .catch(_ => {
+          })
       },
       handleCreate() {
         this.dialogFormVisible = true

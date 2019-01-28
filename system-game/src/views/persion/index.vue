@@ -8,19 +8,22 @@
       <el-select v-model="params.service" placeholder="服务端" clearable style="width: 130px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
       </el-select>
-      <el-date-picker v-model="params.date" style="vertical-align: middle;margin-bottom: 10px;" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+      <el-date-picker v-model="params.date" style="vertical-align: middle;margin-bottom: 10px;" type="datetimerange"
+                      range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
       </el-date-picker>
-      <el-button  class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch">{{buttons.serach}}</el-button>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch">{{buttons.serach}}
+      </el-button>
     </div>
-    <table-model ref="table" :pageFun="getPage" :sortKey="'logtime'" :controlColumn="true" :isLoad="false" :columns="columns">
+    <table-model ref="table" :pageFun="getPage" :sortKey="'logtime'" :controlColumn="true" :isLoad="false"
+                 :columns="columns">
       <template slot="Button" slot-scope="button">
-          <el-button type="primary" size="small"  @click="detailLog(button.row)" >{{buttons.detail}}</el-button>
+        <el-button type="primary" size="small" @click="detailLog(button.row)">{{buttons.detail}}</el-button>
       </template>
     </table-model>
 
     <el-dialog title="日志详情" :visible.sync="dialogFormVisible">
-      <el-form v-for="logs in logData" :inline="true"  class="demo-form-inline">
-        <el-form-item v-for="log in logs" :label="log.key" >
+      <el-form v-for="logs in logData" :inline="true" class="demo-form-inline">
+        <el-form-item v-for="log in logs" :label="log.key">
           {{log.value}}
         </el-form-item>
       </el-form>
@@ -30,17 +33,24 @@
 
 <style>
   .form .form-left {
-    width:50%; padding-left:1rem; padding-right:1rem; padding-top:1rem;
+    width: 50%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1rem;
   }
+
   .form .form-right {
-    width:50%; padding-left:1rem; padding-right:1rem; padding-top:1rem;
+    width: 50%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1rem;
   }
 </style>
 <script>
   import tableModel from '@/components/Table'
-  import { getPersonList } from '@/api/log'
-  import { isEmpty, formatDate } from '@/utils'
-  import { getDicName } from '@/api/dictionary'
+  import {getPersonList} from '@/api/log'
+  import {isEmpty, formatDate} from '@/utils'
+  import {getDicName} from '@/api/dictionary'
 
   export default {
     components: {
@@ -55,7 +65,7 @@
           detail: '详情',
           serach: '搜索'
         },
-        importanceOptions: [1, 2, 3],
+        importanceOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         params: {
           service: '',
           date: null,
@@ -119,8 +129,8 @@
           this.$message.warning('请选择时间范围')
           return false
         }
-        if (isEmpty(this.params.service) && isEmpty(this.params.roleId) && isEmpty(this.params.roleName) && isEmpty(this.params.userId) && isEmpty(this.params.account)) {
-          this.$message.warning('请选择搜索条件')
+        if (typeof this.params.service === 'undefined' || isEmpty(this.params.service) || isEmpty(this.params.date)) {
+          this.$message.warning('请选择搜索条件时间区间和对应的服务器')
           return false
         }
         this.$refs.table.getPage(1, 10)
@@ -542,10 +552,11 @@
 </script>
 
 <style scoped>
-  .el-form-item__label{
+  .el-form-item__label {
     margin-left: 20%;
   }
-  .el-form-item{
+
+  .el-form-item {
     width: 40%;
   }
 </style>

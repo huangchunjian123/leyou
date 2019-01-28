@@ -22,7 +22,6 @@ router.beforeEach((to, from, next) => {
           store.dispatch('GetPermission').then(_ => { // 获取权限
             console.log(store.getters.permission)
             if (Object.keys(store.getters.permission).length > 0) {
-              debugger
               store.getters.permission.forEach(function(item) {
                 router.options.routes.push(item)
               })
