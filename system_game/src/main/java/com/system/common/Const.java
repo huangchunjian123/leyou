@@ -66,4 +66,7 @@ public class Const {
 	public final static int EVENT_TYPE_WELFARE= 1005027;
 	public final static int EVENT_START_INSTANCE= 1005028;
 	public final static int EVENT_END_INSTANCE= 1005029;
+	public final static int EVENT_TYPE_NEW_TASK = 1005018;
+	public final static int EVENT_NEW_INSTANCE= 1005028;
+	public final static int EVENT_TYPE_PET_ITEM= 1005029;
 }

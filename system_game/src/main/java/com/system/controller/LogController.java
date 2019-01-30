@@ -63,32 +63,32 @@ public class LogController {
 
     @RequestMapping(value = "/addyuanbao/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "货币增加日志",notes = "货币增加日志")
-    public String getAddYuanBao(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
-        return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_ACTION,Const.EVENT_TYPE_ADD_YUANBAO,sort);
+    public String getAddYuanBao(@PathVariable("page") int page,Integer yuanbaotype,Integer numbermin,Integer numbermax,  Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,yuanbaotype,numbermin,numbermax,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_ACTION,Const.EVENT_TYPE_ADD_YUANBAO,sort);
     }
 
     @RequestMapping(value = "/costyuanbao/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "货币消耗日志",notes = "货币消耗日志")
-    public String getCostYuanBao(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
-        return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_ACTION,Const.EVENT_TYPE_COST_YUANBAO,sort);
+    public String getCostYuanBao(@PathVariable("page") int page,Integer yuanbaotype,Integer numbermin,Integer numbermax, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,yuanbaotype,numbermin,numbermax,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_ACTION,Const.EVENT_TYPE_COST_YUANBAO,sort);
     }
 
     @RequestMapping(value = "/shoptrade/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "游戏商城销售日志",notes = "游戏商城销售日志")
-    public String getShopTrade(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
-        return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_SHOP_TRADE,sort);
+    public String getShopTrade(@PathVariable("page") int page,String goodid, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,goodid,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_SHOP_TRADE,sort);
     }
 
     @RequestMapping(value = "/gainitem/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "物品获得日志",notes = "物品获得日志")
-    public String getGainItem(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
-        return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_GAIN_ITEM,sort);
+    public String getGainItem(@PathVariable("page") int page,String goodid, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,goodid,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_GAIN_ITEM,sort);
     }
 
     @RequestMapping(value = "/loseitem/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "物品消耗日志",notes = "物品消耗日志")
-    public String getLoseItem(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
-        return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_LOSE_ITEM,sort);
+    public String getLoseItem(@PathVariable("page") int page,String goodid, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,goodid,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_LOSE_ITEM,sort);
     }
 
     @RequestMapping(value = "/chardata/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -96,7 +96,11 @@ public class LogController {
     public String getCharData(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
         return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_CHAR_DATA,sort);
     }
-
+    @RequestMapping(value = "/newtask/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @ApiOperation(value = "新任务日志",notes = "新任务日志")
+    public String getNewTask(@PathVariable("page") int page,Integer taskid,Integer taskstatus, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,taskid,taskstatus,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_NEW_TASK,sort);
+    }
     @RequestMapping(value = "/starttask/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "领取任务日志",notes = "领取任务日志")
     public String getStartTask(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
@@ -156,7 +160,11 @@ public class LogController {
     public String getWelfare(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
         return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_WELFARE,sort);
     }
-
+    @RequestMapping(value = "/newinstance/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @ApiOperation(value = "新任务日志",notes = "新任务日志")
+    public String getNewInstance(@PathVariable("page") int page,Integer instanceid,Integer instancestatus, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,instanceid,instancestatus,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_NEW_INSTANCE,sort);
+    }
     @RequestMapping(value = "/startinstance/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "查看开户副本日志",notes = "查看开户副本日志")
     public String getStartInstance(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
@@ -168,7 +176,11 @@ public class LogController {
     public String getEndInstance(@PathVariable("page") int page, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
         return logService.findAll(page,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_END_INSTANCE,sort);
     }
-
+    @RequestMapping(value = "/petitem/{page}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @ApiOperation(value = "伙伴物品日志",notes = "伙伴物品日志")
+    public String getPetItem(@PathVariable("page") int page,Integer goodid,Integer itemstatus, Integer pageSize,String service,String startDate,String endDate,String roleId,String roleName,String userId,String account,String sort){
+        return logService.findAll(page,goodid,itemstatus,pageSize,service,startDate,endDate,roleId,roleName,userId,account,Const.LOG_TYPE_PROGRAM,Const.EVENT_TYPE_PET_ITEM,sort);
+    }
     /*@RequestMapping(value = "/person", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "查看个人日志",notes = "查看个人日志")
     public String getPerson(String service,String startDate,String endDate,String roleId,String roleName,String userId,String account){

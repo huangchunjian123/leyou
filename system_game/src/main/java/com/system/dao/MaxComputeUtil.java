@@ -4,6 +4,9 @@ import com.aliyun.odps.Instance;
 import com.aliyun.odps.Odps;
 import com.aliyun.odps.OdpsException;
 import com.aliyun.odps.Table;
+import com.aliyun.odps.Tables;
+import com.aliyun.odps.account.Account;
+import com.aliyun.odps.account.AliyunAccount;
 import com.aliyun.odps.data.Record;
 import com.aliyun.odps.data.RecordReader;
 import com.aliyun.odps.task.SQLTask;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -114,15 +118,59 @@ public class MaxComputeUtil {
 
     public static void main(String [] args){
         MaxComputeUtil maxCompute = new MaxComputeUtil();
-        String sql = "select * from log_1_2018_11_02_1 union all select * from log_1_2018_11_02_2;";
-        long start = System.currentTimeMillis();
-        List<Record> records = maxCompute.run(sql);
-        long end = System.currentTimeMillis();
+//        String sql = "select * from log_1_2018_11_02_1 union all select * from log_1_2018_11_02_2;";
+//        long start = System.currentTimeMillis();
+//        List<Record> records = maxCompute.run(sql);
+//        long end = System.currentTimeMillis();
+//
+//        System.out.println((end-start)/1000);
+//        for(Record r:records){
+//            System.out.println(r.get("logtime"));
+//        }
+    	
+//    	#选择与上面步骤创建 project 所属区域匹配的--log
+//    	endpoint = cn-hangzhou.log.aliyuncs.com
+//    	#阿里云访问密钥 AccessKeyId
+//    	accessKeyId = LTAIrxm1EQVIMKye
+//    	#使用您的阿里云访问密钥
+//    	accessKeySecret = za0R6kIUbvQGytSCM6upmeqnE0yv6S
+//    	#项目名称--log
+//    	project = huanjianxunxian
+//    	#读写文件路径
+//    	projectFilePath = E:/home/logrecord
+//    	#记录最后一次读取时间
+//    	lastTimeFilName = lastreadfile.txt
+//    	#logstore配置文件
+//    	logStoreConfig = logstore.properties
+//    	#间隔时间
+//    	interval_second = 300
+//    	#项目名称--datahub
+//    	datahub_project = huanjianxunxian
+//    	#项目名称--datahub
+//    	datahub_endpoint = https://dh-cn-hangzhou.aliyuncs.com
 
-        System.out.println((end-start)/1000);
-        for(Record r:records){
-            System.out.println(r.get("logtime"));
+    		
+    	Account account = new AliyunAccount("LTAIrxm1EQVIMKye", "za0R6kIUbvQGytSCM6upmeqnE0yv6S");
+        Odps odps = new Odps(account);
+        String odpsUrl = "http://service.odps.aliyun.com/api";
+        odps.setEndpoint(odpsUrl);
+        odps.setDefaultProject("huanjianxunxian");
+        Tables tables= odps.tables();
+//        for (Iterator iterator = tables.iterator(); iterator.hasNext();) {
+//			Table t = (Table) iterator.next();
+//			 System.out.println(t);
+//             System.out.println(t.getName());
+//		}
+        for (Table t : odps.tables()) {
+        	 System.out.println(t.getName());
+//             System.out.println(t.getJsonSchema());
         }
+        
+        Table table= tables.get("log_2_2018_12_06");
+//        for (Instance i : odps.instances()) {
+//            System.out.println(i);
+//            System.out.println(i);
+//        }
 
        /* for (Table t : maxCompute.odps.tables()) {
             System.out.println(t);
